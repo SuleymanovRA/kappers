@@ -58,11 +58,14 @@ public class RoleServiceImplTest extends AbstractTransactionalJUnit4SpringContex
         Role backRole = rolesService.addRole(role);
         Assert.assertNotNull(backRole);
         Assert.assertEquals(backRole.getName(), role.getName());
-        role.setName("ROLE_TESTED");
+        final String newName = "ROLE_TESTED";
+        role = backRole;
+        role.setName(newName);
         backRole = rolesService.editRole(role);
-        Assert.assertEquals(backRole.getName(), "ROLE_TESTED");
-        rolesService.delete(role);
-        Assert.assertNull(rolesService.getByName("ROLE_TESTED"));
+        Assert.assertEquals(backRole.getName(), newName);
+        rolesService.delete(backRole);
+        backRole = rolesService.getByName(newName);
+        Assert.assertNull(backRole);
     }
 
 }
