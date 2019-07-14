@@ -54,6 +54,7 @@ deploy:
   app: Kappers
   env: Version-A
   bucket_name: kappers.dev
+  skip_cleanup: true
   on:
     branch: feature/deploy-to-aws
 #    branch: master
