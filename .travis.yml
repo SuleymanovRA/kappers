@@ -48,9 +48,9 @@ deploy:
   - provider: s3
     access_key_id: "AKIAXUOEATZJ42KUAEUW"
     secret_access_key:
-      secure: "LVApQq7DProxeHZzCSbX/cAm5MaULmX3zQschkQlX/Y7uUxXZQm7fqmc8C4a2yYYqp/rTk+GHb2TH0L4ftnamDU384iHqJe56DoqXxLjR2XGjbuRa3EDKxDVzgTGBYF3An3VkT0MXOwp3ESabzn+cmGLQYQ76Dm7q12BNowefAqDrpAQX3XMS2cN+ZCVKrp0t0WKikrR2PvPMZeHY/0ybbC2J2D2aDCrlqTZicT+5Bfv4l9wixa4oNWcJUHsXcrl3ZxvhbX6mz1uU8WbggF3S5p8PXYoLxhF39IG65YtcEOFW6wM+7P1oryGsKY+fBIBl0USsVPGf9wIll3E5DOYvSWjb0ZPtyqqy2732hG83J4NwRxxif5IZnF3t3zQobPV8sdMFtsZIIzk8OxQCtaG4qazFkEeSjdKHDhO/jrkNW2AbU6MjRvo1rECB17TjQwgoCj9rGGbUp0Osl10NWjP0CRhPwfChxKsu7Zw5Jwo/jNrpqFlUEc7BcLW/6N23vNnMkyDLS26U2hcw09qZOKzNEQWL3cW+y4oKhRM10cnP2sWWQT294Q9OKK1MAYfUKSpnew5lZ8Edvsi+bE9xTkCCjs5wnQIRO1c4jnLPDhc4IfqcZ+wPSdwaujhwXcSeSbqawkdjROq8XJAgU5xzrmjcWDbchJVb+bO2QPGF4h939I="
-    region: "eu-west-2"
-    bucket: "kappers.prod"
+      secure: "FK56em0EWMHaSIrry43+hSQppZygfiPlzaPFarTWV3qRZj0TJv8v1+f2z9lS0kufz3qckkPUHdZCsUxmXW+tBT7XpA+yzeXI8y6ig/vSQ+Z0+lNf9qbcQ8AUe5USAzxPH/h46NzORb9FxGAP2tFASaYhJqtT1NmOFK3GAOZwBN1y+lQiNu0FeIB6JW53IbiA3rgk8D1HpYslG3rw098F3Vgx3cdaf7wYwlUc8t/Qc28+B5eDQHPpv/PDH3jYCCYVmungsbQDz85WHhuY0TS6DX/PZfTR4DLD/g4sKqPoKLUQ34KNHiGlaSL64IGEM9etrnINTBsdrhqe4hqIbQZX5RRs/SmB7ZSviuWXZKENUatbtA2lM93L2m3j/AfRWv2zi+Y3tVcLRqrRSYIl3h6ypmvhcogkLBVXtVnGNZwOH8Dp4p4kWL/An4znmDzQ/97/u+Nq9eGdjI0Xhjo9Lj3FqnnRXBHIrlRgsBGyXb302j6doyza72KrEQ6wVuxm8HePwquJmliBf70VqdKIw6Q4ym3Pas7CbF8QKVbo+IY9XYlm//xZ8TbmxubdFBBoprUEFmGf6KY1H+494WHwrod0VR2mbHYSZSEPR356GmOU89OQVh58a4523lM1KVRd/rD5fX7Bs1kN1VTXSIX4RLrSogu2yRVm55pRiQ67sJiEWKg="
+#    region: "eu-west-2"
+    bucket: "kappers.dev"
     skip_cleanup: true
     on:
       branch: feature/deploy-to-aws
