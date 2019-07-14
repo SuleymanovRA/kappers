@@ -53,6 +53,8 @@ deploy:
     region: "eu-west-2"
     bucket: "kappers.prod"
     skip_cleanup: true
+    on:
+      branch: feature/deploy-to-aws
 #  - provider: elasticbeanstalk
 #    access_key_id:
 #      secure: T3AR9wCCGNsPdZkPvX+jHdxUHkEdVbuuV4hl9+qxtAkxtenKHYumuvP6gAXCGWhSmX9Tff/rO0j2p8dyMOFUIDsKPoOsPV2L8bsUlYOXn0Ouynfn2XiUQ40u3GUs693BOPQZI7+gTogtC+e+XaL3hc71JyQL1cOQgwjRqS8vSM6wGpKuf9kxz5FNkyBFjTQGriVm8i+mse6WxNK2JNPGknK0jqgQfb1YqZukPm36PfamKELVNXWxc1G6Hkjrk0Z0OpS3FSMYkLCWgdFAEnjwwgabaUTh67TdNkoX052sYqb/55c0/YK2deNJnMpxyAH4S2jPllEFjJimayrgy5dRbuFKNSt0OiPxiM9RJJAH8eV5rsL+qIZw9lMamq0KL3g36bQN2AmMmFEqhhWRnby65kUv52hc8JImnel1CK8mHZ0ED4QwQ8MNZfb6e6w3E2co9e9fimKPQvlRyz8cSS9LSjI3RMmSTniRopRaYMGRUQUrDXu9EAinWbofzh+ecnFoYTLOk6FRlEiHPKcDP2J0fsDIfxdiyfxMQfoOqyvBva4mULc0sf+AasCLnBKDJ77LU5dX9KWV1iuBegxoI3NHdQw87srvU3KQTNWdjwDfheN31OtJTY9CrGxN7lYPFMv3eJpEHux7J2klS5qZfNkezfRnvDMgX9+TGEFcbLvwyrk=
