@@ -53,11 +53,13 @@ deploy:
 #    region: "eu-west-2"
 #    bucket: "kappers.dev"
 #    skip_cleanup: true
+#    local_dir: target
 #    on:
 #      branch: "feature/deploy-to-aws"
   - provider: elasticbeanstalk
     access_key_id: $AWS_ACCESS_KEY
-    secret_access_key: $AWS_SECRET_KEY
+    secret_access_key:
+      secure: $AWS_SECRET_KEY_SECURE
     region: "eu-west-2"
     app: "Kappers"
     env: "Version-A"
