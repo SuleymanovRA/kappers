@@ -46,15 +46,6 @@ before_deploy:
   - zip kappers target/kappers.war Procfile
 
 deploy:
-#  - provider: s3
-#    access_key_id: $AWS_ACCESS_KEY
-#    secret_access_key: $AWS_SECRET_KEY
-#    region: "eu-west-2"
-#    bucket: "kappers.dev"
-#    skip_cleanup: true
-#    local_dir: target
-#    on:
-#      branch: "feature/deploy-to-aws"
   - provider: elasticbeanstalk
     access_key_id: $AWS_ACCESS_KEY
     secret_access_key: $AWS_SECRET_KEY
@@ -65,5 +56,5 @@ deploy:
     skip_cleanup: true
     zip_file: kappers.zip
     on:
-      branch: "feature/deploy-to-aws"
-#      branch: "master"
+      branch: "master"
+#      branch: "feature/deploy-to-aws"
