@@ -58,8 +58,7 @@ deploy:
 #      branch: "feature/deploy-to-aws"
   - provider: elasticbeanstalk
     access_key_id: $AWS_ACCESS_KEY
-    secret_access_key:
-      secure: $AWS_SECRET_KEY_SECURE
+    secret_access_key: $AWS_SECRET_KEY_SECURE
     region: "eu-west-2"
     app: "Kappers"
     env: "Version-A"
