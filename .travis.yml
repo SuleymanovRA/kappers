@@ -27,8 +27,34 @@ before_script:
   - psql -c 'create database testdb;' -U postgres
 
 script:
-  - ./mvnw clean install -Dspring.datasource.password= -Dspring.jpa.show-sql=false -Dlogging.level.org.flywaydb=warn -Dlogging.level.org.springframework=warn -Dlogging.level.org.springframework.test.context.cache=warn -Dlogging.level.com.github.springtestdbunit=warn -Dlogging.level.org.dbunit.operation=warn -Dlogging.level.org.hibernate.sql=error -Dlogging.level.org.hibernate.type.descriptor.sql.BasicBinder=error -Dlogging.level.org.hibernate.type.EnumType=error
+  - "./mvnw clean install
+    -Dspring.datasource.password=
+    -Dspring.jpa.show-sql=false
+    -Dlogging.level.org.flywaydb=warn
+    -Dlogging.level.org.springframework=warn
+    -Dlogging.level.org.springframework.test.context.cache=warn
+    -Dlogging.level.com.github.springtestdbunit=warn
+    -Dlogging.level.org.dbunit.operation=warn
+    -Dlogging.level.org.hibernate.sql=error
+    -Dlogging.level.org.hibernate.type.descriptor.sql.BasicBinder=error
+    -Dlogging.level.org.hibernate.type.EnumType=error"
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
+before_deploy:
+  - zip kappers target/kappers.war Procfile
+
+deploy:
+  - provider: elasticbeanstalk
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    region: "eu-west-2"
+    app: "Kappers"
+    env: "Version-A"
+    bucket_name: "kappers.dev"
+    skip_cleanup: true
+    zip_file: kappers.zip
+    on:
+      branch: "master"
+#      branch: "feature/deploy-to-aws"
