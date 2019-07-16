@@ -12,7 +12,7 @@ angular
 
         $scope.login = function () {
             $http({
-                url: 'http://localhost:8080/login',
+                url: '/login',
                 method: "POST",
                 data: {
                     'userName': $scope.vm.username,
