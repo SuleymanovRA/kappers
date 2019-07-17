@@ -10,6 +10,7 @@ import ru.kappers.model.catalog.League;
 import ru.kappers.model.catalog.Team;
 import ru.kappers.service.*;
 import ru.kappers.service.parser.RapidAPIParser;
+
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,7 +38,7 @@ public class LeguesAndTeamsController {
     }
 
 
-        @ResponseBody
+    @ResponseBody
     @RequestMapping(value = "/league", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<League> getLeaguesList() {
         log.debug("getLeaguesList()...");
@@ -76,9 +77,10 @@ public class LeguesAndTeamsController {
 
     /**
      * Сохранить сущности из указанного списка
-     * @param entities список сохраняемых сущностей
+     *
+     * @param entities     список сохраняемых сущностей
      * @param saveFunction ссылка на метод сохранения
-     * @param <T> обобщенный тип сущности
+     * @param <T>          обобщенный тип сущности
      * @return список сохраненных сущностей
      */
     public <T> List<T> saveEntities(List<T> entities, Function<T, T> saveFunction) {
