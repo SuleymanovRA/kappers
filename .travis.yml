@@ -56,5 +56,5 @@ deploy:
     skip_cleanup: true
     zip_file: kappers.zip
     on:
-#      branch: "master"
-      branch: "feature/deploy-to-aws"
+      branch: "master"
+#      branch: "feature/deploy-to-aws"
