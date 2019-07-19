@@ -43,7 +43,7 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 before_deploy:
-  - zip kappers target/kappers.war Procfile
+  - zip -ur kappers target/kappers.war Procfile .ebextensions
 
 deploy:
   - provider: elasticbeanstalk
@@ -56,5 +56,5 @@ deploy:
     skip_cleanup: true
     zip_file: kappers.zip
     on:
-      branch: "master"
-#      branch: "feature/deploy-to-aws"
+#      branch: "master"
+      branch: "feature/deploy-to-aws"
