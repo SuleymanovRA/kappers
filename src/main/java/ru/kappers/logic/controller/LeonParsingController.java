@@ -1,4 +1,4 @@
-package ru.kappers.logic.odds;
+package ru.kappers.logic.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -10,6 +10,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.kappers.logic.odds.BetParser;
 import ru.kappers.model.dto.leon.MarketLeonDTO;
 import ru.kappers.model.dto.leon.OddsLeonDTO;
 import ru.kappers.model.leonmodels.OddsLeon;
