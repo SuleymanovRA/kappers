@@ -1,7 +1,9 @@
 package ru.kappers.model.leonmodels;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import ru.kappers.model.mapping.LeagueBridge;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -29,5 +31,14 @@ public class LeagueLeon {
     @Column(name = "url")
     @Size(max = 512)
     private String url;
+
+    /**
+     * маппер для связи с сущностью League
+     */
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    @OneToOne(mappedBy = "leonLeague")
+    private LeagueBridge leagueBridge;
 
 }

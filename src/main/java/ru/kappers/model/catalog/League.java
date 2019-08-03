@@ -1,15 +1,12 @@
 package ru.kappers.model.catalog;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import ru.kappers.model.mapping.LeagueBridge;
+import ru.kappers.model.mapping.TeamBridge;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -46,4 +43,13 @@ public class League {
     @Column(name="logo")
     @Size(max = 512)
     private String logoUrl;
+
+    /**
+     * маппер для связи с сущностью LeonLeague
+     */
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    @OneToOne(mappedBy = "rapidLeague")
+    private LeagueBridge leagueBridge;
 }

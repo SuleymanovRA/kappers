@@ -4,7 +4,9 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,13 +29,17 @@ public class GetFixturesByAPIController {
     private final FixtureService service;
     private final EventService eventService;
     private final JsonService jsonService;
+    private final MessageTranslator messageTranslator;
 
     @Autowired
-    public GetFixturesByAPIController(FixtureService service, EventService eventService, JsonService jsonService
-    ) {
+    public GetFixturesByAPIController(FixtureService service,
+                                      EventService eventService,
+                                      JsonService jsonService,
+                                      MessageTranslator messageTranslator) {
         this.service = service;
         this.eventService = eventService;
         this.jsonService = jsonService;
+        this.messageTranslator = messageTranslator;
     }
 
     /**
@@ -43,7 +49,7 @@ public class GetFixturesByAPIController {
      */
     @ResponseBody
     @RequestMapping(value = "/twoweeks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Fixture> getFixturesLastWeek() {
+    public ResponseEntity getFixturesLastWeek() {
         log.debug("getFixturesLastWeek()");
         for (long i = -5; i < 5; i++) {
             try {
@@ -59,11 +65,15 @@ public class GetFixturesByAPIController {
                     }
                 }
             } catch (UnirestException e) {
-                throw new RuntimeException(e);
+                log.error(messageTranslator.byCode("rapidAPI.twoWeeks.errorOnLoading"), e);
+                return ResponseEntity.ok(messageTranslator.byCode("rapidAPI.twoWeeks.errorOnLoading"));
+            } catch (Exception e){
+                log.error(messageTranslator.byCode("rapidAPI.unexpectedError"), e);
+                return ResponseEntity.ok(messageTranslator.byCode("rapidAPI.unexpectedError"));
             }
         }
 
-        return null;
+        return ResponseEntity.ok(messageTranslator.byCode("rapidAPI.twoWeeks.loaded"));
     }
 
     private void completeEventData(Event event, Fixture value) {

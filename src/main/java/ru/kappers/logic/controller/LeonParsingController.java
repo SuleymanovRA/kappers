@@ -1,6 +1,7 @@
 package ru.kappers.logic.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
@@ -49,29 +50,34 @@ public class LeonParsingController {
 
     @RequestMapping(value = "/oddLeons", method = RequestMethod.POST, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getOddLeons(@RequestBody String content) {
-        JsonObject jObject = GSON.fromJson(content, JsonElement.class).getAsJsonObject();
-        String url = jObject.get("url").getAsString();
-        List<String> list = leonBetParser.loadEventUrlsOfTournament(url);
-        List<OddsLeonDTO> eventsWithOdds = leonBetParser.getEventsWithOdds(list);
-        for (OddsLeonDTO dto : eventsWithOdds) {
-            try {
-                OddsLeon odd = oddsLeonService.getById(dto.getId());
-                if (odd == null) {
-                    odd = conversionService.convert(dto, OddsLeon.class);
+     //   JsonObject jObject = GSON.fromJson(content, JsonElement.class).getAsJsonObject();
+        JsonArray asJsonArray = GSON.fromJson(content, JsonArray.class);
+        for (int i = 0; i < asJsonArray.size(); i++) {
+            JsonElement element = asJsonArray.get(i);
+            String url = element.getAsJsonObject().get("url").getAsString();
+            List<String> list = leonBetParser.loadEventUrlsOfTournament(url);
+            List<OddsLeonDTO> eventsWithOdds = leonBetParser.getEventsWithOdds(list);
+            for (OddsLeonDTO dto : eventsWithOdds) {
+                try {
+                    OddsLeon odd = oddsLeonService.getById(dto.getId());
+                    if (odd == null) {
+                        odd = conversionService.convert(dto, OddsLeon.class);
+                    }
+                    List<RunnerLeon> runners = runnerLeonConverter(dto.getMarkets(), odd);
+                    if (odd != null) {
+                        final OddsLeon o = odd;
+                        runners.forEach(s -> s.setOdd(o));
+                        odd.setRunners(runners);
+                        oddsLeonService.save(odd);
+                    }
+                } catch (Exception e) {
+                    String msg = messageTranslator.byCode("oddsLeon.withIdAndNameAreNotSaved", dto.getId(), dto.getName());
+                    log.error(msg, e);
+                  //  return ResponseEntity.unprocessableEntity().body(msg);
                 }
-                List<RunnerLeon> runners = runnerLeonConverter(dto.getMarkets(), odd);
-                if (odd != null) {
-                    final OddsLeon o = odd;
-                    runners.forEach(s -> s.setOdd(o));
-                    odd.setRunners(runners);
-                    oddsLeonService.save(odd);
-                }
-            } catch (Exception e) {
-                String msg = messageTranslator.byCode("oddsLeon.withIdAndNameAreNotSaved", dto.getId(), dto.getName());
-                log.error(msg, e);
-                return ResponseEntity.unprocessableEntity().body(msg);
             }
         }
+
         return ResponseEntity.ok(messageTranslator.byCode("oddsLeon.areSaved"));
     }
 
