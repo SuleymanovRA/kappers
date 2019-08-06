@@ -1,6 +1,6 @@
 INSERT INTO public.league_bridge (id, rapid_league_id, leon_league_id) VALUES (1, 524, 281474976710692) ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.league_bridge (id, rapid_league_id, leon_league_id) VALUES (2, 530, 281474976721289) ON CONFLICT (id) DO NOTHING;
-INSERT INTO public.league_bridge (id, rapid_league_id, leon_league_id) VALUES (3, 511, 1143492092889190) ON CONFLICT (id) DO NOTHING;
+INSERT INTO public.league_bridge (id, rapid_league_id, leon_league_id) VALUES (3, 511, 1143492092889193) ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.league_bridge (id, rapid_league_id, leon_league_id) VALUES (4, 511, 281474976710821) ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.league_bridge (id, rapid_league_id, leon_league_id) VALUES (5, 516, 1143492093098150) ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.league_bridge (id, rapid_league_id, leon_league_id) VALUES (6, 531, 1143492092965270) ON CONFLICT (id) DO NOTHING;

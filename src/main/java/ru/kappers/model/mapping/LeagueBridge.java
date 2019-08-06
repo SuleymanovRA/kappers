@@ -25,7 +25,7 @@ public class LeagueBridge {
     @Column(name = "id", insertable = false, updatable = false)
     private Integer id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "rapid_league_id", nullable = false)
     private League rapidLeague;
 

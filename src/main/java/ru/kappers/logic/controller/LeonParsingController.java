@@ -42,15 +42,33 @@ public class LeonParsingController {
 
     /**
      * Пост запрос с телом
-     * {
-     * "url":"/events/Soccer/281474976710874-Americas-Copa-America"
-     * }
+     [
+     {"url":"/events/Soccer/281474976710675-Europe-UEFA-Champions-League"},
+     {"url":"/events/Soccer/281474976721290-Europe-UEFA-Europa-League-Qualification"},
+     {"url":"/events/Soccer/281474976710714-Europe-UEFA-Super-Cup"},
+     {"url":"/events/Soccer/281474976710710-Italy-Serie-A"},
+     {"url":"/events/Soccer/281474976710821-Russia-Premier-League"},
+     {"url":"/events/Soccer/1688849860347640-Russia-FNL"},
+     {"url":"/events/Soccer/281474976710696-Germany-Bundesliga"},
+     {"url":"/events/Soccer/281474976710709-Spain-Primera-Division"},
+     {"url":"/events/Soccer/281474976710712-France-Ligue-1"},
+     {"url":"/events/Soccer/281474976710692-England-Premier-League"},
+     {"url":"/events/Soccer/281474976710697-England-England-Community-Shield"},
+     {"url":"/events/Soccer/281474976710717-Portugal-Portugal-Primeira-Liga"},
+     {"url":"/events/Soccer/281474976710818-Portugal-Portugal-League-Cup"},
+     {"url":"/events/Soccer/281474976712882-Portugal-Portugal-Super-Cup"},
+     {"url":"/events/Soccer/281474976710745-Germany-Germany-DFB-Pokal"},
+     {"url":"/events/Soccer/281474976710748-Italy-Italy-Coppa-Italia"},
+     {"url":"/events/Soccer/281474976712742-World-International-Champions-Cup"},
+     {"url":"/events/Soccer/281474976711338-World-Club-Friendlies"},
+     {"url":"/events/Soccer"}
+     ]
+
      * где url это путь к турниру, события из которой хотим сохранить в нашу базу
      */
 
     @RequestMapping(value = "/oddLeons", method = RequestMethod.POST, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getOddLeons(@RequestBody String content) {
-     //   JsonObject jObject = GSON.fromJson(content, JsonElement.class).getAsJsonObject();
         JsonArray asJsonArray = GSON.fromJson(content, JsonArray.class);
         for (int i = 0; i < asJsonArray.size(); i++) {
             JsonElement element = asJsonArray.get(i);
@@ -59,6 +77,7 @@ public class LeonParsingController {
             List<OddsLeonDTO> eventsWithOdds = leonBetParser.getEventsWithOdds(list);
             for (OddsLeonDTO dto : eventsWithOdds) {
                 try {
+                    log.info("oddsLeon.savingOdd", dto.getName());
                     OddsLeon odd = oddsLeonService.getById(dto.getId());
                     if (odd == null) {
                         odd = conversionService.convert(dto, OddsLeon.class);
@@ -73,7 +92,6 @@ public class LeonParsingController {
                 } catch (Exception e) {
                     String msg = messageTranslator.byCode("oddsLeon.withIdAndNameAreNotSaved", dto.getId(), dto.getName());
                     log.error(msg, e);
-                  //  return ResponseEntity.unprocessableEntity().body(msg);
                 }
             }
         }

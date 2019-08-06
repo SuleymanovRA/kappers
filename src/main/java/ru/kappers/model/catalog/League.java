@@ -10,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * JPA-сущность для лиги
@@ -50,6 +51,6 @@ public class League {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnore
-    @OneToOne(mappedBy = "rapidLeague")
-    private LeagueBridge leagueBridge;
+    @OneToMany(mappedBy = "rapidLeague")
+    private List<LeagueBridge> leagueBridge; //TODO один ко многим должен быть
 }
