@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/rest/mapper/teams")
+@RequestMapping(value = "/rest/mapper")
 public class EntityMapperController {
     private static final String CYRILLIC_TO_LATIN = "Latin-Russian/BGN";
     private static final Gson GSON = new Gson();
@@ -52,7 +52,7 @@ public class EntityMapperController {
      */
 
     @ResponseBody
-    @RequestMapping(value = "/unmapped/rapidteams", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/teams/unmapped/rapidteams", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Team> getUnmappedRapidTeams() {
         log.debug("getUnmappedRapidTeams()...");
         List<Integer> mappedIds = teamBridgeService.getAll().stream()
@@ -66,7 +66,7 @@ public class EntityMapperController {
      */
 
     @ResponseBody
-    @RequestMapping(value = "/unmapped/competitors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/teams/unmapped/competitors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<CompetitorLeon> getUnmappedLeonCompetitors() {
         log.debug("getUnmappedLeonCompetitors()...");
         List<Long> mappedIds = teamBridgeService.getAll().stream()
@@ -80,7 +80,7 @@ public class EntityMapperController {
      * все команды, участвующие в этих событиях
      */
     @ResponseBody
-    @RequestMapping(value = "/getTeamsFromFixtures", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/teams/getTeamsFromFixtures", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<Team> completeRapidTeamsFromExistFixtures() {
         log.debug("completeRapidTeamsFromExistFixtures()...");
         Set<Team> teamsFromFixtures = new HashSet<>();
@@ -109,7 +109,7 @@ public class EntityMapperController {
      * и пытается их смапить по названию через транслитерацию
      */
     @ResponseBody
-    @RequestMapping(value = "/map", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/teams/map", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<Team, CompetitorLeon> tryMappingRapidTeamAndLeonCompetitor() {
         log.debug("tryMappingRapidTeamAndLeonCompetitor()...");
         final Set<String> rapidTeams = teamService.getAll().stream()
@@ -145,7 +145,7 @@ public class EntityMapperController {
      * "leonCompetitor":"281474976793815"
      * }
      */
-    @RequestMapping(value = "/save", method = RequestMethod.POST, headers = "Accept=application/json",
+    @RequestMapping(value = "/teams/save", method = RequestMethod.POST, headers = "Accept=application/json",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public TeamBridge saveMappedTeams(@RequestBody String content) {
         log.debug("saveMappedTeams(content: {})...", content);

@@ -8,6 +8,7 @@ import ru.kappers.model.mapping.TeamBridge;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 /**
  * JPA-сущность для команды
@@ -47,6 +48,6 @@ public class Team {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnore
-    @OneToOne(mappedBy = "rapidTeam")
-    private TeamBridge teamBridge;
+    @OneToMany(mappedBy = "rapidTeam")
+    private List<TeamBridge> teamBridge;
 }
