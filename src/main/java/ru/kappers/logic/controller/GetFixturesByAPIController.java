@@ -66,10 +66,10 @@ public class GetFixturesByAPIController {
                 }
             } catch (UnirestException e) {
                 log.error(messageTranslator.byCode("rapidAPI.twoWeeks.errorOnLoading"), e);
-                return ResponseEntity.ok(messageTranslator.byCode("rapidAPI.twoWeeks.errorOnLoading"));
+                return ResponseEntity.unprocessableEntity().body(messageTranslator.byCode("rapidAPI.twoWeeks.errorOnLoading"));
             } catch (Exception e){
                 log.error(messageTranslator.byCode("rapidAPI.unexpectedError"), e);
-                return ResponseEntity.ok(messageTranslator.byCode("rapidAPI.unexpectedError"));
+                return ResponseEntity.unprocessableEntity().body(messageTranslator.byCode("rapidAPI.unexpectedError"));
             }
         }
 

@@ -1,4 +1,4 @@
-package ru.kappers.logic.odds;
+package ru.kappers.logic.controller;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +9,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.kappers.logic.controller.LeonParsingController;
+import ru.kappers.logic.odds.BetParser;
 import ru.kappers.model.dto.leon.MarketLeonDTO;
 import ru.kappers.model.dto.leon.OddsLeonDTO;
 import ru.kappers.model.leonmodels.OddsLeon;
@@ -42,7 +43,7 @@ public class LeonParsingControllerTest {
     @Test
     public void getOddLeonsForNewOdd() {
         final String url = "/events/Soccer/281474976710927-Americas-CONCACAF-Gold-Cup";
-        final String request = "{\"url\":\"" + url + "\"}";
+        final String request = "[{\"url\":\"" + url + "\"}]";
         final List<String> testStringList = Arrays.asList("Test string");
         final OddsLeonDTO oddsLeonDTO = OddsLeonDTO.builder()
                 .id(1L)
@@ -73,7 +74,7 @@ public class LeonParsingControllerTest {
     @Test
     public void getOddLeonsForNewOddWithMarkets() {
         final String url = "/events/Soccer/281474976710927-Americas-CONCACAF-Gold-Cup";
-        final String request = "{\"url\":\"" + url + "\"}";
+        final String request = "[{\"url\":\"" + url + "\"}]";
         final List<String> testStringList = Arrays.asList("Test string");
         final OddsLeonDTO oddsLeonDTO = OddsLeonDTO.builder()
                 .id(1L)
@@ -105,7 +106,7 @@ public class LeonParsingControllerTest {
     @Test
     public void getOddLeonsForExistsOdd() {
         final String url = "/events/Soccer/281474976710927-Americas-CONCACAF-Gold-Cup";
-        final String request = "{\"url\":\"" + url + "\"}";
+        final String request = "[{\"url\":\"" + url + "\"}]";
         final List<String> testStringList = Arrays.asList("Test string");
         final OddsLeonDTO oddsLeonDTO = OddsLeonDTO.builder()
                 .id(1L)
@@ -135,14 +136,14 @@ public class LeonParsingControllerTest {
 
     @Test(expected = NullPointerException.class)
     public void getOddLeonsForWrongJSON() {
-        final String request = "{}";
+        final String request = "[{}]";
         controller.getOddLeons(request);
     }
 
     @Test
     public void getOddLeonsIfNotSaved() {
         final String url = "/events/Soccer/281474976710927-Americas-CONCACAF-Gold-Cup";
-        final String request = "{\"url\":\"" + url + "\"}";
+        final String request = "[{\"url\":\"" + url + "\"}]";
         final List<String> testStringList = Arrays.asList("Test string");
         final OddsLeonDTO oddsLeonDTO = OddsLeonDTO.builder()
                 .id(1L)
@@ -162,7 +163,8 @@ public class LeonParsingControllerTest {
         final ResponseEntity<String> result = controller.getOddLeons(request);
 
         assertThat(result, is(notNullValue()));
-        assertThat(result.getStatusCode(), is(HttpStatus.UNPROCESSABLE_ENTITY));
+        /*если не удалось сохранить, ошибки не должно быть. Просто идем сохраняться дальше*/
+       // assertThat(result.getStatusCode(), is(HttpStatus.UNPROCESSABLE_ENTITY));
         verify(leonBetParser).loadEventUrlsOfTournament(url);
         verify(leonBetParser).getEventsWithOdds(testStringList);
         verify(oddsLeonService).getById(oddsLeonDTO.getId());
