@@ -37,7 +37,7 @@ public class TeamBridgeServiceImpl implements TeamBridgeService {
 
     @Override
     public TeamBridge save(TeamBridge bridge) {
-        log.debug("save(bridge: {})...", bridge);
+        log.debug("TeamBridge save(bridge: {})...", bridge);
         TeamBridge byLeonCompetitor = repository.getByLeonCompetitor(bridge.getLeonCompetitor());
         TeamBridge byRapidTeam = repository.getByRapidTeam(bridge.getRapidTeam());
         if (byLeonCompetitor == null && byRapidTeam == null)
@@ -106,12 +106,30 @@ public class TeamBridgeServiceImpl implements TeamBridgeService {
     }
 
     @Override
+    public CompetitorLeon getCompetitorByTeamId(int teamId) {
+        log.debug("getCompetitorByTeamId(teamId: {})...", teamId);
+        TeamBridge bridge = repository.getByRapidTeamId(teamId);
+        if (bridge != null) {
+            return bridge.getLeonCompetitor();
+        }
+        return null;
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public CompetitorLeon getCompetitorByTeam(Team team) {
         log.debug("getCompetitorByTeam(team: {})...", team);
-        TeamBridge byRapidTeam = getByRapidTeam(team);
-        if (byRapidTeam != null)
-            return competitorService.getById(byRapidTeam.getLeonCompetitor().getId());
+        TeamBridge bridge = getByRapidTeam(team);
+        if (bridge != null)
+            return competitorService.getById(bridge.getLeonCompetitor().getId());
+        return null;
+    }
+
+    @Override
+    public Team getTeamByCompetitorLeonId(long competitorId) {
+        log.debug("getTeamByCompetitorLeonId(competitorId: {})...", competitorId);
+        TeamBridge bridge = repository.getByLeonCompetitorId(competitorId);
+        if (bridge!=null) return bridge.getRapidTeam();
         return null;
     }
 

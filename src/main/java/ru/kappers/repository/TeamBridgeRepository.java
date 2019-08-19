@@ -10,6 +10,8 @@ import ru.kappers.model.mapping.TeamBridge;
  */
 public interface TeamBridgeRepository extends JpaRepository<TeamBridge, Integer> {
     TeamBridge getByRapidTeam(Team rapid);
-
+    TeamBridge getByRapidTeamId(int rapidId);
     TeamBridge getByLeonCompetitor(CompetitorLeon competitor);
+    TeamBridge getByLeonCompetitorId(long competitorId);
+
 }
