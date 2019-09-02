@@ -15,6 +15,8 @@ public interface TeamBridgeService {
     List<TeamBridge> getAll ();
     TeamBridge getByRapidTeam (Team team);
     TeamBridge getByCompetitorLeon (CompetitorLeon competitor);
+    CompetitorLeon getCompetitorByTeamId (int team);
     CompetitorLeon getCompetitorByTeam (Team team);
+    Team getTeamByCompetitorLeonId (long competitor);
     Team getTeamByCompetitorLeon (CompetitorLeon competitor);
 }
