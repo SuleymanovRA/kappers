@@ -1,25 +1,23 @@
-package ru.kappers.logic.odds;
+package ru.kappers.logic.odds
 
-import java.util.List;
-
-public interface BetParser<T> {
+interface BetParser<T> {
 
     /**
      * Загрузить список ссылок доступных спортивных событий конкретного турнира
      * @param url ссылка веб страницы турнира, из которого нужно получить список событий
      */
-    List<String> loadEventUrlsOfTournament(String url);
+    fun loadEventUrlsOfTournament(url: String): List<String>
 
     /**
      * Загрузить DTO сущность, полученную из веб страницы конкретного события
      * @param url ссылка веб страницы события, которое нужно парсить
      */
-    T loadEventOdds(String url);
+    fun loadEventOdds(url: String): T
 
     /**
      * Получить список событий конкретного турнира
      * @param urls список ссылок, по которым нужно получить спортивные события
      */
-    List<T> getEventsWithOdds(List<String> urls);
+    fun getEventsWithOdds(urls: List<String>): List<T>
 
 }
