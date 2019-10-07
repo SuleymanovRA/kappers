@@ -6,7 +6,7 @@ interface BetParser<T> {
      * Загрузить список ссылок доступных спортивных событий конкретного турнира
      * @param url ссылка веб страницы турнира, из которого нужно получить список событий
      */
-    fun loadEventUrlsOfTournament(url: String): List<String>
+    fun loadEventUrlsOfTournament(url: String): MutableList<String>
 
     /**
      * Загрузить DTO сущность, полученную из веб страницы конкретного события
