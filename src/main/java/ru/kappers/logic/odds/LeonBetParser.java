@@ -3,6 +3,7 @@ package ru.kappers.logic.odds;
 import com.google.gson.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class LeonBetParser implements BetParser<OddsLeonDTO> {
     private final JsonParser JSON_PARSER = new JsonParser();
 
     public LeonBetParser() {
-        this("https://www.leon.ru");
+        this("${kappers.leon-bet-url}");
     }
 
     /**
@@ -49,8 +50,8 @@ public class LeonBetParser implements BetParser<OddsLeonDTO> {
         this.leonAddress = leonAddress;
     }
 
-    @Override
-    public List<String> loadEventUrlsOfTournament(String url) {
+    @NotNull
+    public List<String> loadEventUrlsOfTournament(@NotNull String url) {
         log.debug("loadEventUrlsOfTournament(url: {})...", url);
         List<String> urlsOfEvents = new ArrayList<>();
         JsonArray arr = getArrayOfEventsByURL(url);
@@ -62,19 +63,17 @@ public class LeonBetParser implements BetParser<OddsLeonDTO> {
         return urlsOfEvents;
     }
 
-    @Override
-    public List<OddsLeonDTO> getEventsWithOdds(List<String> urls) {
+    @NotNull
+    public List<OddsLeonDTO> getEventsWithOdds(@NotNull List<String> urls) {
         log.debug("getEventsWithOdds(urls: {})...", urls);
-        final List<OddsLeonDTO> results = urls.stream()
-                .map(url -> loadEventOdds(url))
+        //TODO сохранение в БД (не здесь, а во внешнем коде чтобы соблюдать принципы SOLID)
+        return urls.stream()
+                .map(this::loadEventOdds)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        //TODO сохранение в БД (не здесь, а во внешнем коде чтобы соблюдать принципы SOLID)
-        return results;
     }
 
-    @Override
-    public OddsLeonDTO loadEventOdds(String url) {
+    public OddsLeonDTO loadEventOdds(@NotNull String url) {
         log.debug("loadEventOdds(url: {})...", url);
         JsonArray arr = getArrayOfEventsByURL(url);
         JsonObject object = arr.get(0).getAsJsonObject();
