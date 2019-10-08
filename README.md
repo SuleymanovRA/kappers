@@ -22,8 +22,10 @@
 ## Стек технологий и языки программирования
 ### Back-end
 - Java 8 SE (java.lang, Сollections, multi-threading, Stream API, лямбды)
+- Kotlin
 - Spring Framework 5 (IoC, Core, Boot 2, Security, MVC, Data, JPA, Транзакции, JDBC, JAX-RS (REST), Test, Test DBUnit)
 - Lombok
+- Swagger 2
 - Joda Money
 - Jadira Framework
 - log4j (Logger) и slf4j
