@@ -64,5 +64,5 @@ deploy:
   - provider: script
     script: docker push rsuleymanov/kappers:latest
     on:
-      branch: feature/travis-ci-with-docker
-#      branch: master
+      branch: master
+#      branch: feature/travis-ci-with-docker
