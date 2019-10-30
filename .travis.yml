@@ -46,7 +46,7 @@ after_success:
 
 before_deploy:
   - zip -ur kappers target/kappers.war Procfile .ebextensions
-  - docker login -u "$DOCKER_REGISTRY_USER" -p "$DOCKER_REGISTRY_PASS"
+#  - docker login -u "$DOCKER_REGISTRY_USER" -p "$DOCKER_REGISTRY_PASS"
 
 deploy:
   - provider: elasticbeanstalk
@@ -61,8 +61,8 @@ deploy:
     on:
       branch: "master"
 #      branch: "feature/deploy-to-aws"
-  - provider: script
-    script: docker push rsuleymanov/kappers:latest
-    on:
-      branch: master
+#  - provider: script
+#    script: docker push rsuleymanov/kappers:latest
+#    on:
+#      branch: master
 #      branch: feature/travis-ci-with-docker
