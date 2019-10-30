@@ -1,8 +1,14 @@
-[Russian](https://github.com/soufee/kappers/blob/master/readme/README_ru.md)
+# Data Scout
+<p align="center">
+  <a href="https://github.com/soufee/kappers">English</a> |
+  <a href="https://github.com/soufee/kappers/blob/master/readme/README_ru_RU.md">Русский</a>
+</p>
 
-# English
+---
+
 | Technology | Badge |
 |:-----------:|:-----:|
+| Travis CI[AS] | [![Build Status](https://travis-ci.org/soufee/kappers.svg?branch=master)](https://travis-ci.org/soufee/kappers) |
 | Travis CI[RS] | [![Build Status](https://travis-ci.com/SuleymanovRA/kappers.svg?branch=master)](https://travis-ci.com/SuleymanovRA/kappers) |
 | CodeCov | [![codecov](https://codecov.io/gh/SuleymanovRA/kappers/branch/master/graph/badge.svg)](https://codecov.io/gh/SuleymanovRA/kappers) |
 | Codebeat | [![codebeat badge](https://codebeat.co/badges/7aa7c56b-e4d4-4978-9f42-ce0657aa27a1)](https://codebeat.co/projects/github-com-suleymanovra-kappers-master) |
