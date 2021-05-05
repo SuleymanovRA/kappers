@@ -305,7 +305,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.3</version>
+                <version>0.8.7</version>
                 <configuration>
                     <!-- outputDirectory сформировал на основе destFile из https://github.com/codecov/example-gradle -->
 <!--                    <outputDirectory>${project.build.directory}/reports/jacoco</outputDirectory>-->
