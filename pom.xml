@@ -70,7 +70,7 @@
             <dependency>
                 <groupId>com.github.DECENTfoundation</groupId>
                 <artifactId>DCoreKt-SDK</artifactId>
-                <version>1.2.0</version>
+                <version>3.2.0</version>
             </dependency>
 
             <dependency>
