@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 @Slf4j
@@ -30,7 +31,6 @@ import static org.junit.Assert.*;
 @SpringBootTest(classes = {KappersApplication.class})
 @TestExecutionListeners({DbUnitTestExecutionListener.class})
 @DatabaseSetup("/data/CurrRateServiceImplTest-currrates.xml")
-
 public class CurrRateServiceImplTest extends AbstractTransactionalJUnit4SpringContextTests {
     @Autowired
     private CurrRateService service;
@@ -82,7 +82,16 @@ public class CurrRateServiceImplTest extends AbstractTransactionalJUnit4SpringCo
 
     @Test
     public void getToday() {
-        //TODO
+        String charCode = "TST";
+        CurrencyRate currencyRate = service.update(CurrencyRate.builder()
+                .charCode(charCode)
+                .date(LocalDate.now())
+                .value(BigDecimal.ONE)
+                .build());
+
+        CurrencyRate result = service.getToday(charCode);
+
+        assertThat(result, is(currencyRate));
     }
 
     @Test
