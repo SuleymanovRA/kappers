@@ -25,7 +25,7 @@
         <kotlin.version>1.5.0</kotlin.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <maven.compiler.version>3.5.1</maven.compiler.version>
-        <springfox.swagger.version>2.9.2</springfox.swagger.version>
+        <springfox.swagger.version>3.0.0</springfox.swagger.version>
     </properties>
 
 <!-- Для централизованного управления зависимостями их версии указываем по возможности только здесь, как и исключения в них -->
