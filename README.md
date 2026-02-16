@@ -57,6 +57,6 @@ For additional information apply to founders. Contacts are below.
 * **GitHub:** [soufee](https://github.com/soufee/kappers)
 
 ### Ruslan Suleymanov
-* **Role:** developer, CI/CD
+* **Role:** backend-developer, CI/CD
 * **GitHub:** [SuleymanovRA](https://github.com/SuleymanovRA/kappers)
 * **Email:** rusdenis82@gmail.com
