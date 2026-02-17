@@ -8,8 +8,7 @@
 
 | Technology | Badge |
 |:-----------:|:-----:|
-| Travis CI[AS] | [![Build Status](https://travis-ci.org/soufee/kappers.svg?branch=master)](https://travis-ci.org/soufee/kappers) |
-| Travis CI[RS] | [![Build Status](https://travis-ci.com/SuleymanovRA/kappers.svg?branch=master)](https://travis-ci.com/SuleymanovRA/kappers) |
+| GitHub Actions CI[RS] | [![Java-CI-with-Maven](https://github.com/SuleymanovRA/kappers/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/SuleymanovRA/kappers/actions/workflows/maven.yml) |
 | CodeCov | [![codecov](https://codecov.io/gh/SuleymanovRA/kappers/branch/master/graph/badge.svg)](https://codecov.io/gh/SuleymanovRA/kappers) |
 | Codebeat | [![codebeat badge](https://codebeat.co/badges/7aa7c56b-e4d4-4978-9f42-ce0657aa27a1)](https://codebeat.co/projects/github-com-suleymanovra-kappers-master) |
 
@@ -57,6 +56,6 @@ For additional information apply to founders. Contacts are below.
 * **GitHub:** [soufee](https://github.com/soufee/kappers)
 
 ### Ruslan Suleymanov
-* **Role:** developer, CI/CD
+* **Role:** backend-developer, CI/CD
 * **GitHub:** [SuleymanovRA](https://github.com/SuleymanovRA/kappers)
 * **Email:** rusdenis82@gmail.com
