@@ -1,7 +1,7 @@
 # Честный каппер
 <p align="center">
-  <a href="https://github.com/soufee/kappers">English</a> |
-  <a href="https://github.com/soufee/kappers/blob/master/readme/README_ru_RU.md">Русский</a>
+  <a href="https://github.com/SuleymanovRA/kappers">English</a> |
+  <a href="https://github.com/SuleymanovRA/kappers/blob/master/readme/README_ru_RU.md">Русский</a>
 </p>
 
 ---
