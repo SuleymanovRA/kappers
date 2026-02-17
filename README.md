@@ -1,7 +1,7 @@
 # Data Scout
 <p align="center">
-  <a href="https://github.com/soufee/kappers">English</a> |
-  <a href="https://github.com/soufee/kappers/blob/master/readme/README_ru_RU.md">Русский</a>
+  <a href="https://github.com/SuleymanovRA/kappers">English</a> |
+  <a href="https://github.com/SuleymanovRA/kappers/blob/master/readme/README_ru_RU.md">Русский</a>
 </p>
 
 ---
@@ -56,6 +56,6 @@ For additional information apply to founders. Contacts are below.
 * **GitHub:** [soufee](https://github.com/soufee/kappers)
 
 ### Ruslan Suleymanov
-* **Role:** backend-developer, CI/CD
+* **Role:** developer, CI/CD
 * **GitHub:** [SuleymanovRA](https://github.com/SuleymanovRA/kappers)
 * **Email:** rusdenis82@gmail.com
