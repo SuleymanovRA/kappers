@@ -17,8 +17,6 @@ jobs:
         image: postgres:10
         env:
           POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
 
     steps:
       - name: Check out repository code
