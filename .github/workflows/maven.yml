@@ -34,6 +34,7 @@ jobs:
               -Dspring.datasource.password=
               -Dspring.datasource.url=jdbc:postgresql://postgres:5432/testdb
               -Dspring.jpa.show-sql=false
+              -Dlogging.level.ru.kappers=warn
               -Dlogging.level.org.flywaydb=warn
               -Dlogging.level.org.springframework=warn
               -Dlogging.level.org.springframework.test.context.cache=warn
