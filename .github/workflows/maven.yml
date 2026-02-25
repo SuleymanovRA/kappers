@@ -14,9 +14,10 @@ jobs:
 
     services:
       postgres:
-        image: postgres:10
+        image: postgres:10.23-alpine
         env:
           POSTGRES_DB: testdb
+          POSTGRES_PASSWORD: postgres
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
