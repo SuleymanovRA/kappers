@@ -31,7 +31,7 @@ import ru.kappers.util.DateTimeUtilTest;
 		KapperInfoServiceImplTest.class,
 		HistoryServiceImplTest.class,
 		FixtureServiceImplTest.class,
-        CurrRateServiceImplTest.class,
+        CurrencyRateServiceImplTest.class,
 		EventControllerTest.class,
 		CurrencyControllerTest.class,
 		ApplicationStartListenerTest.class,
