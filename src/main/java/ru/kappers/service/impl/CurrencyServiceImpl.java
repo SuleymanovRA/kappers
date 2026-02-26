@@ -41,21 +41,24 @@ public class CurrencyServiceImpl implements CurrencyService {
     }
 
     @Override
-    public boolean refreshCurrencyRatesForToday() {
-        log.debug("refreshCurrencyRatesForToday()...");
+    public void tryRefreshCurrencyRatesForToday() {
+        log.debug("tryRefreshCurrencyRatesForToday()...");
         try {
-            log.info(translator.byCode("currencyRates.refreshBegin"));
-            final List<CurrencyRate> currencyRates = currencyRatesParser.parseFromCBRF();
-            currencyRates.stream()
-                    .filter(currencyRate -> !currRateService.isExist(currencyRate.getDate(), currencyRate.getCharCode()))
-                    .forEach(currRateService::save);
-            log.info(translator.byCode("currencyRates.refreshEnd"));
-            return true;
+            refreshCurrencyRatesForToday();
         } catch (Exception ex) {
             final String msg = translator.byCode("currencyRates.refreshFailed", ex.getMessage());
             log.error(msg, ex);
             throw new CurrRateGettingException(msg, ex);
         }
+    }
+
+    private void refreshCurrencyRatesForToday() {
+        log.info(translator.byCode("currencyRates.refreshBegin"));
+        final List<CurrencyRate> currencyRates = currencyRatesParser.parseFromCBRF();
+        currencyRates.stream()
+                .filter(currencyRate -> !currRateService.isExist(currencyRate.getDate(), currencyRate.getCharCode()))
+                .forEach(currRateService::save);
+        log.info(translator.byCode("currencyRates.refreshEnd"));
     }
 
     /**
@@ -71,9 +74,9 @@ public class CurrencyServiceImpl implements CurrencyService {
         }
         // метод вызываемый планировщиком не должен выбрасывать исключения, иначе возможно не сработает по расписанию
         try {
-            refreshCurrencyRatesForToday();
-        } catch (Throwable t) {
-            log.error("refreshCurrencyRatesForTodayByScheduler() error", t);
+            tryRefreshCurrencyRatesForToday();
+        } catch (Exception e) {
+            log.error("refreshCurrencyRatesForTodayByScheduler() error", e);
         }
     }
 
@@ -84,14 +87,13 @@ public class CurrencyServiceImpl implements CurrencyService {
         if (currRateService.isExist(date, fromCurr) && currRateService.isExist(date, toCurr))
             return date;
         else {
-            if (!todaysCurrRatesGot){
-                todaysCurrRatesGot = refreshCurrencyRatesForToday();
+            if (!todaysCurrRatesGot) {
+                tryRefreshCurrencyRatesForToday();
+                todaysCurrRatesGot = true;
             }
-            if (todaysCurrRatesGot) {
-                if (!currRateService.isExist(date, fromCurr) || !currRateService.isExist(date, toCurr)) {
-                    LocalDate localDate = date.minusDays(1);
-                    date = getActualCurrencyRateDate(localDate, fromCurr, toCurr, todaysCurrRatesGot);
-                }
+            if (!currRateService.isExist(date, fromCurr) || !currRateService.isExist(date, toCurr)) {
+                LocalDate localDate = date.minusDays(1);
+                date = getActualCurrencyRateDate(localDate, fromCurr, toCurr, todaysCurrRatesGot);
             }
         }
         return date;

@@ -11,10 +11,9 @@ import java.math.BigDecimal;
 public interface CurrencyService {
     /**
      * Обновить курсы валют на сегодня
-     * @return {@literal true}, если удалось обновить курсы валют, иначе выбросит CurrRateGettingException
      * @throws CurrRateGettingException если не удалось обновить курсы валют
      */
-    boolean refreshCurrencyRatesForToday();
+    void tryRefreshCurrencyRatesForToday();
 
     /**
      * Конвертировать сумму из исходной валюты в целевую
