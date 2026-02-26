@@ -10,7 +10,6 @@
 |:-----------:|:-----:|
 | GitHub Actions CI[RS] | [![Java-CI-with-Maven](https://github.com/SuleymanovRA/kappers/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/SuleymanovRA/kappers/actions/workflows/maven.yml) |
 | CodeCov | [![codecov](https://codecov.io/gh/SuleymanovRA/kappers/branch/master/graph/badge.svg)](https://codecov.io/gh/SuleymanovRA/kappers) |
-| Codebeat | [![codebeat badge](https://codebeat.co/badges/7aa7c56b-e4d4-4978-9f42-ce0657aa27a1)](https://codebeat.co/projects/github-com-suleymanovra-kappers-master) |
 
 ## Информация о проекте
 Проект "Честный каппер" предполагает создание веб-сервиса для ведения честного рейтинга аналитиков спорта (каппера), занимающихся продажей прогнозов на спорт для ставок.
@@ -42,7 +41,7 @@
 - Модульные тесты (unit-тесты на JUnit, Mockito Framework, Hamcrest), интеграционные тесты (Spring Test, Spring Test DBUnit)
 - Интеграция с API Центробанка РФ для получения курсов валют
 - Интеграция с API букмекерских контор (ООО "Леон")
-- DevOps, Travis CI / CD, CodeCov, диплой на Amazon Web Services
+- DevOps, GitHub Actions CI / CD, CodeCov, диплой на Amazon Web Services
 - Amazon Web Services: AWS Elastic Beanstalk, AWS IAM, AWS EC2, AWS RDS, AWS S3, AWS CloudWatch
 - Планируется JMS (возможно будет ActiveMQ)
 - Планируются смарт-контракты на языке Solidity для блокчейн Ethereum, интеграция через Web3j
