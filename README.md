@@ -10,7 +10,6 @@
 |:-----------:|:-----:|
 | GitHub Actions CI[RS] | [![Java-CI-with-Maven](https://github.com/SuleymanovRA/kappers/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/SuleymanovRA/kappers/actions/workflows/maven.yml) |
 | CodeCov | [![codecov](https://codecov.io/gh/SuleymanovRA/kappers/branch/master/graph/badge.svg)](https://codecov.io/gh/SuleymanovRA/kappers) |
-| Codebeat | [![codebeat badge](https://codebeat.co/badges/7aa7c56b-e4d4-4978-9f42-ce0657aa27a1)](https://codebeat.co/projects/github-com-suleymanovra-kappers-master) |
 
 ## Information about project
 
@@ -40,7 +39,7 @@ For additional information apply to founders. Contacts are below.
 - Unit-tests on JUnit, Mockito Framework, Hamcrest), integration tests (Spring Test, Spring Test DBUnit)
 - Integration with API of CBRF for getting currency rates
 - Integration with API of betting company Leon
-- DevOps, Travis CI / CD, CodeCov, deployment on Amazon Web Services
+- DevOps, GitHub Actions CI / CD, CodeCov, deployment on Amazon Web Services
 - Amazon Web Services: AWS Elastic Beanstalk, AWS IAM, AWS EC2, AWS RDS, AWS S3, AWS CloudWatch
 - in plans using JMS (perhaps ActiveMQ)
 - smart-contracts will be written on Solidity for Ethereum. Integration by Web3j
