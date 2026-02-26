@@ -6,13 +6,13 @@ import org.springframework.transaction.annotation.Transactional
 import ru.kappers.config.KappersProperties
 import ru.kappers.model.CurrencyRate
 import ru.kappers.repository.CurrRateRepository
-import ru.kappers.service.CurrRateService
+import ru.kappers.service.CurrencyRateService
 import java.time.LocalDate
 
 @Service
 @Transactional
-open class CurrRateServiceImpl(private val repository: CurrRateRepository,
-                               private val kappersProperties: KappersProperties): CurrRateService {
+open class CurrencyRateServiceImpl(private val repository: CurrRateRepository,
+                                   private val kappersProperties: KappersProperties): CurrencyRateService {
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun save(rate: CurrencyRate): CurrencyRate {

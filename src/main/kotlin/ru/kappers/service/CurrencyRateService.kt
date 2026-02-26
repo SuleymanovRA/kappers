@@ -6,7 +6,7 @@ import java.time.LocalDate
 /**
  * Интерфейс сервиса курсов валют
  */
-interface CurrRateService {
+interface CurrencyRateService {
     fun save(rate: CurrencyRate): CurrencyRate
     fun isExist(date: LocalDate, currLiteral: String): Boolean
     fun getCurrByDate(date: LocalDate, currLiteral: String): CurrencyRate?

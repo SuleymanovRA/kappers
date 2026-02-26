@@ -20,6 +20,8 @@ import ru.kappers.service.impl.*;
 import ru.kappers.service.parser.CBRFDailyCurrencyRatesParserTest;
 import ru.kappers.util.DateTimeUtilTest;
 
+import static org.junit.Assert.assertTrue;
+
 @RunWith(Suite.class)
 @SpringBootTest(classes = { KappersApplication.class})
 @ActiveProfiles("test")
@@ -31,7 +33,7 @@ import ru.kappers.util.DateTimeUtilTest;
 		KapperInfoServiceImplTest.class,
 		HistoryServiceImplTest.class,
 		FixtureServiceImplTest.class,
-        CurrRateServiceImplTest.class,
+        CurrencyRateServiceImplTest.class,
 		EventControllerTest.class,
 		CurrencyControllerTest.class,
 		ApplicationStartListenerTest.class,
@@ -47,7 +49,7 @@ import ru.kappers.util.DateTimeUtilTest;
 		UserControllerTest.class,
 		ContractTest.class,
 		BetParserExceptionTest.class,
-		CurrRateGettingExceptionTest.class,
+		CurrencyRateGettingExceptionTest.class,
 		MoneyTransferExceptionTest.class,
 		UnirestAPIExceptionTest.class,
 		UserNotHaveKapperRoleExceptionTest.class,
@@ -66,6 +68,7 @@ public class KappersApplicationTests {
 
 	@Test
 	public void contextLoads() {
+		assertTrue(true);
 	}
 
 }

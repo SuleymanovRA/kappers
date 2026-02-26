@@ -7,9 +7,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kappers.config.KappersProperties;
-import ru.kappers.exceptions.CurrRateGettingException;
+import ru.kappers.exceptions.CurrencyRateGettingException;
 import ru.kappers.model.CurrencyRate;
-import ru.kappers.service.CurrRateService;
+import ru.kappers.service.CurrencyRateService;
 import ru.kappers.service.CurrencyService;
 import ru.kappers.service.MessageTranslator;
 import ru.kappers.service.parser.CBRFDailyCurrencyRatesParser;
@@ -27,35 +27,38 @@ import java.util.List;
 @Transactional
 public class CurrencyServiceImpl implements CurrencyService {
 
-    private final CurrRateService currRateService;
+    private final CurrencyRateService currencyRateService;
     private final CBRFDailyCurrencyRatesParser currencyRatesParser;
     private final KappersProperties kappersProperties;
     private final MessageTranslator translator;
 
     @Autowired
-    public CurrencyServiceImpl(CurrRateService currRateService, CBRFDailyCurrencyRatesParser currencyRatesParser, KappersProperties kappersProperties, MessageTranslator translator) {
-        this.currRateService = currRateService;
+    public CurrencyServiceImpl(CurrencyRateService currencyRateService, CBRFDailyCurrencyRatesParser currencyRatesParser, KappersProperties kappersProperties, MessageTranslator translator) {
+        this.currencyRateService = currencyRateService;
         this.currencyRatesParser = currencyRatesParser;
         this.kappersProperties = kappersProperties;
         this.translator = translator;
     }
 
     @Override
-    public boolean refreshCurrencyRatesForToday() {
-        log.debug("refreshCurrencyRatesForToday()...");
+    public void tryRefreshCurrencyRatesForToday() {
+        log.debug("tryRefreshCurrencyRatesForToday()...");
         try {
-            log.info(translator.byCode("currencyRates.refreshBegin"));
-            final List<CurrencyRate> currencyRates = currencyRatesParser.parseFromCBRF();
-            currencyRates.stream()
-                    .filter(currencyRate -> !currRateService.isExist(currencyRate.getDate(), currencyRate.getCharCode()))
-                    .forEach(currRateService::save);
-            log.info(translator.byCode("currencyRates.refreshEnd"));
-            return true;
+            refreshCurrencyRatesForToday();
         } catch (Exception ex) {
             final String msg = translator.byCode("currencyRates.refreshFailed", ex.getMessage());
             log.error(msg, ex);
-            throw new CurrRateGettingException(msg, ex);
+            throw new CurrencyRateGettingException(msg, ex);
         }
+    }
+
+    private void refreshCurrencyRatesForToday() {
+        log.info(translator.byCode("currencyRates.refreshBegin"));
+        final List<CurrencyRate> currencyRates = currencyRatesParser.parseFromCBRF();
+        currencyRates.stream()
+                .filter(currencyRate -> !currencyRateService.isExist(currencyRate.getDate(), currencyRate.getCharCode()))
+                .forEach(currencyRateService::save);
+        log.info(translator.byCode("currencyRates.refreshEnd"));
     }
 
     /**
@@ -71,9 +74,9 @@ public class CurrencyServiceImpl implements CurrencyService {
         }
         // метод вызываемый планировщиком не должен выбрасывать исключения, иначе возможно не сработает по расписанию
         try {
-            refreshCurrencyRatesForToday();
-        } catch (Throwable t) {
-            log.error("refreshCurrencyRatesForTodayByScheduler() error", t);
+            tryRefreshCurrencyRatesForToday();
+        } catch (Exception e) {
+            log.error("refreshCurrencyRatesForTodayByScheduler() error", e);
         }
     }
 
@@ -81,17 +84,16 @@ public class CurrencyServiceImpl implements CurrencyService {
         log.debug("getActualCurrencyRateDate(date: {}, fromCurr: {}, toCurr: {}, currRatesGotToday: {})...",
                 date, fromCurr, toCurr, currRatesGotToday);
         boolean todaysCurrRatesGot = currRatesGotToday;
-        if (currRateService.isExist(date, fromCurr) && currRateService.isExist(date, toCurr))
+        if (currencyRateService.isExist(date, fromCurr) && currencyRateService.isExist(date, toCurr))
             return date;
         else {
-            if (!todaysCurrRatesGot){
-                todaysCurrRatesGot = refreshCurrencyRatesForToday();
+            if (!todaysCurrRatesGot) {
+                tryRefreshCurrencyRatesForToday();
+                todaysCurrRatesGot = true;
             }
-            if (todaysCurrRatesGot) {
-                if (!currRateService.isExist(date, fromCurr) || !currRateService.isExist(date, toCurr)) {
-                    LocalDate localDate = date.minusDays(1);
-                    date = getActualCurrencyRateDate(localDate, fromCurr, toCurr, todaysCurrRatesGot);
-                }
+            if (!currencyRateService.isExist(date, fromCurr) || !currencyRateService.isExist(date, toCurr)) {
+                LocalDate localDate = date.minusDays(1);
+                date = getActualCurrencyRateDate(localDate, fromCurr, toCurr, todaysCurrRatesGot);
             }
         }
         return date;
@@ -112,16 +114,16 @@ public class CurrencyServiceImpl implements CurrencyService {
         final RoundingMode roundingMode = kappersProperties.getBigDecimalRoundingMode();
         final String rubCurrencyCode = kappersProperties.getRubCurrencyCode();
         if (fromCurr.equals(rubCurrencyCode)) {
-            CurrencyRate rate = currRateService.getCurrByDate(date, toCurr);
+            CurrencyRate rate = currencyRateService.getCurrByDate(date, toCurr);
             return amount.divide(rate.getValue(), roundingMode)
                     .multiply(BigDecimal.valueOf(rate.getNominal()));
         } else if (toCurr.equals(rubCurrencyCode)) {
-            CurrencyRate rate = currRateService.getCurrByDate(date, fromCurr);
+            CurrencyRate rate = currencyRateService.getCurrByDate(date, fromCurr);
             return amount.multiply(rate.getValue())
                     .multiply(BigDecimal.valueOf(rate.getNominal()));
         }
-        CurrencyRate from = currRateService.getCurrByDate(date, fromCurr);
-        CurrencyRate to = currRateService.getCurrByDate(date, toCurr);
+        CurrencyRate from = currencyRateService.getCurrByDate(date, fromCurr);
+        CurrencyRate to = currencyRateService.getCurrByDate(date, toCurr);
         BigDecimal amountInRub = amount.multiply(from.getValue())
                 .multiply(BigDecimal.valueOf(from.getNominal()));
         return amountInRub.divide(to.getValue(), roundingMode)

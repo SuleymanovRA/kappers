@@ -37,6 +37,6 @@ public class ApplicationStartListenerTest {
         applicationStartListener.onApplicationEvent(mock(ContextRefreshedEvent.class));
 
         verify(taskExecutor).execute(any(Runnable.class));
-        verify(currencyService).refreshCurrencyRatesForToday();
+        verify(currencyService).tryRefreshCurrencyRatesForToday();
     }
 }
