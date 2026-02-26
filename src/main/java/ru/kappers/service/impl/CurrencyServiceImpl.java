@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kappers.config.KappersProperties;
-import ru.kappers.exceptions.CurrRateGettingException;
+import ru.kappers.exceptions.CurrencyRateGettingException;
 import ru.kappers.model.CurrencyRate;
 import ru.kappers.service.CurrencyRateService;
 import ru.kappers.service.CurrencyService;
@@ -48,7 +48,7 @@ public class CurrencyServiceImpl implements CurrencyService {
         } catch (Exception ex) {
             final String msg = translator.byCode("currencyRates.refreshFailed", ex.getMessage());
             log.error(msg, ex);
-            throw new CurrRateGettingException(msg, ex);
+            throw new CurrencyRateGettingException(msg, ex);
         }
     }
 

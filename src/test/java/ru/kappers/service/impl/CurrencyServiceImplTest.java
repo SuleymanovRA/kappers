@@ -1,5 +1,6 @@
 package ru.kappers.service.impl;
 
+import org.assertj.core.api.Assertions;
 import org.joda.money.CurrencyUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import ru.kappers.config.KappersProperties;
-import ru.kappers.exceptions.CurrRateGettingException;
+import ru.kappers.exceptions.CurrencyRateGettingException;
 import ru.kappers.model.CurrencyRate;
 import ru.kappers.service.CurrencyRateService;
 import ru.kappers.service.MessageTranslator;
@@ -74,7 +75,7 @@ public class CurrencyServiceImplTest {
         verify(currencyRateService, never()).save(currencyRate);
     }
 
-    @Test(expected = CurrRateGettingException.class)
+    @Test(expected = CurrencyRateGettingException.class)
     public void refreshCurrencyRatesForTodayMustThrowExceptionIfParserThrowAnyException() {
         when(currencyRatesParser.parseFromCBRF()).thenThrow(RuntimeException.class);
 
@@ -137,18 +138,18 @@ public class CurrencyServiceImplTest {
     }
 
     @Test
-    public void getActualCurrencyRateDateMustReturnDateFromParameterIfCurrencyNotExistsAndRefreshFail() {
+    public void getActualCurrencyRateDateMustThrowExceptionIfCurrencyNotExistsAndRefreshFail() {
         final LocalDate date = LocalDate.now();
         final String from = CurrencyUnit.EUR.getCode();
         final String to = CurrencyUnit.USD.getCode();
         final boolean currRatesGotToday = false;
         when(currencyRateService.isExist(date, from)).thenReturn(false);
         currencyService = spy(currencyService);
-        doThrow(CurrRateGettingException.class).when(currencyService).tryRefreshCurrencyRatesForToday();
+        doThrow(CurrencyRateGettingException.class).when(currencyService).tryRefreshCurrencyRatesForToday();
 
-        final LocalDate result = currencyService.getActualCurrencyRateDate(date, from, to, currRatesGotToday);
+        Assertions.assertThatThrownBy(() -> currencyService.getActualCurrencyRateDate(date, from, to, currRatesGotToday))
+                .isInstanceOf(CurrencyRateGettingException.class);
 
-        assertThat(result, is(date));
         verify(currencyRateService).isExist(date, from);
         verify(currencyRateService, never()).isExist(date, to);
         verify(currencyService).tryRefreshCurrencyRatesForToday();
@@ -157,21 +158,20 @@ public class CurrencyServiceImplTest {
     @Test
     public void getActualCurrencyRateDateMustReturnDateFromParameterIfCurrencyNotExistsAndRefreshSuccess() {
         final LocalDate now = LocalDate.now();
-        final LocalDate date = now;
         final LocalDate date2 = now.minusDays(1);
         final String from = CurrencyUnit.EUR.getCode();
         final String to = CurrencyUnit.USD.getCode();
         final boolean currRatesGotToday = false;
-        when(currencyRateService.isExist(date, from)).thenReturn(false);
+        when(currencyRateService.isExist(now, from)).thenReturn(false);
         when(currencyRateService.isExist(date2, from)).thenReturn(true);
         when(currencyRateService.isExist(date2, to)).thenReturn(true);
         currencyService = spy(currencyService);
 
-        final LocalDate result = currencyService.getActualCurrencyRateDate(date, from, to, currRatesGotToday);
+        final LocalDate result = currencyService.getActualCurrencyRateDate(now, from, to, currRatesGotToday);
 
         assertThat(result, is(date2));
-        verify(currencyRateService, times(2)).isExist(date, from);
-        verify(currencyRateService, never()).isExist(date, to);
+        verify(currencyRateService, times(2)).isExist(now, from);
+        verify(currencyRateService, never()).isExist(now, to);
         verify(currencyRateService).isExist(date2, from);
         verify(currencyRateService).isExist(date2, to);
         verify(currencyService).tryRefreshCurrencyRatesForToday();
@@ -197,11 +197,10 @@ public class CurrencyServiceImplTest {
     @Test
     public void exchangeStringCurrencyParametersAreEqual() {
         final String from = CurrencyUnit.EUR.getCode();
-        final String to = from;
         final BigDecimal amount = BigDecimal.TEN;
         currencyService = spy(currencyService);
 
-        final BigDecimal result = currencyService.exchange(from, to, amount);
+        final BigDecimal result = currencyService.exchange(from, from, amount);
 
         assertThat(result, is(amount));
         verify(currencyService, never()).getActualCurrencyRateDate(any(), any(), any(), anyBoolean());

@@ -6,13 +6,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.*;
 
-public class CurrRateGettingExceptionTest {
+public class CurrencyRateGettingExceptionTest {
 
     @Test
     public void constructorWithMessageOnly() {
         final String testMessage = "test message";
 
-        CurrRateGettingException exception = new CurrRateGettingException(testMessage);
+        CurrencyRateGettingException exception = new CurrencyRateGettingException(testMessage);
 
         assertThat(exception.getMessage(), is(testMessage));
         assertThat(exception.getCause(), is(nullValue()));
@@ -23,7 +23,7 @@ public class CurrRateGettingExceptionTest {
         final String testMessage = "test message2";
         final Exception testException = new Exception();
 
-        CurrRateGettingException exception = new CurrRateGettingException(testMessage, testException);
+        CurrencyRateGettingException exception = new CurrencyRateGettingException(testMessage, testException);
 
         assertThat(exception.getMessage(), is(testMessage));
         assertThat(exception.getCause(), is(testException));
