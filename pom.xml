@@ -22,9 +22,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
-        <kotlin.version>1.5.0</kotlin.version>
+        <kotlin.version>1.6.10</kotlin.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <maven.compiler.version>3.5.1</maven.compiler.version>
+        <maven.compiler.version>3.8.1</maven.compiler.version>
+        <lombok.version>1.18.24</lombok.version>
         <springfox.swagger.version>2.9.2</springfox.swagger.version>
     </properties>
 
@@ -96,6 +97,11 @@
                 <artifactId>kotlin-test</artifactId>
                 <version>${kotlin.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
             </dependency>
 
             <!-- Swagger -->
