@@ -24,7 +24,7 @@ For additional information apply to founders. Contacts are below.
 
 ## Technology stack
 ### Back-end
-- Java 11 SE (java.lang, Сollections, multi-threading, Stream API, lyambdas)
+- Java 17 SE (java.lang, Сollections, multi-threading, Stream API, lyambdas)
 - Kotlin
 - Spring Framework 5 (IoC, Core, Boot 2, Security, MVC, Data, JPA, Transactions, JDBC, JAX-RS (REST), Test, Test DBUnit)
 - Lombok
