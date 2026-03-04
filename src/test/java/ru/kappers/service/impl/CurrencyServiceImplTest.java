@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
+//todo Досмотреть тесты и исходный класс
 public class CurrencyServiceImplTest extends UnitTest {
     @InjectMocks
     private CurrencyServiceImpl currencyService;
