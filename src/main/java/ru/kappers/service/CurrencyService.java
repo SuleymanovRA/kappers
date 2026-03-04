@@ -10,26 +10,26 @@ import java.math.BigDecimal;
  */
 public interface CurrencyService {
     /**
-     * Обновить курсы валют на сегодня
+     * Попробовать обновить курсы валют на сегодня
      * @throws CurrencyRateGettingException если не удалось обновить курсы валют
      */
     void tryRefreshCurrencyRatesForToday();
 
     /**
      * Конвертировать сумму из исходной валюты в целевую
-     * @param fromCurr исходная валюта
-     * @param toCurr целевая валюта
-     * @param amount сумма в исходной валюте
+     * @param sourceCurrency исходная валюта
+     * @param targetCurrency целевая валюта
+     * @param sourceAmount сумма в исходной валюте
      * @return сумма в целевой валюте
      */
-    BigDecimal exchange(CurrencyUnit fromCurr, CurrencyUnit toCurr, BigDecimal amount);
+    BigDecimal exchange(CurrencyUnit sourceCurrency, CurrencyUnit targetCurrency, BigDecimal sourceAmount);
 
     /**
      * Конвертировать сумму из исходной валюты в целевую
-     * @param fromCurr исходная валюта
-     * @param toCurr целевая валюта
-     * @param amount сумма в исходной валюте
+     * @param sourceCurrency исходная валюта
+     * @param targetCurrency целевая валюта
+     * @param sourceAmount сумма в исходной валюте
      * @return сумма в целевой валюте
      */
-    BigDecimal exchange(String fromCurr, String toCurr, BigDecimal amount);
+    BigDecimal exchange(String sourceCurrency, String targetCurrency, BigDecimal sourceAmount);
 }
