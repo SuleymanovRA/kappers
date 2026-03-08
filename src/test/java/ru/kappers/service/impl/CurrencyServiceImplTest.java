@@ -203,7 +203,7 @@ public class CurrencyServiceImplTest extends UnitTest {
 
         assertThat(result).isEqualTo(amount);
         verify(currencyService, never()).getActualCurrencyRateDate(any(), any(), any(), anyBoolean());
-        verify(currencyRateService, never()).getCurrByDate(any(), any());
+        verify(currencyRateService, never()).currencyRateByDate(any(), any());
     }
 
     @Test
@@ -214,8 +214,8 @@ public class CurrencyServiceImplTest extends UnitTest {
         final BigDecimal amount = BigDecimal.ONE;
         final CurrencyRate crFrom = currencyRateWithValue(new BigDecimal("72.6993"));
         final CurrencyRate crTo = currencyRateWithValue(new BigDecimal("64.4326"));
-        when(currencyRateService.getCurrByDate(date, source)).thenReturn(crFrom);
-        when(currencyRateService.getCurrByDate(date, target)).thenReturn(crTo);
+        when(currencyRateService.currencyRateByDate(date, source)).thenReturn(crFrom);
+        when(currencyRateService.currencyRateByDate(date, target)).thenReturn(crTo);
         currencyService = spy(currencyService);
         doReturn(date).when(currencyService).getActualCurrencyRateDate(any(), eq(source), eq(target), eq(false));
 
@@ -223,8 +223,8 @@ public class CurrencyServiceImplTest extends UnitTest {
 
         assertThat(result).isEqualTo(amount.multiply(new BigDecimal("1.1283")));
         verify(currencyService).getActualCurrencyRateDate(any(), eq(source), eq(target), eq(false));
-        verify(currencyRateService).getCurrByDate(date, source);
-        verify(currencyRateService).getCurrByDate(date, target);
+        verify(currencyRateService).currencyRateByDate(date, source);
+        verify(currencyRateService).currencyRateByDate(date, target);
     }
 
     private CurrencyRate currencyRateWithValue(BigDecimal value) {
@@ -241,7 +241,7 @@ public class CurrencyServiceImplTest extends UnitTest {
         final String target = kappersProperties.getRubCurrencyCode();
         final BigDecimal amount = BigDecimal.ONE;
         final CurrencyRate crFrom = currencyRateWithValue(new BigDecimal("72.6993"));
-        when(currencyRateService.getCurrByDate(date, source)).thenReturn(crFrom);
+        when(currencyRateService.currencyRateByDate(date, source)).thenReturn(crFrom);
         currencyService = spy(currencyService);
         doReturn(date).when(currencyService).getActualCurrencyRateDate(any(), eq(source), eq(target), eq(false));
 
@@ -249,8 +249,8 @@ public class CurrencyServiceImplTest extends UnitTest {
 
         assertThat(result).isEqualTo(amount.multiply(crFrom.getValue()));
         verify(currencyService).getActualCurrencyRateDate(any(), eq(source), eq(target), eq(false));
-        verify(currencyRateService).getCurrByDate(date, source);
-        verify(currencyRateService, never()).getCurrByDate(date, target);
+        verify(currencyRateService).currencyRateByDate(date, source);
+        verify(currencyRateService, never()).currencyRateByDate(date, target);
     }
 
     @Test
@@ -260,7 +260,7 @@ public class CurrencyServiceImplTest extends UnitTest {
         final String target = CurrencyUnit.USD.getCode();
         final BigDecimal amount = BigDecimal.ONE;
         final CurrencyRate crTo = currencyRateWithValue(new BigDecimal("64.4326"));
-        when(currencyRateService.getCurrByDate(date, target)).thenReturn(crTo);
+        when(currencyRateService.currencyRateByDate(date, target)).thenReturn(crTo);
         currencyService = spy(currencyService);
         doReturn(date).when(currencyService).getActualCurrencyRateDate(any(), eq(source), eq(target), eq(false));
 
@@ -268,7 +268,7 @@ public class CurrencyServiceImplTest extends UnitTest {
 
         assertThat(result).isEqualTo(amount.divide(crTo.getValue(), kappersProperties.getBigDecimalRoundingMode()));
         verify(currencyService).getActualCurrencyRateDate(any(), eq(source), eq(target), eq(false));
-        verify(currencyRateService, never()).getCurrByDate(date, source);
-        verify(currencyRateService).getCurrByDate(date, target);
+        verify(currencyRateService, never()).currencyRateByDate(date, source);
+        verify(currencyRateService).currencyRateByDate(date, target);
     }
 }

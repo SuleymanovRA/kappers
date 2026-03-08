@@ -8,11 +8,11 @@ import java.time.LocalDate
  */
 interface CurrencyRateService {
     fun save(rate: CurrencyRate): CurrencyRate
-    fun isExist(date: LocalDate, currLiteral: String): Boolean
-    fun getCurrByDate(date: LocalDate, currLiteral: String): CurrencyRate?
+    fun isExist(date: LocalDate, currencyLiteral: String): Boolean
+    fun currencyRateByDate(date: LocalDate, currencyLiteral: String): CurrencyRate?
     fun clear()
     fun update(rate: CurrencyRate): CurrencyRate
-    fun getToday(literal: String): CurrencyRate?
-    fun getAllToday(): MutableList<CurrencyRate>
-    fun getAllByDate(date: LocalDate): MutableList<CurrencyRate>
+    fun currencyRateToday(currencyLiteral: String): CurrencyRate?
+    fun allCurrencyRatesToday(): MutableList<CurrencyRate>
+    fun allCurrencyRatesByDate(date: LocalDate): MutableList<CurrencyRate>
 }
