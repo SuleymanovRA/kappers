@@ -1,5 +1,6 @@
 package ru.kappers.service.impl;
 
+import org.instancio.Instancio;
 import org.joda.money.CurrencyUnit;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,6 +21,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.instancio.Select.field;
 import static org.mockito.Mockito.*;
 
 class CurrencyServiceImplTest extends UnitTest {
@@ -50,10 +52,11 @@ class CurrencyServiceImplTest extends UnitTest {
     }
 
     private CurrencyRate currencyRateWithDateAndCharCode(LocalDate date, String charCode) {
-        return CurrencyRate.builder()
-                .date(date)
-                .charCode(charCode)
-                .build();
+        return Instancio.of(CurrencyRate.class)
+                .generate(field(CurrencyRate::getId), gen -> gen.intSeq().start(1))
+                .set(field(CurrencyRate::getDate), date)
+                .set(field(CurrencyRate::getCharCode), charCode)
+                .create();
     }
 
     @Test
@@ -209,8 +212,8 @@ class CurrencyServiceImplTest extends UnitTest {
         final String sourceCode = CurrencyUnit.EUR.getCode();
         final String targetCode = CurrencyUnit.USD.getCode();
         final BigDecimal sourceAmount = BigDecimal.ONE;
-        final CurrencyRate sourceCurrencyRate = currencyRateWithValue(new BigDecimal("72.6993"));
-        final CurrencyRate targetCurrencyRate = currencyRateWithValue(new BigDecimal("64.4326"));
+        final CurrencyRate sourceCurrencyRate = currencyRateWithOneNominalAndValue(new BigDecimal("72.6993"));
+        final CurrencyRate targetCurrencyRate = currencyRateWithOneNominalAndValue(new BigDecimal("64.4326"));
         when(currencyRateService.currencyRateByDate(date, sourceCode)).thenReturn(sourceCurrencyRate);
         when(currencyRateService.currencyRateByDate(date, targetCode)).thenReturn(targetCurrencyRate);
         currencyService = spy(currencyService);
@@ -224,11 +227,12 @@ class CurrencyServiceImplTest extends UnitTest {
         verify(currencyRateService).currencyRateByDate(date, targetCode);
     }
 
-    private CurrencyRate currencyRateWithValue(BigDecimal value) {
-        return CurrencyRate.builder()
-                .value(value)
-                .nominal(1)
-                .build();
+    private CurrencyRate currencyRateWithOneNominalAndValue(BigDecimal value) {
+        return Instancio.of(CurrencyRate.class)
+                .generate(field(CurrencyRate::getId), gen -> gen.intSeq().start(1))
+                .set(field(CurrencyRate::getValue), value)
+                .set(field(CurrencyRate::getNominal), 1)
+                .create();
     }
 
     @Test
@@ -237,7 +241,7 @@ class CurrencyServiceImplTest extends UnitTest {
         final String sourceCode = CurrencyUnit.EUR.getCode();
         final String targetCode = kappersProperties.getRubCurrencyCode();
         final BigDecimal sourceAmount = BigDecimal.ONE;
-        final CurrencyRate sourceCurrencyRate = currencyRateWithValue(new BigDecimal("72.6993"));
+        final CurrencyRate sourceCurrencyRate = currencyRateWithOneNominalAndValue(new BigDecimal("72.6993"));
         when(currencyRateService.currencyRateByDate(date, sourceCode)).thenReturn(sourceCurrencyRate);
         currencyService = spy(currencyService);
         doReturn(date).when(currencyService).getActualCurrencyRateDate(any(), eq(sourceCode), eq(targetCode), eq(false));
@@ -256,7 +260,7 @@ class CurrencyServiceImplTest extends UnitTest {
         final String sourceCode = kappersProperties.getRubCurrencyCode();
         final String targetCode = CurrencyUnit.USD.getCode();
         final BigDecimal sourceAmount = BigDecimal.ONE;
-        final CurrencyRate targetCurrencyRate = currencyRateWithValue(new BigDecimal("64.4326"));
+        final CurrencyRate targetCurrencyRate = currencyRateWithOneNominalAndValue(new BigDecimal("64.4326"));
         when(currencyRateService.currencyRateByDate(date, targetCode)).thenReturn(targetCurrencyRate);
         currencyService = spy(currencyService);
         doReturn(date).when(currencyService).getActualCurrencyRateDate(any(), eq(sourceCode), eq(targetCode), eq(false));
