@@ -38,7 +38,7 @@
 - PostgreSQL, язык SQL, управление миграциями баз данных Flyway
 - Apache Maven
 - Сервер приложений (контейнер сервлетов) Apache Tomcat
-- Модульные тесты (unit-тесты на JUnit, Mockito Framework, Hamcrest), интеграционные тесты (Spring Test, Spring Test DBUnit)
+- Модульные тесты (unit-тесты на JUnit 4/5, Mockito Framework, Hamcrest, Instancio), интеграционные тесты (Spring Test, Spring Test DBUnit)
 - Интеграция с API Центробанка РФ для получения курсов валют
 - Интеграция с API букмекерских контор (ООО "Леон")
 - DevOps, GitHub Actions CI / CD, CodeCov, диплой на Amazon Web Services
