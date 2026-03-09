@@ -80,13 +80,13 @@ public class CurrencyServiceImpl implements CurrencyService {
     }
 
     @Override
-    public BigDecimal exchange(CurrencyUnit sourceCurrency, CurrencyUnit targetCurrency, BigDecimal sourceAmount) {
-        return exchange(sourceCurrency.getCode(), targetCurrency.getCode(), sourceAmount);
+    public BigDecimal exchange(CurrencyUnit sourceCurrency, BigDecimal sourceAmount, CurrencyUnit targetCurrency) {
+        return exchange(sourceCurrency.getCode(), sourceAmount, targetCurrency.getCode());
     }
 
     @Override
-    public BigDecimal exchange(String sourceCurrency, String targetCurrency, BigDecimal sourceAmount) {
-        log.debug("exchange(sourceCurrency: {}, targetCurrency: {}, sourceAmount: {})...",
+    public BigDecimal exchange(String sourceCurrency, BigDecimal sourceAmount, String targetCurrency) {
+        log.debug("exchange(sourceCurrency: {}, sourceAmount: {}, targetCurrency: {})...",
                 sourceCurrency, targetCurrency, sourceAmount);
         if (sourceCurrency.equals(targetCurrency)) {
             return sourceAmount;

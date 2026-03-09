@@ -18,18 +18,18 @@ public interface CurrencyService {
     /**
      * Конвертировать сумму из исходной валюты в целевую
      * @param sourceCurrency исходная валюта
+     * @param sourceAmount   сумма в исходной валюте
      * @param targetCurrency целевая валюта
-     * @param sourceAmount сумма в исходной валюте
      * @return сумма в целевой валюте
      */
-    BigDecimal exchange(CurrencyUnit sourceCurrency, CurrencyUnit targetCurrency, BigDecimal sourceAmount);
+    BigDecimal exchange(CurrencyUnit sourceCurrency, BigDecimal sourceAmount, CurrencyUnit targetCurrency);
 
     /**
      * Конвертировать сумму из исходной валюты в целевую
      * @param sourceCurrency исходная валюта
+     * @param sourceAmount   сумма в исходной валюте
      * @param targetCurrency целевая валюта
-     * @param sourceAmount сумма в исходной валюте
      * @return сумма в целевой валюте
      */
-    BigDecimal exchange(String sourceCurrency, String targetCurrency, BigDecimal sourceAmount);
+    BigDecimal exchange(String sourceCurrency, BigDecimal sourceAmount, String targetCurrency);
 }

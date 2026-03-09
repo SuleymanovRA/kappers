@@ -264,7 +264,7 @@ public class UserServiceImplUnitTest {
         verify(kapper, atLeast(2)).getBalance();
         verify(userService).editUser(user);
         verify(userService).editUser(kapper);
-        verify(currencyService, never()).exchange(any(CurrencyUnit.class), any(CurrencyUnit.class), any());
+        verify(currencyService, never()).exchange(any(CurrencyUnit.class), any(), any(CurrencyUnit.class));
     }
 
     @Test
@@ -282,7 +282,7 @@ public class UserServiceImplUnitTest {
                         .build())
                 .build());
         final BigDecimal amount = BigDecimal.ONE;
-        when(currencyService.exchange(CurrencyUnit.EUR, CurrencyUnit.USD, amount)).thenReturn(new BigDecimal("2.00"));
+        when(currencyService.exchange(CurrencyUnit.EUR, amount, CurrencyUnit.USD)).thenReturn(new BigDecimal("2.00"));
         userService = spy(userService);
         doAnswer(it -> it.getArgument(0)).when(userService).editUser(any());
 
@@ -296,6 +296,6 @@ public class UserServiceImplUnitTest {
         verify(kapper, atLeast(2)).getBalance();
         verify(userService).editUser(user);
         verify(userService).editUser(kapper);
-        verify(currencyService).exchange(CurrencyUnit.EUR, CurrencyUnit.USD, amount);
+        verify(currencyService).exchange(CurrencyUnit.EUR, amount, CurrencyUnit.USD);
     }
 }

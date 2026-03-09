@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kappers.exceptions.MoneyTransferException;
 import ru.kappers.model.*;
@@ -217,7 +216,7 @@ public class UserServiceImpl implements UserService {
                 kapper.setBalance(kapper.getBalance().plus(amount));
                 log.debug("Kapper {} got {} {}", kapper.getUserName(), amount, kapper.getBalance().getCurrencyUnit());
             } else {
-                BigDecimal resultAmount = currencyService.exchange(user.getBalance().getCurrencyUnit(), kapper.getBalance().getCurrencyUnit(), amount);
+                BigDecimal resultAmount = currencyService.exchange(user.getBalance().getCurrencyUnit(), amount, kapper.getBalance().getCurrencyUnit());
                 kapper.setBalance(kapper.getBalance().plus(resultAmount));
                 log.debug("Kapper {} got {} {}", kapper.getUserName(), resultAmount, kapper.getBalance().getCurrencyUnit());
             }
