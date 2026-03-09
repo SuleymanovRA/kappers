@@ -1,6 +1,7 @@
 package ru.kappers.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.joda.money.CurrencyUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,7 +16,6 @@ import ru.kappers.service.MessageTranslator;
 import ru.kappers.service.parser.CBRFDailyCurrencyRatesParser;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -66,12 +66,11 @@ public class CurrencyServiceImpl implements CurrencyService {
      */
     @Scheduled(cron = "${kappers.currency-rates.refresh-cron}")
     public void refreshCurrencyRatesForTodayByScheduler() {
-        if (kappersProperties.getCurrencyRates().isRefreshCronEnabled()) {
-            log.debug("refreshCurrencyRatesForTodayByScheduler()...");
-        } else {
+        if (!kappersProperties.getCurrencyRates().isRefreshCronEnabled()) {
             log.debug("disabled call refreshCurrencyRatesForTodayByScheduler()");
             return;
         }
+        log.debug("refreshCurrencyRatesForTodayByScheduler()...");
         // метод вызываемый планировщиком не должен выбрасывать исключения, иначе возможно не сработает по расписанию
         try {
             tryRefreshCurrencyRatesForToday();
@@ -81,35 +80,43 @@ public class CurrencyServiceImpl implements CurrencyService {
     }
 
     @Override
-    public BigDecimal exchange(CurrencyUnit sourceCurrency, CurrencyUnit targetCurrency, BigDecimal sourceAmount) {
-        return exchange(sourceCurrency.getCode(), targetCurrency.getCode(), sourceAmount);
+    public BigDecimal exchange(CurrencyUnit sourceCurrency, BigDecimal sourceAmount, CurrencyUnit targetCurrency) {
+        return exchange(sourceCurrency.getCode(), sourceAmount, targetCurrency.getCode());
     }
 
     @Override
-    public BigDecimal exchange(String sourceCurrency, String targetCurrency, BigDecimal sourceAmount) {
-        log.debug("exchange(sourceCurrency: {}, targetCurrency: {}, sourceAmount: {})...",
+    public BigDecimal exchange(String sourceCurrency, BigDecimal sourceAmount, String targetCurrency) {
+        log.debug("exchange(sourceCurrency: {}, sourceAmount: {}, targetCurrency: {})...",
                 sourceCurrency, targetCurrency, sourceAmount);
         if (sourceCurrency.equals(targetCurrency)) {
             return sourceAmount;
         }
         LocalDate date = getActualCurrencyRateDate(LocalDate.now(), sourceCurrency, targetCurrency, false);
-        final RoundingMode roundingMode = kappersProperties.getBigDecimalRoundingMode();
-        final String rubCurrencyCode = kappersProperties.getRubCurrencyCode();
-        if (sourceCurrency.equals(rubCurrencyCode)) {
-            CurrencyRate rate = currencyRateService.getCurrByDate(date, targetCurrency);
-            return sourceAmount.divide(rate.getValue(), roundingMode)
-                    .multiply(BigDecimal.valueOf(rate.getNominal()));
-        } else if (targetCurrency.equals(rubCurrencyCode)) {
-            CurrencyRate rate = currencyRateService.getCurrByDate(date, sourceCurrency);
-            return sourceAmount.multiply(rate.getValue())
-                    .multiply(BigDecimal.valueOf(rate.getNominal()));
+        if (isRubCurrency(sourceCurrency)) {
+            return amountInTargetCurrencyFromRub(targetCurrency, sourceAmount, date);
+        } else if (isRubCurrency(targetCurrency)) {
+            return amountInRubFromSourceCurrency(sourceCurrency, sourceAmount, date);
         }
-        CurrencyRate from = currencyRateService.getCurrByDate(date, sourceCurrency);
-        CurrencyRate to = currencyRateService.getCurrByDate(date, targetCurrency);
-        BigDecimal amountInRub = sourceAmount.multiply(from.getValue())
-                .multiply(BigDecimal.valueOf(from.getNominal()));
-        return amountInRub.divide(to.getValue(), roundingMode)
-                .multiply(BigDecimal.valueOf(to.getNominal()));
+        BigDecimal amountInRub = amountInRubFromSourceCurrency(sourceCurrency, sourceAmount, date);
+        return amountInTargetCurrencyFromRub(targetCurrency, amountInRub, date);
+    }
+
+    private boolean isRubCurrency(String sourceCurrency) {
+        return sourceCurrency.equals(kappersProperties.getRubCurrencyCode());
+    }
+
+    @NotNull
+    private BigDecimal amountInTargetCurrencyFromRub(String targetCurrency, BigDecimal amountInRub, LocalDate date) {
+        CurrencyRate targetCurrencyRate = currencyRateService.currencyRateByDate(date, targetCurrency);
+        return amountInRub.divide(targetCurrencyRate.getValue(), kappersProperties.getBigDecimalRoundingMode())
+                .multiply(BigDecimal.valueOf(targetCurrencyRate.getNominal()));
+    }
+
+    @NotNull
+    private BigDecimal amountInRubFromSourceCurrency(String sourceCurrency, BigDecimal sourceAmount, LocalDate date) {
+        CurrencyRate sourceCurrencyRate = currencyRateService.currencyRateByDate(date, sourceCurrency);
+        return sourceAmount.multiply(sourceCurrencyRate.getValue())
+                .multiply(BigDecimal.valueOf(sourceCurrencyRate.getNominal()));
     }
 
     public LocalDate getActualCurrencyRateDate(LocalDate date, String sourceCurrency, String targetCurrency, boolean currRatesGotToday) {

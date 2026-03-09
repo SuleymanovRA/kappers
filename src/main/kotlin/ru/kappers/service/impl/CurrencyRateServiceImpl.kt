@@ -21,15 +21,15 @@ open class CurrencyRateServiceImpl(private val repository: CurrRateRepository,
     }
 
     @Transactional(readOnly = true)
-    override fun isExist(date: LocalDate, currLiteral: String): Boolean {
-        log.debug("isExist(date: {}, currLiteral: {})...", date, currLiteral)
-        return currLiteral == kappersProperties.rubCurrencyCode || getCurrByDate(date, currLiteral) != null
+    override fun isExist(date: LocalDate, currencyLiteral: String): Boolean {
+        log.debug("isExist(date: {}, currencyLiteral: {})...", date, currencyLiteral)
+        return currencyLiteral == kappersProperties.rubCurrencyCode || currencyRateByDate(date, currencyLiteral) != null
     }
 
     @Transactional(readOnly = true)
-    override fun getCurrByDate(date: LocalDate, currLiteral: String): CurrencyRate? {
-        log.debug("getCurrByDate(date: {}, currLiteral: {})...", date, currLiteral)
-        return repository.getCurrencyRateByDateAndCharCode(date, currLiteral).orElse(null)
+    override fun currencyRateByDate(date: LocalDate, currencyLiteral: String): CurrencyRate? {
+        log.debug("currencyRateByDate(date: {}, currencyLiteral: {})...", date, currencyLiteral)
+        return repository.getCurrencyRateByDateAndCharCode(date, currencyLiteral).orElse(null)
     }
 
     override fun clear() {
@@ -39,7 +39,7 @@ open class CurrencyRateServiceImpl(private val repository: CurrRateRepository,
 
     override fun update(rate: CurrencyRate): CurrencyRate {
         log.debug("update(rate: {})...", rate)
-        val cRate = getCurrByDate(rate.date, rate.charCode)
+        val cRate = currencyRateByDate(rate.date, rate.charCode)
         if (cRate != null) {
             cRate.value = rate.value
             return repository.save(cRate)
@@ -48,20 +48,20 @@ open class CurrencyRateServiceImpl(private val repository: CurrRateRepository,
     }
 
     @Transactional(readOnly = true)
-    override fun getToday(literal: String): CurrencyRate? {
-        log.debug("getToday(literal: {})...", literal)
-        return getCurrByDate(LocalDate.now(), literal)
+    override fun currencyRateToday(currencyLiteral: String): CurrencyRate? {
+        log.debug("currencyRateToday(currencyLiteral: {})...", currencyLiteral)
+        return currencyRateByDate(LocalDate.now(), currencyLiteral)
     }
 
     @Transactional(readOnly = true)
-    override fun getAllToday(): MutableList<CurrencyRate> {
-        log.debug("getAllToday()...")
-        return getAllByDate(LocalDate.now())
+    override fun allCurrencyRatesToday(): MutableList<CurrencyRate> {
+        log.debug("allCurrencyRatesToday()...")
+        return allCurrencyRatesByDate(LocalDate.now())
     }
 
     @Transactional(readOnly = true)
-    override fun getAllByDate(date: LocalDate): MutableList<CurrencyRate> {
-        log.debug("getAllByDate(date: {})...", date)
+    override fun allCurrencyRatesByDate(date: LocalDate): MutableList<CurrencyRate> {
+        log.debug("allCurrencyRatesByDate(date: {})...", date)
         return repository.getAllByDate(date)
     }
 }

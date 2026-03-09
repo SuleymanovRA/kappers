@@ -17,11 +17,9 @@ import ru.kappers.model.CurrencyRate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @ActiveProfiles("test")
@@ -36,51 +34,48 @@ public class CurrencyRateServiceImplTest extends AbstractTransactionalJUnit4Spri
 
     @Test
     public void save() {
-        final BigDecimal expectedValue = new BigDecimal("4650.00");
-        CurrencyRate rate = CurrencyRate.builder()
+        CurrencyRate currencyRate = CurrencyRate.builder()
                 .nominal(1)
-                .value(expectedValue)
+                .value(new BigDecimal("4650.00"))
                 .date(LocalDate.parse("2018-11-23"))
                 .charCode("BTC")
                 .numCode("000")
                 .name("Bitcoin")
                 .build();
-        CurrencyRate save = service.save(rate);
-        assertNotNull(save);
-        assertEquals(save.getValue(), expectedValue);
-        assertEquals(save.getNominal(), 1);
-        assertEquals(save.getCharCode(), "BTC");
-        assertEquals(save.getName(), "Bitcoin");
-        assertEquals(save.getNumCode(), "000");
-        assertEquals(save.getDate(), LocalDate.of(2018, Month.NOVEMBER, 23));
+        CurrencyRate result = service.save(currencyRate);
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isNotEqualTo(0);
+        assertThat(result).usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(currencyRate);
     }
 
     @Test
     public void isExist() {
-        assertTrue(service.isExist(LocalDate.parse("2018-11-21"), "GLD"));
+        assertThat(service.isExist(LocalDate.parse("2018-11-21"), "GLD")).isTrue();
     }
 
     @Test
-    public void getCurrByDate() {
-        CurrencyRate gld = service.getCurrByDate(LocalDate.parse("2018-11-21"), "GLD");
-        assertNotNull(gld);
-        assertEquals(gld.getNumCode(), "999");
+    public void currencyRateByDate() {
+        CurrencyRate gld = service.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
+        assertThat(gld).isNotNull();
+        assertThat(gld.getNumCode()).isEqualTo("999");
     }
 
     @Test
     public void update() {
-        CurrencyRate gld = service.getCurrByDate(LocalDate.parse("2018-11-21"), "GLD");
-        assertNotNull(gld);
-        assertEquals(gld.getValue(), new BigDecimal("2000.0000"));
+        CurrencyRate gld = service.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
+        assertThat(gld).isNotNull();
+        assertThat(gld.getValue()).isEqualTo(new BigDecimal("2000.0000"));
 
         final BigDecimal expectedValue = BigDecimal.valueOf(3000);
         gld.setValue(expectedValue);
         CurrencyRate update = service.update(gld);
-        assertEquals(update.getValue(), expectedValue);
+        assertThat(update.getValue()).isEqualTo(expectedValue);
     }
 
     @Test
-    public void getToday() {
+    public void currencyRateToday() {
         String charCode = "TST";
         CurrencyRate currencyRate = service.update(CurrencyRate.builder()
                 .charCode(charCode)
@@ -88,20 +83,21 @@ public class CurrencyRateServiceImplTest extends AbstractTransactionalJUnit4Spri
                 .value(BigDecimal.ONE)
                 .build());
 
-        CurrencyRate result = service.getToday(charCode);
+        CurrencyRate result = service.currencyRateToday(charCode);
 
-        assertThat(result, is(currencyRate));
+        assertThat(result).usingRecursiveComparison()
+                .isEqualTo(currencyRate);
     }
 
     @Test
-    public void getAllToday() {
-        //TODO
+    public void allCurrencyRatesToday() {
+        //TODO Написать тест
     }
 
     @Test
-    public void getAllByDate() {
-        List<CurrencyRate> allByDate = service.getAllByDate(LocalDate.parse("2018-11-21"));
-        CurrencyRate gld = service.getCurrByDate(LocalDate.parse("2018-11-21"), "GLD");
-        assertTrue(allByDate.contains(gld));
+    public void allCurrencyRatesByDate() {
+        List<CurrencyRate> allByDate = service.allCurrencyRatesByDate(LocalDate.parse("2018-11-21"));
+        CurrencyRate gld = service.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
+        assertThat(allByDate).contains(gld);
     }
 }
