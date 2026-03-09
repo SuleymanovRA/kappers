@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-public class CurrencyServiceImplTest extends UnitTest {
+class CurrencyServiceImplTest extends UnitTest {
     @InjectMocks
     private CurrencyServiceImpl currencyService;
     @Mock
