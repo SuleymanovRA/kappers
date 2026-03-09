@@ -1,6 +1,7 @@
 package ru.kappers.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.joda.money.CurrencyUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,7 +16,6 @@ import ru.kappers.service.MessageTranslator;
 import ru.kappers.service.parser.CBRFDailyCurrencyRatesParser;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -84,7 +84,6 @@ public class CurrencyServiceImpl implements CurrencyService {
         return exchange(sourceCurrency.getCode(), targetCurrency.getCode(), sourceAmount);
     }
 
-    //todo Рефакторинг
     @Override
     public BigDecimal exchange(String sourceCurrency, String targetCurrency, BigDecimal sourceAmount) {
         log.debug("exchange(sourceCurrency: {}, targetCurrency: {}, sourceAmount: {})...",
@@ -93,29 +92,31 @@ public class CurrencyServiceImpl implements CurrencyService {
             return sourceAmount;
         }
         LocalDate date = getActualCurrencyRateDate(LocalDate.now(), sourceCurrency, targetCurrency, false);
-        if (sourceCurrency.equals(rubCurrencyCode())) {
-            CurrencyRate targetCurrencyRate = currencyRateService.currencyRateByDate(date, targetCurrency);
-            return sourceAmount.divide(targetCurrencyRate.getValue(), bigDecimalRoundingMode())
-                    .multiply(BigDecimal.valueOf(targetCurrencyRate.getNominal()));
-        } else if (targetCurrency.equals(rubCurrencyCode())) {
-            CurrencyRate sourceCurrencyRate = currencyRateService.currencyRateByDate(date, sourceCurrency);
-            return sourceAmount.multiply(sourceCurrencyRate.getValue())
-                    .multiply(BigDecimal.valueOf(sourceCurrencyRate.getNominal()));
+        if (isRubCurrency(sourceCurrency)) {
+            return amountInTargetCurrencyFromRub(targetCurrency, sourceAmount, date);
+        } else if (isRubCurrency(targetCurrency)) {
+            return amountInRubFromSourceCurrency(sourceCurrency, sourceAmount, date);
         }
-        CurrencyRate from = currencyRateService.currencyRateByDate(date, sourceCurrency);
-        CurrencyRate to = currencyRateService.currencyRateByDate(date, targetCurrency);
-        BigDecimal amountInRub = sourceAmount.multiply(from.getValue())
-                .multiply(BigDecimal.valueOf(from.getNominal()));
-        return amountInRub.divide(to.getValue(), bigDecimalRoundingMode())
-                .multiply(BigDecimal.valueOf(to.getNominal()));
+        BigDecimal amountInRub = amountInRubFromSourceCurrency(sourceCurrency, sourceAmount, date);
+        return amountInTargetCurrencyFromRub(targetCurrency, amountInRub, date);
     }
 
-    private String rubCurrencyCode() {
-        return kappersProperties.getRubCurrencyCode();
+    private boolean isRubCurrency(String sourceCurrency) {
+        return sourceCurrency.equals(kappersProperties.getRubCurrencyCode());
     }
 
-    private RoundingMode bigDecimalRoundingMode() {
-        return kappersProperties.getBigDecimalRoundingMode();
+    @NotNull
+    private BigDecimal amountInTargetCurrencyFromRub(String targetCurrency, BigDecimal amountInRub, LocalDate date) {
+        CurrencyRate targetCurrencyRate = currencyRateService.currencyRateByDate(date, targetCurrency);
+        return amountInRub.divide(targetCurrencyRate.getValue(), kappersProperties.getBigDecimalRoundingMode())
+                .multiply(BigDecimal.valueOf(targetCurrencyRate.getNominal()));
+    }
+
+    @NotNull
+    private BigDecimal amountInRubFromSourceCurrency(String sourceCurrency, BigDecimal sourceAmount, LocalDate date) {
+        CurrencyRate sourceCurrencyRate = currencyRateService.currencyRateByDate(date, sourceCurrency);
+        return sourceAmount.multiply(sourceCurrencyRate.getValue())
+                .multiply(BigDecimal.valueOf(sourceCurrencyRate.getNominal()));
     }
 
     public LocalDate getActualCurrencyRateDate(LocalDate date, String sourceCurrency, String targetCurrency, boolean currRatesGotToday) {
