@@ -24,7 +24,7 @@
         <java.version>17</java.version>
         <kotlin.version>1.8.21</kotlin.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <maven.compiler.version>3.8.1</maven.compiler.version>
+        <maven.compiler.version>3.15.0</maven.compiler.version>
         <lombok.version>1.18.24</lombok.version>
         <springfox.swagger.version>2.9.2</springfox.swagger.version>
         <instancio.version>5.5.1</instancio.version>
