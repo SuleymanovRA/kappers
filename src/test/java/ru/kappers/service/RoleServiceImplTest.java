@@ -1,72 +1,82 @@
 package ru.kappers.service;
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringRunner;
-import ru.kappers.KappersApplication;
+import ru.kappers.AbstractDatabaseTest;
 import ru.kappers.model.Role;
+import ru.kappers.repository.RolesRepository;
+import ru.kappers.service.impl.RolesServiceImpl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.jdbc.JdbcTestUtils.deleteFromTables;
 
-@Slf4j
-@ActiveProfiles("test")
-@ContextConfiguration
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {KappersApplication.class})
-@TestExecutionListeners({DbUnitTestExecutionListener.class})
-public class RoleServiceImplTest extends AbstractTransactionalJUnit4SpringContextTests {
+@ContextConfiguration(classes = RoleServiceImplTest.Configuration.class)
+public class RoleServiceImplTest extends AbstractDatabaseTest {
     @Autowired
     private RolesService rolesService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     public void getRoleNameById() {
-        Role roleNameById = rolesService.getById(1);
-        Assert.assertNotNull(roleNameById);
-        Assert.assertEquals(roleNameById.getName(), Role.Names.ADMIN);
+        Role role = rolesService.getById(1);
+        assertThat(role).isNotNull();
+        assertThat(role.getName()).isEqualTo(Role.Names.ADMIN);
     }
 
     @Test
     public void getRoleIdByName() {
         int roleId = rolesService.getRoleIdByName(Role.Names.USER);
-        Assert.assertEquals(roleId, 2);
+        assertThat(roleId).isEqualTo(2);
     }
 
     @Test
     public void getRoleByName() {
         Role role = rolesService.getByName(Role.Names.USER);
-        Assert.assertEquals(role.getId(), 2);
+        assertThat(role.getId()).isEqualTo(2);
     }
 
     @Test
     public void getById() {
         Role role = rolesService.getById(2);
-        Assert.assertEquals(role.getName(), Role.Names.USER);
+        assertThat(role.getName()).isEqualTo(Role.Names.USER);
     }
 
     @Test
     public void testAddDelAndEdit() {
-        deleteFromTables("users", "roles");
+        deleteFromTables(jdbcTemplate, "users", "roles");
 
-        Role role = Role.builder().name("ROLE_TEST").enabled(true).build();
+        Role role = createRoleWithName("ROLE_TEST");
         Role backRole = rolesService.addRole(role);
-        Assert.assertNotNull(backRole);
-        Assert.assertEquals(backRole.getName(), role.getName());
+        assertThat(backRole).isNotNull();
+        assertThat(backRole.getName()).isEqualTo(role.getName());
+
         final String newName = "ROLE_TESTED";
         role = backRole;
         role.setName(newName);
         backRole = rolesService.editRole(role);
-        Assert.assertEquals(backRole.getName(), newName);
+        assertThat(backRole.getName()).isEqualTo(newName);
         rolesService.delete(backRole);
         backRole = rolesService.getByName(newName);
-        Assert.assertNull(backRole);
+        assertThat(backRole).isNull();
     }
 
+    private Role createRoleWithName(String name) {
+        return Role.builder()
+                .name(name)
+                .enabled(true)
+                .build();
+    }
+
+    @TestConfiguration
+    public static class Configuration {
+        @Bean
+        public RolesService rolesService(RolesRepository repository) {
+            return new RolesServiceImpl(repository);
+        }
+    }
 }
