@@ -82,6 +82,7 @@ public class CurrencyRateServiceImplTest extends AbstractDatabaseTest {
         CurrencyRate result = currencyRateService.currencyRateToday(charCode);
 
         assertThat(result).usingRecursiveComparison()
+                .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
                 .isEqualTo(currencyRate);
     }
 
