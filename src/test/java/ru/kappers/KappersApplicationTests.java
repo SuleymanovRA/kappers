@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 		UserServiceImplTest.class,
 		KapperInfoServiceImplTest.class,
 		FixtureServiceImplTest.class,
-        CurrencyRateServiceImplTest.class,
 		EventControllerTest.class,
 		LeonBetParserTest.class
 })

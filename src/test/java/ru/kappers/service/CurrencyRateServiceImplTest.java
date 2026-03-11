@@ -1,19 +1,16 @@
 package ru.kappers.service;
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringRunner;
-import ru.kappers.KappersApplication;
+import ru.kappers.AbstractDatabaseTest;
+import ru.kappers.config.KappersProperties;
 import ru.kappers.model.CurrencyRate;
+import ru.kappers.repository.CurrRateRepository;
+import ru.kappers.service.impl.CurrencyRateServiceImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,28 +18,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Slf4j
-@ActiveProfiles("test")
-@ContextConfiguration
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {KappersApplication.class})
-@TestExecutionListeners({DbUnitTestExecutionListener.class})
 @DatabaseSetup("/data/CurrRateServiceImplTest-currrates.xml")
-public class CurrencyRateServiceImplTest extends AbstractTransactionalJUnit4SpringContextTests {
+@ContextConfiguration(classes = CurrencyRateServiceImplTest.Configuration.class)
+public class CurrencyRateServiceImplTest extends AbstractDatabaseTest {
     @Autowired
-    private CurrencyRateService service;
+    private CurrencyRateService currencyRateService;
 
     @Test
     public void save() {
-        CurrencyRate currencyRate = CurrencyRate.builder()
-                .nominal(1)
-                .value(new BigDecimal("4650.00"))
-                .date(LocalDate.parse("2018-11-23"))
-                .charCode("BTC")
-                .numCode("000")
-                .name("Bitcoin")
-                .build();
-        CurrencyRate result = service.save(currencyRate);
+        final var currencyRate = newCurrencyRate();
+        CurrencyRate result = currencyRateService.save(currencyRate);
         assertThat(result).isNotNull();
         assertThat(result.getId()).isNotEqualTo(0);
         assertThat(result).usingRecursiveComparison()
@@ -50,42 +35,54 @@ public class CurrencyRateServiceImplTest extends AbstractTransactionalJUnit4Spri
                 .isEqualTo(currencyRate);
     }
 
+    private CurrencyRate newCurrencyRate() {
+        return CurrencyRate.builder()
+                .nominal(1)
+                .value(new BigDecimal("4650.00"))
+                .date(LocalDate.parse("2018-11-23"))
+                .charCode("BTC")
+                .numCode("000")
+                .name("Bitcoin")
+                .build();
+    }
+
     @Test
     public void isExist() {
-        assertThat(service.isExist(LocalDate.parse("2018-11-21"), "GLD")).isTrue();
+        assertThat(currencyRateService.isExist(LocalDate.parse("2018-11-21"), "GLD")).isTrue();
     }
 
     @Test
     public void currencyRateByDate() {
-        CurrencyRate gld = service.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
+        CurrencyRate gld = currencyRateService.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
         assertThat(gld).isNotNull();
         assertThat(gld.getNumCode()).isEqualTo("999");
     }
 
     @Test
     public void update() {
-        CurrencyRate gld = service.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
+        CurrencyRate gld = currencyRateService.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
         assertThat(gld).isNotNull();
         assertThat(gld.getValue()).isEqualTo(new BigDecimal("2000.0000"));
 
         final BigDecimal expectedValue = BigDecimal.valueOf(3000);
         gld.setValue(expectedValue);
-        CurrencyRate update = service.update(gld);
+        CurrencyRate update = currencyRateService.update(gld);
         assertThat(update.getValue()).isEqualTo(expectedValue);
     }
 
     @Test
     public void currencyRateToday() {
         String charCode = "TST";
-        CurrencyRate currencyRate = service.update(CurrencyRate.builder()
+        CurrencyRate currencyRate = currencyRateService.update(CurrencyRate.builder()
                 .charCode(charCode)
                 .date(LocalDate.now())
                 .value(BigDecimal.ONE)
                 .build());
 
-        CurrencyRate result = service.currencyRateToday(charCode);
+        CurrencyRate result = currencyRateService.currencyRateToday(charCode);
 
         assertThat(result).usingRecursiveComparison()
+                .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
                 .isEqualTo(currencyRate);
     }
 
@@ -96,8 +93,16 @@ public class CurrencyRateServiceImplTest extends AbstractTransactionalJUnit4Spri
 
     @Test
     public void allCurrencyRatesByDate() {
-        List<CurrencyRate> allByDate = service.allCurrencyRatesByDate(LocalDate.parse("2018-11-21"));
-        CurrencyRate gld = service.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
+        List<CurrencyRate> allByDate = currencyRateService.allCurrencyRatesByDate(LocalDate.parse("2018-11-21"));
+        CurrencyRate gld = currencyRateService.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
         assertThat(allByDate).contains(gld);
+    }
+
+    @TestConfiguration
+    public static class Configuration {
+        @Bean
+        public CurrencyRateService currencyRateService(CurrRateRepository repository, KappersProperties properties) {
+            return new CurrencyRateServiceImpl(repository, properties);
+        }
     }
 }
