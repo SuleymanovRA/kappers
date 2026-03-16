@@ -1,6 +1,5 @@
 package ru.kappers.service;
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
@@ -8,15 +7,9 @@ import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringRunner;
-import ru.kappers.KappersApplication;
+import org.springframework.jdbc.core.JdbcTemplate;
+import ru.kappers.AbstractIntegrationTest;
 import ru.kappers.model.KapperInfo;
 import ru.kappers.model.Role;
 import ru.kappers.model.User;
@@ -27,28 +20,26 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
+import static org.springframework.test.jdbc.JdbcTestUtils.deleteFromTables;
 
 @Slf4j
-@ActiveProfiles("test")
-@ContextConfiguration
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {KappersApplication.class})
-@TestExecutionListeners({DbUnitTestExecutionListener.class})
 @DatabaseSetup("/data/UserServiceImplTest-users.xml")
-public class UserServiceImplTest extends AbstractTransactionalJUnit4SpringContextTests {
-
+public class UserServiceImplTest extends AbstractIntegrationTest {
     @Autowired
     private UserService userService;
     @Autowired
     private UsersRepository usersRepository;
     @Autowired
     private RolesService rolesService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    private User admin = User.builder()
+    private final User admin = User.builder()
             .userName("admin")
             .name("админ")
             .password("asasdgfas")
@@ -57,7 +48,7 @@ public class UserServiceImplTest extends AbstractTransactionalJUnit4SpringContex
             .lang("RUSSIAN")
             .balance(Money.of(CurrencyUnit.EUR, new BigDecimal("10.00")))
             .build();
-    private User user = User.builder()
+    private final User user = User.builder()
             .userName("user")
             .name("юзер")
             .password("assaasas")
@@ -66,7 +57,7 @@ public class UserServiceImplTest extends AbstractTransactionalJUnit4SpringContex
             .lang("RUSSIAN")
             .balance(Money.of(CurrencyUnit.USD, new BigDecimal("10.00")))
             .build();
-    private User kapper = User.builder()
+    private final User kapper = User.builder()
             .userName("kapper")
             .name("каппер")
             .password("assaasas")
@@ -84,6 +75,10 @@ public class UserServiceImplTest extends AbstractTransactionalJUnit4SpringContex
 
     @Before
     public void setUp() {
+        updateRolesIfEmpty();
+    }
+
+    private void updateRolesIfEmpty() {
         userRoleNameMap.entrySet().stream()
                 .filter(it -> it.getKey().getRole() == null)
                 .forEach(it -> it.getKey().setRole(rolesService.getByName(it.getValue())));
@@ -92,31 +87,39 @@ public class UserServiceImplTest extends AbstractTransactionalJUnit4SpringContex
 
     @Test
     public void addUsers() {
-        deleteFromTables("users");
-        User userA = userService.addUser(admin);
-        User userU = userService.addUser(user);
-        User userK = userService.addUser(kapper);
-        assertEquals(userA, admin);
-        assertEquals(userU, user);
-        assertEquals(userK, kapper);
-        assertNotNull(userK.getKapperInfo());
+        deleteFromTables(jdbcTemplate,"users");
+        User adminUser = userService.addUser(admin);
+        User user = userService.addUser(this.user);
+        User kapperUser = userService.addUser(kapper);
+        assertWithRecursiveComparison(adminUser, admin);
+        assertWithRecursiveComparison(user, this.user);
+        assertWithRecursiveComparison(kapperUser, kapper);
+        assertThat(user.getKapperInfo()).isNull();
+        assertThat(kapperUser.getKapperInfo()).isNotNull();
+    }
+
+    private void assertWithRecursiveComparison(User actualUser, User expectedUser) {
+        assertThat(actualUser)
+                .usingRecursiveComparison()
+                .isEqualTo(expectedUser);
     }
 
     @Test
     public void deleteUser() {
         final String userName = user.getUserName();
         userService.delete(usersRepository.getByUserName(userName));
-        assertNull(usersRepository.getByUserName(userName));
+        assertThat(usersRepository.getByUserName(userName)).isNull();
     }
 
     @Test
     public void getByUserName() {
-        User user1 = userService.getByUserName("kapper");
-        log.info(user1.toString());
-        assertNotNull(user1);
-        assertEquals(user1.getUserName(), kapper.getUserName());
-        assertNotEquals(user1, user);
-        assertNotEquals(user1, admin);
+        User kapperUser = userService.getByUserName("kapper");
+        log.info(kapperUser.toString());
+        assertThat(kapperUser).isNotNull();
+        assertThat(kapperUser.getUserName()).isEqualTo(kapper.getUserName());
+        assertThat(kapperUser).isNotEqualTo(user);
+        assertNotEquals(kapperUser, admin);
+        assertThat(kapperUser).isNotEqualTo(admin);
     }
 
     @Test
@@ -146,7 +149,7 @@ public class UserServiceImplTest extends AbstractTransactionalJUnit4SpringContex
     public void getAll() {
         List<String> all = userService.getAll().stream()
                 .map(User::getUserName)
-                .collect(Collectors.toList());
+                .toList();
         assertTrue(all.contains(admin.getUserName()));
         assertTrue(all.contains(user.getUserName()));
         assertTrue(all.contains(kapper.getUserName()));
@@ -159,7 +162,7 @@ public class UserServiceImplTest extends AbstractTransactionalJUnit4SpringContex
         assertNotEquals(0, admins.size());
         assertTrue(admins.stream()
                 .map(User::getUserName)
-                .collect(Collectors.toList())
+                .toList()
                 .contains(admin.getUserName()));
     }
 
@@ -187,36 +190,38 @@ public class UserServiceImplTest extends AbstractTransactionalJUnit4SpringContex
 
     @Test
     public void getHistory() {
-        //TODO
+        //TODO реализовать тест
     }
 
     @Test
     public void getStat() {
-        //TODO
+        //TODO реализовать тест
     }
 
     @Test
     public void getKapperInfo() {
-        User kapp = userService.getByUserName("kapper");
-        userService.addUser(kapp);
-        KapperInfo kapperInfo = kapp.getKapperInfo();
-        assertNotNull(kapperInfo);
+        User kapperUser = userService.getByUserName("kapper");
+        kapperUser = userService.addUser(kapperUser);
+        KapperInfo kapperInfo = kapperUser.getKapperInfo();
+        assertThat(kapperInfo).isNotNull();
+
         User user = userService.getByUserName("user");
         KapperInfo userInfo = user.getKapperInfo();
-        assertNull(userInfo);
+        assertThat(userInfo).isNull();
     }
 
     @Test
     public void getInfo() {
-        //TODO
+        //TODO реализовать тест
     }
 
 
     @Test
     public void transfer() {
+        //TODO реализовать тест
     }
 
-/*
+    /*
 * Ниже фрагмент кода закомментирован для отключения взаимодействия с блокчейном на период разработки.
 * */
 

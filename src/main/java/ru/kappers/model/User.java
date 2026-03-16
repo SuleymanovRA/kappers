@@ -96,6 +96,10 @@ public class User implements Serializable {
         return role.getId() == role_id;
     }
 
+    public boolean hasNoRole(String roleName) {
+        return !hasRole(roleName);
+    }
+
     public boolean hasRole(String roleName) {
         return role.getName().equals(roleName);
     }
