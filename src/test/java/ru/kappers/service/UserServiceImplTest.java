@@ -3,13 +3,16 @@ package ru.kappers.service;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.RecursiveComparisonAssert;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.kappers.AbstractIntegrationTest;
+import ru.kappers.assertion.Assertions;
 import ru.kappers.model.KapperInfo;
 import ru.kappers.model.Role;
 import ru.kappers.model.User;
@@ -24,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.springframework.test.jdbc.JdbcTestUtils.deleteFromTables;
 
 @Slf4j
@@ -91,17 +93,18 @@ public class UserServiceImplTest extends AbstractIntegrationTest {
         User adminUser = userService.addUser(admin);
         User user = userService.addUser(this.user);
         User kapperUser = userService.addUser(kapper);
-        assertWithRecursiveComparison(adminUser, admin);
-        assertWithRecursiveComparison(user, this.user);
-        assertWithRecursiveComparison(kapperUser, kapper);
+        assertWithRecursiveComparison(adminUser)
+                .isEqualTo(admin);
+        assertWithRecursiveComparison(user)
+                .isEqualTo(this.user);
+        assertWithRecursiveComparison(kapperUser)
+                .isEqualTo(kapper);
         assertThat(user.getKapperInfo()).isNull();
         assertThat(kapperUser.getKapperInfo()).isNotNull();
     }
 
-    private void assertWithRecursiveComparison(User actualUser, User expectedUser) {
-        assertThat(actualUser)
-                .usingRecursiveComparison()
-                .isEqualTo(expectedUser);
+    private RecursiveComparisonAssert<?> assertWithRecursiveComparison(User actualUser) {
+        return assertThat(actualUser).usingRecursiveComparison();
     }
 
     @Test
@@ -115,34 +118,32 @@ public class UserServiceImplTest extends AbstractIntegrationTest {
     public void getByUserName() {
         User kapperUser = userService.getByUserName("kapper");
         log.info(kapperUser.toString());
-        assertThat(kapperUser).isNotNull();
-        assertThat(kapperUser.getUserName()).isEqualTo(kapper.getUserName());
-        assertThat(kapperUser).isNotEqualTo(user);
-        assertNotEquals(kapperUser, admin);
-        assertThat(kapperUser).isNotEqualTo(admin);
+        Assertions.assertThat(kapperUser).isNotNull()
+                .isNotEqualTo(user)
+                .isNotEqualTo(admin)
+                .hasUserName(kapper.getUserName());
     }
 
     @Test
     public void getByName() {
         userService.addUser(admin);
-        User user1 = userService.getByName("админ");
-        assertNotNull(user1);
-        assertNotEquals(user1, kapper);
-        assertNotEquals(user1, user);
-        assertEquals(user1.getUserName(), admin.getUserName());
-        userService.delete(admin);
+        User adminUser = userService.getByName("админ");
+        Assertions.assertThat(adminUser).isNotNull()
+                .isNotEqualTo(kapper)
+                .isNotEqualTo(user)
+                .hasUserName(admin.getUserName());
     }
 
     @Test
     public void editUser() {
         final String adminUserName = "admin";
-        User user1 = userService.getByUserName(adminUserName);
-        String curr = user1.getEmail();
-        assertNotNull(user1);
-        user1.setEmail("qwe1as@asas.ru");
-        userService.editUser(user1);
-        user1 = userService.getByUserName(adminUserName);
-        assertNotEquals(curr, user1.getEmail());
+        User adminUser = userService.getByUserName(adminUserName);
+        String email = adminUser.getEmail();
+        adminUser.setEmail("qwe1as@asas.ru");
+        userService.editUser(adminUser);
+        adminUser = userService.getByUserName(adminUserName);
+        Assertions.assertThat(adminUser)
+                .hasNoEmail(email);
     }
 
     @Test
@@ -150,50 +151,50 @@ public class UserServiceImplTest extends AbstractIntegrationTest {
         List<String> all = userService.getAll().stream()
                 .map(User::getUserName)
                 .toList();
-        assertTrue(all.contains(admin.getUserName()));
-        assertTrue(all.contains(user.getUserName()));
-        assertTrue(all.contains(kapper.getUserName()));
+        assertThat(all)
+                .contains(admin.getUserName(), user.getUserName(), kapper.getUserName());
     }
 
     @Test
     public void getAllByRole() {
         List<User> admins = userService.getAllByRole(Role.Names.ADMIN);
-        assertNotNull(admins);
-        assertNotEquals(0, admins.size());
-        assertTrue(admins.stream()
-                .map(User::getUserName)
-                .toList()
-                .contains(admin.getUserName()));
+        assertThat(admins).isNotNull()
+                .isNotEmpty()
+                .flatExtracting(User::getUserName)
+                .contains(admin.getUserName());
     }
 
     @Test
     public void hasRole() {
-        User userU = userService.getByUserName(user.getUserName());
-        User userK = userService.getByUserName(kapper.getUserName());
-        assertTrue(userService.hasRole(userK, Role.Names.KAPPER));
-        assertFalse(userService.hasRole(userU, Role.Names.KAPPER));
-        assertFalse(userService.hasRole(userK, Role.Names.ADMIN));
-        assertTrue(userService.hasRole(userU, rolesService.getRoleIdByName(Role.Names.USER)));
-        assertTrue(userService.hasRole(userU, rolesService.getByName(Role.Names.USER)));
-        assertTrue(userService.hasRole(userU, rolesService.getById(2)));
-        assertEquals(userK.getRole(), rolesService.getByName(Role.Names.KAPPER));
+        User uUser = userService.getByUserName(user.getUserName());
+        User kapperUser = userService.getByUserName(kapper.getUserName());
+        assertThat(userService.hasRole(kapperUser, Role.Names.KAPPER)).isTrue();
+        assertThat(userService.hasRole(uUser, Role.Names.KAPPER)).isFalse();
+        assertThat(userService.hasRole(kapperUser, Role.Names.ADMIN)).isFalse();
+        assertThat(userService.hasRole(uUser, rolesService.getRoleIdByName(Role.Names.USER))).isTrue();
+        assertThat(userService.hasRole(uUser, rolesService.getByName(Role.Names.USER))).isTrue();
+        assertThat(userService.hasRole(uUser, rolesService.getById(2))).isTrue();
+        Assertions.assertThat(kapperUser)
+                .hasRole(rolesService.getByName(Role.Names.KAPPER));
     }
 
     @Test
     public void getRole() {
-        User userK = userService.getByUserName(kapper.getUserName());
-        assertNotNull(userK);
-        Role role = userService.getRole(userK);
-        assertNotNull(role);
-        assertEquals(role.getName(), Role.Names.KAPPER);
+        User kapperUser = userService.getByUserName(kapper.getUserName());
+        Assertions.assertThat(kapperUser).isNotNull();
+        Role role = userService.getRole(kapperUser);
+        Assertions.assertThat(role).isNotNull()
+                .hasName(Role.Names.KAPPER);
     }
 
     @Test
+    @Ignore("реализовать тест")
     public void getHistory() {
         //TODO реализовать тест
     }
 
     @Test
+    @Ignore("реализовать тест")
     public void getStat() {
         //TODO реализовать тест
     }
@@ -211,12 +212,14 @@ public class UserServiceImplTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @Ignore("реализовать тест")
     public void getInfo() {
         //TODO реализовать тест
     }
 
 
     @Test
+    @Ignore("реализовать тест")
     public void transfer() {
         //TODO реализовать тест
     }
