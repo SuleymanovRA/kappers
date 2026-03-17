@@ -64,7 +64,7 @@ public class KapperInfoServiceImplTest extends AbstractTransactionalJUnit4Spring
     private RolesService rolesService;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         deleteFromTables("users");
         kapper.setRole(rolesService.getByName(Role.Names.KAPPER));
     }
@@ -84,7 +84,7 @@ public class KapperInfoServiceImplTest extends AbstractTransactionalJUnit4Spring
     }
 
     @Test(expected = UserNotHaveKapperRoleException.class)
-    public void initNotKapper() {
+    public void initKapperMustThrowExceptionForUserWithoutKapperRole() {
         userService.addUser(user);
         User user1 = userService.getByUserName(user.getUserName());
         assertNotNull(user1);

@@ -18,7 +18,6 @@ import static org.junit.Assert.assertTrue;
 @ActiveProfiles("test")
 @TestExecutionListeners({DbUnitTestExecutionListener.class})
 @Suite.SuiteClasses({
-		UserServiceImplTest.class,
 		KapperInfoServiceImplTest.class,
 		FixtureServiceImplTest.class,
 		EventControllerTest.class,

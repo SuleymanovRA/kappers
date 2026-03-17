@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.NaturalId;
 import ru.kappers.logic.raitings.IRaiting;
 
 import javax.persistence.*;
@@ -20,7 +19,6 @@ import java.io.Serializable;
 @Entity
 @Table(name = "kapper_info")
 public class KapperInfo implements IRaiting, Serializable {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false, insertable = true, updatable = false)
@@ -47,8 +45,8 @@ public class KapperInfo implements IRaiting, Serializable {
 
     @Override
     public int compareTo(KapperInfo o) {
-        if (this.getTokens()<o.getTokens()) return 1;
-        else if (this.getTokens()>o.getTokens()) return -1;
+        if (this.getTokens() < o.getTokens()) return 1;
+        else if (this.getTokens() > o.getTokens()) return -1;
         else return 0;
     }
 }

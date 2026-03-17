@@ -21,7 +21,10 @@ import org.testcontainers.containers.PostgreSQLContainer;
 @DataJpaTest(showSql = false)
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @ContextConfiguration(initializers = {AbstractDatabaseTest.Initializer.class})
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, DbUnitTestExecutionListener.class})
+@TestExecutionListeners({
+        DependencyInjectionTestExecutionListener.class,
+        DbUnitTestExecutionListener.class
+})
 public abstract class AbstractDatabaseTest {
     @ClassRule
     public static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer<>("postgres:10.23-alpine")
