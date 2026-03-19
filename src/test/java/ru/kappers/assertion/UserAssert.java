@@ -1,8 +1,11 @@
 package ru.kappers.assertion;
 
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.AbstractObjectAssert;
 import ru.kappers.model.Role;
 import ru.kappers.model.User;
+
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,7 +15,6 @@ public class UserAssert extends AbstractAssert<UserAssert, User> {
     }
 
     public UserAssert hasUserName(final String userName) {
-        isNotNull();
         if (!userNameEquals(userName)) {
             failWithMessage("Expected userName \"%s\" but was \"%s\"", userName, actual.getUserName());
         }
@@ -20,11 +22,10 @@ public class UserAssert extends AbstractAssert<UserAssert, User> {
     }
 
     private boolean userNameEquals(String userName) {
-        return actual.getUserName().equals(userName);
+        return Objects.equals(actual.getUserName(), userName);
     }
 
     public UserAssert hasNoUserName(final String userName) {
-        isNotNull();
         if (userNameEquals(userName)) {
             failWithMessage("Expected userName was not \"%s\" but was", userName);
         }
@@ -32,7 +33,6 @@ public class UserAssert extends AbstractAssert<UserAssert, User> {
     }
 
     public UserAssert hasEmail(final String email) {
-        isNotNull();
         if (!emailEquals(email)) {
             failWithMessage("Expected email \"%s\" but was \"%s\"", email, actual.getEmail());
         }
@@ -40,11 +40,10 @@ public class UserAssert extends AbstractAssert<UserAssert, User> {
     }
 
     private boolean emailEquals(String email) {
-        return actual.getEmail().equals(email);
+        return Objects.equals(actual.getEmail(), email);
     }
 
     public UserAssert hasNoEmail(final String email) {
-        isNotNull();
         if (emailEquals(email)) {
             failWithMessage("Expected email was not \"%s\" but was", email);
         }
@@ -52,25 +51,26 @@ public class UserAssert extends AbstractAssert<UserAssert, User> {
     }
 
     public UserAssert hasRole(final Role role) {
-        isNotNull();
-        assertThat(actual)
-                .extracting(User::getRole)
-                .as("role")
-                .isEqualTo(role);
+        roleAssertion().isEqualTo(role);
         return this;
     }
 
-    public UserAssert hasNoRole(final Role role) {
-        isNotNull();
-        assertThat(actual)
+    private AbstractObjectAssert<?, Role> roleAssertion() {
+        return assertThat(actual)
                 .extracting(User::getRole)
-                .as("role")
-                .isNotEqualTo(role);
+                .as("role");
+    }
+
+    public UserAssert hasNoRole(final Role role) {
+        roleAssertion().isNotEqualTo(role);
         return this;
     }
 
     public RoleAssert roleAssert() {
-        isNotNull();
         return Assertions.assertThat(actual.getRole());
+    }
+
+    public KapperInfoAssert kapperInfoAssert() {
+        return Assertions.assertThat(actual.getKapperInfo());
     }
 }

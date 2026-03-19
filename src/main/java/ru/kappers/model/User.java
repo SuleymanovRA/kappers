@@ -13,10 +13,11 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -92,8 +93,8 @@ public class User implements Serializable {
 //    @JoinTable(name = "history", joinColumns = @JoinColumn(name = "player_id"))
 //    private Set<History> entity;
 
-    public boolean hasRole(int role_id) {
-        return role.getId() == role_id;
+    public boolean hasRole(int roleId) {
+        return role.getId() == roleId;
     }
 
     public boolean hasNoRole(String roleName) {
@@ -101,7 +102,7 @@ public class User implements Serializable {
     }
 
     public boolean hasRole(String roleName) {
-        return role.getName().equals(roleName);
+        return Objects.equals(role.getName(), roleName);
     }
 
     @ToString.Exclude

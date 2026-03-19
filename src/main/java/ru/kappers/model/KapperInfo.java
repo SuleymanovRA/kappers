@@ -13,7 +13,7 @@ import java.io.Serializable;
  * Created by Shoma on 29.09.2018.
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

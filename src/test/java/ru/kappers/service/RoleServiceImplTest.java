@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import ru.kappers.AbstractDatabaseTest;
+import ru.kappers.assertion.Assertions;
 import ru.kappers.model.Role;
 import ru.kappers.repository.RolesRepository;
 import ru.kappers.service.impl.RolesServiceImpl;
@@ -24,8 +25,8 @@ public class RoleServiceImplTest extends AbstractDatabaseTest {
     @Test
     public void getRoleNameById() {
         Role role = rolesService.getById(1);
-        assertThat(role).isNotNull();
-        assertThat(role.getName()).isEqualTo(Role.Names.ADMIN);
+        Assertions.assertThat(role).isNotNull()
+                .hasName(Role.Names.ADMIN);
     }
 
     @Test
@@ -37,13 +38,13 @@ public class RoleServiceImplTest extends AbstractDatabaseTest {
     @Test
     public void getRoleByName() {
         Role role = rolesService.getByName(Role.Names.USER);
-        assertThat(role.getId()).isEqualTo(2);
+        Assertions.assertThat(role).hasId(2);
     }
 
     @Test
     public void getById() {
         Role role = rolesService.getById(2);
-        assertThat(role.getName()).isEqualTo(Role.Names.USER);
+        Assertions.assertThat(role).hasName(Role.Names.USER);
     }
 
     @Test
@@ -52,17 +53,17 @@ public class RoleServiceImplTest extends AbstractDatabaseTest {
 
         Role role = createRoleWithName("ROLE_TEST");
         Role backRole = rolesService.addRole(role);
-        assertThat(backRole).isNotNull();
-        assertThat(backRole.getName()).isEqualTo(role.getName());
+        Assertions.assertThat(backRole).isNotNull()
+                .hasName(role.getName());
 
         final String newName = "ROLE_TESTED";
-        role = backRole;
-        role.setName(newName);
-        backRole = rolesService.editRole(role);
-        assertThat(backRole.getName()).isEqualTo(newName);
+        backRole = rolesService.editRole(backRole.toBuilder()
+                .name(newName)
+                .build());
+        Assertions.assertThat(backRole).hasName(newName);
         rolesService.delete(backRole);
         backRole = rolesService.getByName(newName);
-        assertThat(backRole).isNull();
+        Assertions.assertThat(backRole).isNull();
     }
 
     private Role createRoleWithName(String name) {
