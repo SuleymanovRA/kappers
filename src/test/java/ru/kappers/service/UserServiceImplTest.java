@@ -9,14 +9,23 @@ import org.joda.money.Money;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.kappers.AbstractIntegrationTest;
+import org.springframework.test.context.ContextConfiguration;
+import ru.kappers.AbstractDatabaseTest;
 import ru.kappers.assertion.Assertions;
+import ru.kappers.config.KappersProperties;
 import ru.kappers.model.KapperInfo;
 import ru.kappers.model.Role;
 import ru.kappers.model.User;
-import ru.kappers.repository.UsersRepository;
+import ru.kappers.repository.*;
+import ru.kappers.service.impl.*;
+import ru.kappers.service.parser.CBRFDailyCurrencyRatesParser;
 import ru.kappers.util.DateTimeUtil;
 
 import java.math.BigDecimal;
@@ -29,11 +38,11 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.jdbc.JdbcTestUtils.deleteFromTables;
 
-//todo Похоже что наследники AbstractIntegrationTest пока падают, причем не падают тесты только первого в очереди выполнения класса. Cтоит наследовать от AbstractDatabaseTest (уже 3 есть класса)
-//todo Возможно, стоит скопировать конфиг из KapperInfoServiceImplTest
 @Slf4j
 @DatabaseSetup("/data/UserServiceImplTest-users.xml")
-public class UserServiceImplTest extends AbstractIntegrationTest {
+@ContextConfiguration(classes = {UserServiceImplTest.Configuration.class})
+@ExtendWith(MockitoExtension.class)
+public class UserServiceImplTest extends AbstractDatabaseTest {
     @Autowired
     private UserService userService;
     @Autowired
@@ -224,6 +233,57 @@ public class UserServiceImplTest extends AbstractIntegrationTest {
     @Ignore("реализовать тест")
     public void transfer() {
         //TODO реализовать тест
+    }
+
+    @TestConfiguration
+    public static class Configuration {
+        @Bean
+        public MessageTranslator messageTranslator() {
+            return Mockito.mock(MessageTranslator.class);
+        }
+
+        @Bean
+        public KapperInfoService kapperInfoService(KapperInfoRepository kapperInfoRepository,
+                                                   MessageTranslator messageTranslator) {
+            return new KapperInfoServiceImpl(kapperInfoRepository, messageTranslator);
+        }
+
+        @Bean
+        public RolesService rolesService(RolesRepository repository) {
+            return new RolesServiceImpl(repository);
+        }
+
+        @Bean
+        public CurrencyRateService currencyRateService(CurrRateRepository currRateRepository,
+                                                       KappersProperties kappersProperties) {
+            return new CurrencyRateServiceImpl(currRateRepository, kappersProperties);
+        }
+
+        @Bean
+        public CBRFDailyCurrencyRatesParser cbrfDailyCurrencyRatesParser() {
+            return Mockito.mock(CBRFDailyCurrencyRatesParser.class);
+        }
+
+        @Bean
+        public CurrencyService currencyService(CurrencyRateService currencyRateService,
+                                               CBRFDailyCurrencyRatesParser cbrfDailyCurrencyRatesParser, KappersProperties kappersProperties,
+                                               MessageTranslator messageTranslator) {
+            return new CurrencyServiceImpl(currencyRateService, cbrfDailyCurrencyRatesParser, kappersProperties,
+                    messageTranslator);
+        }
+
+        @Bean
+        public HistoryService historyService(HistoryRepository historyRepository) {
+            return new HistoryServiceImpl(historyRepository);
+        }
+
+        @Bean
+        public UserService userService(UsersRepository usersRepository, RolesService rolesService,
+                                       KapperInfoService kapperInfoService, CurrencyService currencyService,
+                                       MessageTranslator messageTranslator, HistoryService historyService) {
+            return new UserServiceImpl(usersRepository, rolesService, kapperInfoService, currencyService,
+                    messageTranslator, historyService);
+        }
     }
 
     /*
