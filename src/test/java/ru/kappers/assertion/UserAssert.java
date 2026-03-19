@@ -2,6 +2,7 @@ package ru.kappers.assertion;
 
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.AbstractObjectAssert;
+import org.assertj.core.api.RecursiveComparisonAssert;
 import ru.kappers.model.Role;
 import ru.kappers.model.User;
 
@@ -72,5 +73,10 @@ public class UserAssert extends AbstractAssert<UserAssert, User> {
 
     public KapperInfoAssert kapperInfoAssert() {
         return Assertions.assertThat(actual.getKapperInfo());
+    }
+
+    @Override
+    public RecursiveComparisonAssert<?> usingRecursiveComparison() {
+        return super.usingRecursiveComparison();
     }
 }
