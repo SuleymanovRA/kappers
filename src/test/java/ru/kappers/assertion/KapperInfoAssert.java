@@ -2,6 +2,7 @@ package ru.kappers.assertion;
 
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.AbstractObjectAssert;
+import org.assertj.core.api.RecursiveComparisonAssert;
 import ru.kappers.model.KapperInfo;
 import ru.kappers.model.User;
 
@@ -90,5 +91,10 @@ public class KapperInfoAssert extends AbstractAssert<KapperInfoAssert, KapperInf
     public KapperInfoAssert hasNoUser(User user) {
         userAssertion().isNotEqualTo(user);
         return this;
+    }
+
+    @Override
+    public RecursiveComparisonAssert<?> usingRecursiveComparison() {
+        return super.usingRecursiveComparison();
     }
 }
