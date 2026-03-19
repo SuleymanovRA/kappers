@@ -29,6 +29,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.jdbc.JdbcTestUtils.deleteFromTables;
 
+//todo Похоже что наследники AbstractIntegrationTest пока падают, причем не падают тесты только первого в очереди выполнения класса. Cтоит наследовать от AbstractDatabaseTest (уже 3 есть класса)
+//todo Возможно, стоит скопировать конфиг из KapperInfoServiceImplTest
 @Slf4j
 @DatabaseSetup("/data/UserServiceImplTest-users.xml")
 public class UserServiceImplTest extends AbstractIntegrationTest {

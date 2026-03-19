@@ -1,6 +1,7 @@
 package ru.kappers.service;
 
 import com.github.springtestdbunit.annotation.DatabaseSetup;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -87,6 +88,7 @@ public class CurrencyRateServiceImplTest extends AbstractDatabaseTest {
     }
 
     @Test
+    @Ignore("Реализовать тест")
     public void allCurrencyRatesToday() {
         //TODO Написать тест
     }

@@ -18,14 +18,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
-/*
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-        "spring.datasource.url=jdbc:tc:postgresql:10.23-alpine:///testdb",
-        "spring.datasource.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver",
-        "spring.datasource.username=postgres",
-        "spring.datasource.password=postgres"
-})
-*/
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {KappersApplication.class})
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @ContextConfiguration(initializers = {AbstractIntegrationTest.Initializer.class})
@@ -46,7 +38,8 @@ public abstract class AbstractIntegrationTest {
             TestPropertyValues.of(
                     "spring.datasource.url=" + postgreSQLContainer.getJdbcUrl(),
                     "spring.datasource.username=" + postgreSQLContainer.getUsername(),
-                    "spring.datasource.password=" + postgreSQLContainer.getPassword()
+                    "spring.datasource.password=" + postgreSQLContainer.getPassword(),
+                    "spring.datasource.driver-class-name=" + postgreSQLContainer.getDriverClassName()
             ).applyTo(configurableApplicationContext.getEnvironment());
         }
     }
