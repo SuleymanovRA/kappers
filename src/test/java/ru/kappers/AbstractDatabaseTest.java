@@ -38,7 +38,8 @@ public abstract class AbstractDatabaseTest {
             TestPropertyValues.of(
                     "spring.datasource.url=" + postgreSQLContainer.getJdbcUrl(),
                     "spring.datasource.username=" + postgreSQLContainer.getUsername(),
-                    "spring.datasource.password=" + postgreSQLContainer.getPassword()
+                    "spring.datasource.password=" + postgreSQLContainer.getPassword(),
+                    "spring.datasource.driver-class-name=" + postgreSQLContainer.getDriverClassName()
             ).applyTo(configurableApplicationContext.getEnvironment());
         }
     }
