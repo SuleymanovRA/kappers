@@ -1,17 +1,15 @@
 # Честный каппер
 <p align="center">
-  <a href="https://github.com/soufee/kappers">English</a> |
-  <a href="https://github.com/soufee/kappers/blob/master/readme/README_ru_RU.md">Русский</a>
+  <a href="https://github.com/SuleymanovRA/kappers">English</a> |
+  <a href="https://github.com/SuleymanovRA/kappers/blob/master/readme/README_ru_RU.md">Русский</a>
 </p>
 
 ---
 
 | Technology | Badge |
 |:-----------:|:-----:|
-| Travis CI[AS] | [![Build Status](https://travis-ci.org/soufee/kappers.svg?branch=master)](https://travis-ci.org/soufee/kappers) |
-| Travis CI[RS] | [![Build Status](https://travis-ci.com/SuleymanovRA/kappers.svg?branch=master)](https://travis-ci.com/SuleymanovRA/kappers) |
+| GitHub Actions CI[RS] | [![Java-CI-with-Maven](https://github.com/SuleymanovRA/kappers/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/SuleymanovRA/kappers/actions/workflows/maven.yml) |
 | CodeCov | [![codecov](https://codecov.io/gh/SuleymanovRA/kappers/branch/master/graph/badge.svg)](https://codecov.io/gh/SuleymanovRA/kappers) |
-| Codebeat | [![codebeat badge](https://codebeat.co/badges/7aa7c56b-e4d4-4978-9f42-ce0657aa27a1)](https://codebeat.co/projects/github-com-suleymanovra-kappers-master) |
 
 ## Информация о проекте
 Проект "Честный каппер" предполагает создание веб-сервиса для ведения честного рейтинга аналитиков спорта (каппера), занимающихся продажей прогнозов на спорт для ставок.
@@ -28,7 +26,7 @@
 
 ## Стек технологий и языки программирования
 ### Back-end
-- Java 8 SE (java.lang, Сollections, multi-threading, Stream API, лямбды)
+- Java 17 SE (java.lang, Сollections, multi-threading, Stream API, лямбды)
 - Kotlin
 - Spring Framework 5 (IoC, Core, Boot 2, Security, MVC, Data, JPA, Транзакции, JDBC, JAX-RS (REST), Test, Test DBUnit)
 - Lombok
@@ -40,10 +38,10 @@
 - PostgreSQL, язык SQL, управление миграциями баз данных Flyway
 - Apache Maven
 - Сервер приложений (контейнер сервлетов) Apache Tomcat
-- Модульные тесты (unit-тесты на JUnit, Mockito Framework, Hamcrest), интеграционные тесты (Spring Test, Spring Test DBUnit)
+- Модульные тесты (unit-тесты на JUnit 4/5, Mockito Framework, Hamcrest, Instancio), интеграционные тесты (Spring Test, Spring Test DBUnit, testcontainers)
 - Интеграция с API Центробанка РФ для получения курсов валют
 - Интеграция с API букмекерских контор (ООО "Леон")
-- DevOps, Travis CI / CD, CodeCov, диплой на Amazon Web Services
+- DevOps, GitHub Actions CI / CD, CodeCov, диплой на Amazon Web Services
 - Amazon Web Services: AWS Elastic Beanstalk, AWS IAM, AWS EC2, AWS RDS, AWS S3, AWS CloudWatch
 - Планируется JMS (возможно будет ActiveMQ)
 - Планируются смарт-контракты на языке Solidity для блокчейн Ethereum, интеграция через Web3j

@@ -23,6 +23,6 @@ public class CurrencyController {
 
     @RequestMapping(value = "/refresh", method = RequestMethod.GET)
     public void refreshCurrencyRatesForToday() {
-        currencyService.refreshCurrencyRatesForToday();
+        currencyService.tryRefreshCurrencyRatesForToday();
     }
 }

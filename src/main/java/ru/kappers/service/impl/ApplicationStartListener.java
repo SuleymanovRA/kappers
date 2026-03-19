@@ -37,7 +37,7 @@ public class ApplicationStartListener implements ApplicationListener<ContextRefr
         log.info(translator.byCode("kappersMessage.KappersPropertiesForLog"), kappersProperties);
         taskExecutor.execute(() -> {
             try {
-                currencyService.refreshCurrencyRatesForToday();
+                currencyService.tryRefreshCurrencyRatesForToday();
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }

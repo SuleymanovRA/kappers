@@ -1,10 +1,9 @@
 package ru.kappers.service.impl;
 
 import com.google.common.base.Preconditions;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kappers.exceptions.MoneyTransferException;
 import ru.kappers.model.*;
@@ -21,8 +20,8 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
     private final UsersRepository repository;
     private final RolesService rolesService;
     private final KapperInfoService kapperInfoService;
@@ -30,49 +29,50 @@ public class UserServiceImpl implements UserService {
     private final MessageTranslator messageTranslator;
     private final HistoryService historyService;
 
-    @Autowired
-    public UserServiceImpl(UsersRepository repository, RolesService rolesService, KapperInfoService kapperInfoService,
-                           CurrencyService currencyService, MessageTranslator messageTranslator, HistoryService historyService) {
-        this.repository = repository;
-        this.rolesService = rolesService;
-        this.kapperInfoService = kapperInfoService;
-        this.currencyService = currencyService;
-        this.messageTranslator = messageTranslator;
-        this.historyService = historyService;
-    }
-
     @Override
     public User addUser(User user) {
         log.debug("addUser(user: {})...", user);
+        checkUserRole(user);
+        User userByUserName = repository.getByUserName(user.getUserName());
+        if (userByUserName != null) {
+            log.info("Пользователь {} уже существует", user.getUserName());
+            return saveKapperInfo(userByUserName);
+        }
+        updateDateOfRegistrationIfEmpty(user);
+        updateRoleIfEmpty(user);
+        return saveKapperInfo(repository.save(user));
+    }
+
+    private void checkUserRole(User user) {
         Role role = user.getRole();
+        updateRoleNameIfEmpty(role, user);
+    }
+
+    private void updateRoleNameIfEmpty(Role role, User user) {
         if (role != null && role.getName() == null) {
             role.setName(rolesService.getById(role.getId()).getName());
+            user.setRole(role);
         }
-        user.setRole(role);
-        final String userName = user.getUserName();
-        User userByUserName = repository.getByUserName(userName);
-        if (userByUserName != null) {
-            log.info("Пользователь {} уже существует", userName);
-            saveKapperInfo(userByUserName);
-            return userByUserName;
-        }
-        if (user.getDateOfRegistration() == null) {
-            user.setDateOfRegistration(LocalDateTime.now());
-        }
-        if (user.getRole() == null) {
-            user.setRole(rolesService.getByName(Role.Names.USER));
-        }
-        User savedUser = repository.save(user);
-        saveKapperInfo(savedUser);
-        return savedUser;
     }
 
     private User saveKapperInfo(User user) {
         if (user.getRole().equals(rolesService.getByName(Role.Names.KAPPER))) {
             kapperInfoService.initKapper(user);
-            return repository.getOne(user.getId());
+            return repository.getById(user.getId());
         }
         return user;
+    }
+
+    private void updateDateOfRegistrationIfEmpty(User user) {
+        if (user.getDateOfRegistration() == null) {
+            user.setDateOfRegistration(LocalDateTime.now());
+        }
+    }
+
+    private void updateRoleIfEmpty(User user) {
+        if (user.getRole() == null) {
+            user.setRole(rolesService.getByName(Role.Names.USER));
+        }
     }
 
     @Override
@@ -100,9 +100,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public User getByUserName(String name) {
         log.debug("getByUserName(name: {})...", name);
-        User byUserName = repository.getByUserName(name);
-//        byUserName.getEvents().iterator();
-        return byUserName;
+        return repository.getByUserName(name);
     }
 
     @Override
@@ -217,7 +215,7 @@ public class UserServiceImpl implements UserService {
                 kapper.setBalance(kapper.getBalance().plus(amount));
                 log.debug("Kapper {} got {} {}", kapper.getUserName(), amount, kapper.getBalance().getCurrencyUnit());
             } else {
-                BigDecimal resultAmount = currencyService.exchange(user.getBalance().getCurrencyUnit(), kapper.getBalance().getCurrencyUnit(), amount);
+                BigDecimal resultAmount = currencyService.exchange(user.getBalance().getCurrencyUnit(), amount, kapper.getBalance().getCurrencyUnit());
                 kapper.setBalance(kapper.getBalance().plus(resultAmount));
                 log.debug("Kapper {} got {} {}", kapper.getUserName(), resultAmount, kapper.getBalance().getCurrencyUnit());
             }

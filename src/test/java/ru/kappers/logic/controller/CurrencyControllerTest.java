@@ -20,6 +20,6 @@ public class CurrencyControllerTest {
     public void refreshCurrencyRatesForToday() {
         currencyController.refreshCurrencyRatesForToday();
 
-        verify(currencyService).refreshCurrencyRatesForToday();
+        verify(currencyService).tryRefreshCurrencyRatesForToday();
     }
 }

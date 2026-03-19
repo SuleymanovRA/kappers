@@ -1,7 +1,7 @@
 package ru.kappers.service;
 
 import org.joda.money.CurrencyUnit;
-import ru.kappers.exceptions.CurrRateGettingException;
+import ru.kappers.exceptions.CurrencyRateGettingException;
 
 import java.math.BigDecimal;
 
@@ -10,27 +10,26 @@ import java.math.BigDecimal;
  */
 public interface CurrencyService {
     /**
-     * Обновить курсы валют на сегодня
-     * @return {@literal true}, если удалось обновить курсы валют, иначе выбросит CurrRateGettingException
-     * @throws CurrRateGettingException если не удалось обновить курсы валют
+     * Попробовать обновить курсы валют на сегодня
+     * @throws CurrencyRateGettingException если не удалось обновить курсы валют
      */
-    boolean refreshCurrencyRatesForToday();
+    void tryRefreshCurrencyRatesForToday();
 
     /**
      * Конвертировать сумму из исходной валюты в целевую
-     * @param fromCurr исходная валюта
-     * @param toCurr целевая валюта
-     * @param amount сумма в исходной валюте
+     * @param sourceCurrency исходная валюта
+     * @param sourceAmount   сумма в исходной валюте
+     * @param targetCurrency целевая валюта
      * @return сумма в целевой валюте
      */
-    BigDecimal exchange(CurrencyUnit fromCurr, CurrencyUnit toCurr, BigDecimal amount);
+    BigDecimal exchange(CurrencyUnit sourceCurrency, BigDecimal sourceAmount, CurrencyUnit targetCurrency);
 
     /**
      * Конвертировать сумму из исходной валюты в целевую
-     * @param fromCurr исходная валюта
-     * @param toCurr целевая валюта
-     * @param amount сумма в исходной валюте
+     * @param sourceCurrency исходная валюта
+     * @param sourceAmount   сумма в исходной валюте
+     * @param targetCurrency целевая валюта
      * @return сумма в целевой валюте
      */
-    BigDecimal exchange(String fromCurr, String toCurr, BigDecimal amount);
+    BigDecimal exchange(String sourceCurrency, BigDecimal sourceAmount, String targetCurrency);
 }
