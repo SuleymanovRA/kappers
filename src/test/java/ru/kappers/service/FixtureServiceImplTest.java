@@ -1,51 +1,53 @@
 package ru.kappers.service;
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringRunner;
-import ru.kappers.KappersApplication;
+import ru.kappers.AbstractDatabaseTest;
+import ru.kappers.assertion.Assertions;
 import ru.kappers.model.Fixture;
 import ru.kappers.model.Fixture.ShortStatus;
 import ru.kappers.model.Fixture.Status;
+import ru.kappers.repository.FixtureRepository;
+import ru.kappers.service.impl.FixtureServiceImpl;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.*;
+import static org.springframework.test.jdbc.JdbcTestUtils.deleteFromTables;
 
 @Slf4j
-@ActiveProfiles("test")
-@ContextConfiguration
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {KappersApplication.class})
-@TestExecutionListeners({DbUnitTestExecutionListener.class})
-public class FixtureServiceImplTest extends AbstractTransactionalJUnit4SpringContextTests {
+@ContextConfiguration(classes = {FixtureServiceImplTest.Configuration.class})
+public class FixtureServiceImplTest extends AbstractDatabaseTest {
     @Autowired
     private FixtureService service;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    private LocalDateTime now = LocalDateTime.now();
-
-    private Fixture today = Fixture.builder()
+    private final LocalDateTime now = LocalDateTime.now();
+    private Fixture yesterday = Fixture.builder()
+            .id(110)
+            .eventDate(now.minusDays(1))
+            .eventTimestamp(Timestamp.valueOf(now.minusDays(1)).getTime())
+            .awayTeam("Paris Saint Germain")
+            .homeTeam("Lyon")
+            .leagueId(4)
+            .status(Status.MATCH_FINISHED)
+            .statusShort(ShortStatus.MATCH_FINISHED)
+            .build();
+    private final Fixture today = Fixture.builder()
             .id(111)
             .eventDate(now)
             .eventTimestamp(Timestamp.valueOf(now).getTime())
@@ -55,94 +57,42 @@ public class FixtureServiceImplTest extends AbstractTransactionalJUnit4SpringCon
             .status(Status.NOT_STARTED)
             .statusShort(ShortStatus.NOT_STARTED)
             .build();
-
-    private Fixture todayBegin = new Fixture();
-    private Fixture todayEnd = new Fixture();
-    {
-        Fixture it = todayBegin;
-        BeanUtils.copyProperties(today, it);
-        it.setId(it.getId() + 10);
-        it.setEventDate(LocalDateTime.of(now.toLocalDate(), LocalTime.MIN));
-        it.setEventTimestamp(Timestamp.valueOf(it.getEventDate()).getTime());
-        it.setStatus(Status.MATCH_FINISHED);
-        it.setStatusShort(ShortStatus.MATCH_FINISHED);
-
-        it = todayEnd;
-        BeanUtils.copyProperties(today, it);
-        it.setId(it.getId() + 11);
-        it.setEventDate(LocalDateTime.of(now.toLocalDate(), LocalTime.MAX));
-        it.setEventTimestamp(Timestamp.valueOf(it.getEventDate()).getTime());
-    }
-
+    private final Fixture todayBegin = today.toBuilder()
+            .id(today.getId() + 10)
+            .eventDate(LocalDateTime.of(now.toLocalDate(), LocalTime.MIN))
+            .eventTimestamp(Timestamp.valueOf(LocalDateTime.of(now.toLocalDate(), LocalTime.MIN)).getTime())
+            .status(Status.MATCH_FINISHED)
+            .statusShort(ShortStatus.MATCH_FINISHED)
+            .build();
+    private final Fixture todayEnd = today.toBuilder()
+            .id(today.getId() + 11)
+            .eventDate(LocalDateTime.of(now.toLocalDate(), LocalTime.MAX))
+            .eventTimestamp(Timestamp.valueOf(LocalDateTime.of(now.toLocalDate(), LocalTime.MAX)).getTime())
+            .build();
     private Fixture tomorrow = Fixture.builder()
             .id(112)
             .eventDate(now.plusDays(1))
+            .eventTimestamp(Timestamp.valueOf(now.plusDays(1)).getTime())
             .awayTeam("Manchester United")
             .homeTeam("FC Liverpool")
             .leagueId(2)
             .status(Status.NOT_STARTED)
             .statusShort(ShortStatus.NOT_STARTED)
             .build();
-
-    private Fixture tomorrowBegin = new Fixture();
-    private Fixture tomorrowEnd = new Fixture();
-    {
-        tomorrow.setEventTimestamp(Timestamp.valueOf(tomorrow.getEventDate()).getTime());
-
-        Fixture it = tomorrowBegin;
-        BeanUtils.copyProperties(tomorrow, it);
-        it.setId(it.getId() + 10);
-        it.setEventDate(LocalDateTime.of(now.plusDays(1).toLocalDate(), LocalTime.MIN));
-        it.setEventTimestamp(Timestamp.valueOf(it.getEventDate()).getTime());
-
-        it = tomorrowEnd;
-        BeanUtils.copyProperties(tomorrow, it);
-        it.setId(it.getId() + 11);
-        it.setEventDate(LocalDateTime.of(now.plusDays(1).toLocalDate(), LocalTime.MAX));
-        it.setEventTimestamp(Timestamp.valueOf(it.getEventDate()).getTime());
-    }
-
-    private Fixture yesterday = Fixture.builder()
-            .id(110)
-            .eventDate(now.minusDays(1))
-            .awayTeam("Paris Saint Germain")
-            .homeTeam("Lyon")
-            .leagueId(4)
-            .status(Status.MATCH_FINISHED)
-            .statusShort(ShortStatus.MATCH_FINISHED)
-            .build();
-
-    private Fixture yesterdayBegin = new Fixture();
-    private Fixture yesterdayEnd = new Fixture();
-    {
-        yesterday.setEventTimestamp(Timestamp.valueOf(yesterday.getEventDate()).getTime());
-
-        Fixture it = yesterdayBegin;
-        BeanUtils.copyProperties(yesterday, it);
-        it.setId(it.getId() + 10);
-        it.setEventDate(LocalDateTime.of(now.minusDays(1).toLocalDate(), LocalTime.MIN));
-        it.setEventTimestamp(Timestamp.valueOf(it.getEventDate()).getTime());
-
-        it = yesterdayEnd;
-        BeanUtils.copyProperties(yesterday, it);
-        it.setId(it.getId() + 11);
-        it.setEventDate(LocalDateTime.of(now.minusDays(1).toLocalDate(), LocalTime.MAX));
-        it.setEventTimestamp(Timestamp.valueOf(it.getEventDate()).getTime());
-    }
-
     private Fixture nextWeek = Fixture.builder()
             .id(113)
             .eventDate(now.plusDays(7))
+            .eventTimestamp(Timestamp.valueOf(now.plusDays(7)).getTime())
             .awayTeam("Real Madrid")
             .homeTeam("FC Barselona")
             .leagueId(87)
             .status(Status.NOT_STARTED)
             .statusShort(ShortStatus.NOT_STARTED)
             .build();
-
     private Fixture lastWeek = Fixture.builder()
             .id(114)
             .eventDate(now.minusDays(7))
+            .eventTimestamp(Timestamp.valueOf(now.minusDays(7)).getTime())
             .awayTeam("Paris Saint Germain")
             .homeTeam("Lyon")
             .leagueId(4)
@@ -150,290 +100,300 @@ public class FixtureServiceImplTest extends AbstractTransactionalJUnit4SpringCon
             .statusShort(ShortStatus.MATCH_FINISHED)
             .build();
 
-    {
-        nextWeek.setEventTimestamp(Timestamp.valueOf(nextWeek.getEventDate()).getTime());
-
-        lastWeek.setEventTimestamp(Timestamp.valueOf(lastWeek.getEventDate()).getTime());
-    }
-
-    protected void clearTable() {
-        deleteFromTables("fixtures");
+    private void clearTable() {
+        deleteFromTables(jdbcTemplate, "fixtures");
     }
 
     @Before
     public void setUp() {
-        logger.debug(today);
-        logger.debug(tomorrow);
-        logger.debug(yesterday);
+        log.debug("today = " + today);
+        log.debug("tomorrow = " + tomorrow);
+        log.debug("yesterday = " + yesterday);
     }
 
     @Test
     public void getById() {
-        Fixture fixture = Fixture.builder()
+        savedFixture(Fixture.builder()
                 .id(54552)
                 .eventDate(LocalDateTime.now())
-                .build();
-        service.addRecord(fixture);
-        Fixture byId = service.getById(54552);
-        assertNotNull(byId);
+                .build());
+        Fixture fixture = service.getById(54552);
+        Assertions.assertThat(fixture).isNotNull();
     }
-
 
     @Test
     public void addRecord() {
-        Fixture record = service.addRecord(tomorrow);
-        assertNotNull(record);
-        assertEquals((long) record.getId(), (long) 112);
+        Fixture fixture = savedFixture(tomorrow);
+        Assertions.assertThat(fixture).isNotNull()
+                .hasId(tomorrow.getId());
     }
 
     @Test
     public void deleteRecord() {
-        Fixture record = service.addRecord(today);
-        Assert.assertNotNull(record);
-        Fixture byId = service.getById(111);
-        assertEquals(byId, record);
-        service.deleteRecord(today);
-        byId = service.getById(111);
-        assertNull(byId);
+        Fixture todayFixture = savedFixture(today);
+        Assertions.assertThat(todayFixture).isNotNull();
+        Fixture fixture = service.getById(todayFixture.getId());
+        Assertions.assertThat(fixture).isEqualTo(todayFixture);
+        service.deleteRecord(fixture);
+        Assertions.assertThat(service.getById(todayFixture.getId()))
+                .isNull();
+    }
+
+    private Fixture savedFixture(Fixture fixture) {
+        return service.addRecord(fixture);
     }
 
     @Test
     public void deleteRecordByFixtureId() {
-        Fixture record = service.addRecord(today);
-        assertNotNull(record);
-        Fixture byId = service.getById(111);
-        assertEquals(byId, record);
-        service.deleteRecordById(111);
-        byId = service.getById(111);
-        assertNull(byId);
+        Fixture todayFixture = savedFixture(today);
+        Assertions.assertThat(todayFixture).isNotNull();
+        Fixture fixture = service.getById(todayFixture.getId());
+        Assertions.assertThat(fixture).isEqualTo(todayFixture);
+        service.deleteRecordById(fixture.getId());
+        Assertions.assertThat(service.getById(todayFixture.getId()))
+                .isNull();
     }
 
     @Test
     public void updateFixture() {
-        service.addRecord(tomorrow);
-        Fixture fixture = service.getById(tomorrow.getId());
-        fixture.setStatus(Status.MATCH_FINISHED);
-        service.updateFixture(fixture);
-        Fixture updated = service.getById(tomorrow.getId());
-        assertEquals(updated.getStatus(), Status.MATCH_FINISHED);
-        service.deleteRecord(updated);
+        var tomorrowFixture = savedFixture(tomorrow);
+        Fixture storedFixture = service.getById(tomorrowFixture.getId());
+        service.updateFixture(storedFixture.toBuilder()
+                .status(Status.MATCH_FINISHED)
+                .build());
+        storedFixture = service.getById(tomorrowFixture.getId());
+        Assertions.assertThat(storedFixture).hasStatus(Status.MATCH_FINISHED);
     }
 
     @Test
     public void getAll() {
         clearTable();
-        final List<Fixture> fixtureList = Arrays.asList(today, tomorrow, yesterday);
-        fixtureList.forEach(service::addRecord);
-
+        final List<Fixture> fixtureList = Stream.of(today, tomorrow, yesterday)
+                .map(service::addRecord)
+                .toList();
         List<Fixture> all = service.getAll();
-
-        assertNotNull(all);
-        assertThat(all.size(), is(fixtureList.size()));
-        assertThat(all.containsAll(fixtureList), is(true));
+        org.assertj.core.api.Assertions.assertThat(all).isNotNull()
+                .hasSize(fixtureList.size())
+                .containsAll(fixtureList);
     }
 
     @Test
     public void getAllForPageableOf2ItemsOnFirstPageAndSortASCByEventDate() {
         clearTable();
-        Stream.of(today, tomorrow, yesterday).forEach(service::addRecord);
+        Stream.of(today, tomorrow, yesterday)
+                .forEach(service::addRecord);
         final PageRequest pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "eventDate"));
-
         final Page<Fixture> all = service.getAll(pageable);
 
-        assertThat(all, is(notNullValue()));
-        assertThat(all.getContent().size(), is(pageable.getPageSize()));
-        assertThat(all.getContent().containsAll(Arrays.asList(yesterday, today)), is(true));
-        assertThat(all.getContent().contains(tomorrow), is(false));
+        org.assertj.core.api.Assertions.assertThat(all).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(all.getContent())
+                .hasSize(pageable.getPageSize())
+                .containsAll(List.of(yesterday, today))
+                .doesNotContain(tomorrow);
     }
 
     @Test
     public void getFixturesByPeriod() {
         clearTable();
-        Stream.of(today, tomorrow, yesterday).forEach(service::addRecord);
+        Stream.of(today, tomorrow, yesterday)
+                .forEach(service::addRecord);
+        final List<Fixture> fixtures = service.getFixturesByPeriod(now.minusHours(8), now.plusHours(8));
 
-        final List<Fixture> todaysFixtures = service.getFixturesByPeriod(now.minusHours(8), now.plusHours(8));
-
-        assertTrue(todaysFixtures.contains(today));
-        Stream.of(tomorrow, yesterday).forEach(it -> assertFalse(todaysFixtures.contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixtures)
+                .contains(today)
+                .doesNotContain(tomorrow, yesterday);
     }
 
     @Test
     public void getFixturesByPeriodForPageableOf4ItemsOnFirstPageAndSortAscByEventDate() {
         clearTable();
-        Stream.of(todayBegin, today, todayEnd, tomorrow, yesterday).forEach(service::addRecord);
+        List.of(todayBegin, today, todayEnd, tomorrow, yesterday)
+                .forEach(service::addRecord);
         final PageRequest pageable = PageRequest.of(0, 4, Sort.by(Sort.Direction.ASC, "eventDate"));
-
         final Page<Fixture> todaysFixtures = service.getFixturesByPeriod(todayBegin.getEventDate(), todayEnd.getEventDate(), pageable);
 
-        assertTrue(todaysFixtures.getContent().containsAll(Arrays.asList(todayBegin, today, todayEnd)));
-        Stream.of(tomorrow, yesterday).forEach(it -> assertFalse(todaysFixtures.getContent().contains(it)));
+        org.assertj.core.api.Assertions.assertThat(todaysFixtures.getContent())
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(todayBegin, today, todayEnd)
+                .doesNotContain(tomorrow, yesterday);
+    }
+
+    private Comparator<Fixture> FixtureByIdComparator() {
+        return Comparator.comparingInt(Fixture::getId);
     }
 
     @Test
     public void getFixturesToday() {
         clearTable();
-        Stream.of(today, todayBegin, todayEnd, tomorrow, yesterday).forEach(service::addRecord);
-
+        List.of(today, todayBegin, todayEnd, tomorrow, yesterday)
+                .forEach(service::addRecord);
         List<Fixture> fixturesToday = service.getFixturesToday();
-
-        assertTrue(fixturesToday.containsAll(Arrays.asList(today, todayBegin, todayEnd)));
-        Stream.of(tomorrow, yesterday).forEach(it -> assertFalse(fixturesToday.contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesToday)
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(today, todayBegin, todayEnd)
+                .doesNotContain(tomorrow, yesterday);
     }
 
     @Test
     public void getFixturesTodayForPageableOf2ItemsOnFirstPageAndSortDescByEventDate() {
         clearTable();
-        Stream.of(today, todayBegin, todayEnd, tomorrow, yesterday).forEach(service::addRecord);
+        List.of(today, todayBegin, todayEnd, tomorrow, yesterday)
+                .forEach(service::addRecord);
         final PageRequest pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "eventDate"));
-
         final Page<Fixture> fixturesToday = service.getFixturesToday(pageable);
-
-        assertThat(fixturesToday.getContent().size(), is(pageable.getPageSize()));
-        assertTrue(fixturesToday.getContent().containsAll(Arrays.asList(today, todayEnd)));
-        Stream.of(todayBegin, yesterday, tomorrow)
-                .forEach(it -> assertFalse(fixturesToday.getContent().contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesToday.getContent())
+                .hasSize(pageable.getPageSize())
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(today, todayEnd)
+                .doesNotContain(todayBegin, yesterday, tomorrow);
     }
 
     @Test
     public void getFixturesTodayFiltered() {
         clearTable();
-        Stream.of(today, todayBegin, todayEnd, tomorrow, yesterday)
+        List.of(today, todayBegin, todayEnd, tomorrow, yesterday)
                 .forEach(service::addRecord);
 
         final List<Fixture> fixturesToday = service.getFixturesToday(Status.NOT_STARTED);
-        assertTrue(fixturesToday.containsAll(Arrays.asList(today, todayEnd)));
-        Stream.of(todayBegin, tomorrow, yesterday)
-                .forEach(it -> assertFalse(fixturesToday.contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesToday)
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(today, todayEnd)
+                .doesNotContain(todayBegin, tomorrow, yesterday);
 
         final List<Fixture> fixturesToday2 = service.getFixturesToday(Status.MATCH_FINISHED);
-        assertTrue(fixturesToday2.contains(todayBegin));
-        Stream.of(today, todayEnd, tomorrow, yesterday)
-                .forEach(it -> assertFalse(fixturesToday2.contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesToday2)
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(todayBegin)
+                .doesNotContain(today, todayEnd, tomorrow, yesterday);
     }
 
     @Test
     public void getFixturesTodayFilteredForPageableOf2ItemsOnFirstPageAndSortAscByEventDate() {
         clearTable();
-        Stream.of(today, todayBegin, todayEnd, tomorrow, yesterday)
+        List.of(today, todayBegin, todayEnd, tomorrow, yesterday)
                 .forEach(service::addRecord);
         final PageRequest pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "eventDate"));
 
         final Page<Fixture> fixturesToday = service.getFixturesToday(Status.NOT_STARTED, pageable);
-        assertTrue(fixturesToday.getContent().containsAll(Arrays.asList(today, todayEnd)));
-        Stream.of(todayBegin, tomorrow, yesterday)
-                .forEach(it -> assertFalse(fixturesToday.getContent().contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesToday.getContent())
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(today, todayEnd)
+                .doesNotContain(todayBegin, tomorrow, yesterday);
 
         final Page<Fixture> fixturesToday2 = service.getFixturesToday(Status.MATCH_FINISHED, pageable);
-        assertTrue(fixturesToday2.getContent().contains(todayBegin));
-        Stream.of(today, todayEnd, tomorrow, yesterday)
-                .forEach(it -> assertFalse(fixturesToday2.getContent().contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesToday2.getContent())
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(todayBegin)
+                .doesNotContain(today, todayEnd, tomorrow, yesterday);
     }
 
     @Test
     public void getFixturesLastWeek() {
         clearTable();
-        Stream.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
+        List.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
                 .forEach(service::addRecord);
-
         List<Fixture> fixturesLastWeek = service.getFixturesLastWeek();
-
-        assertTrue(fixturesLastWeek.containsAll(Arrays.asList(lastWeek, yesterday, todayBegin, today, todayEnd)));
-        Stream.of(tomorrow, nextWeek)
-                .forEach(it -> assertFalse(fixturesLastWeek.contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesLastWeek)
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(lastWeek, yesterday, todayBegin, today, todayEnd)
+                .doesNotContain(tomorrow, nextWeek);
     }
 
     @Test
     public void getFixturesLastWeekForPageableOf4ItemsOnFirstPageAndSortAscByEventDate() {
         clearTable();
-        Stream.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
+        List.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
                 .forEach(service::addRecord);
         final PageRequest pageable = PageRequest.of(0, 4, Sort.by(Sort.Direction.ASC, "eventDate"));
-
         Page<Fixture> fixturesLastWeek = service.getFixturesLastWeek(pageable);
-
-        assertTrue(fixturesLastWeek.getContent().containsAll(Arrays.asList(lastWeek, yesterday, todayBegin, today)));
-        Stream.of(todayEnd, tomorrow, nextWeek)
-                .forEach(it -> assertFalse(fixturesLastWeek.getContent().contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesLastWeek.getContent())
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(lastWeek, yesterday, todayBegin, today)
+                .doesNotContain(todayEnd, tomorrow, nextWeek);
     }
 
     @Test
     public void getFixturesLastWeekFiltered() {
         clearTable();
-        Stream.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
+        List.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
                 .forEach(service::addRecord);
-
         List<Fixture> fixturesLastWeek = service.getFixturesLastWeek(Status.MATCH_FINISHED);
-
-        assertTrue(fixturesLastWeek.containsAll(Arrays.asList(lastWeek, yesterday, todayBegin)));
-        Stream.of(today, todayEnd, tomorrow, nextWeek)
-                .forEach(it -> assertFalse(fixturesLastWeek.contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesLastWeek)
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(lastWeek, yesterday, todayBegin)
+                .doesNotContain(today, todayEnd, tomorrow, nextWeek);
     }
 
     @Test
     public void getFixturesLastWeekFilteredForPageableOf2ItemsOnFirstPageAndSortAscByEventDate() {
         clearTable();
-        Stream.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
+        List.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
                 .forEach(service::addRecord);
         final PageRequest pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "eventDate"));
-
         Page<Fixture> fixturesLastWeek = service.getFixturesLastWeek(Status.MATCH_FINISHED, pageable);
 
-        assertTrue(fixturesLastWeek.getContent().containsAll(Arrays.asList(lastWeek, yesterday)));
-        Stream.of(todayBegin, today, todayEnd, tomorrow, nextWeek)
-                .forEach(it -> assertFalse(fixturesLastWeek.getContent().contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesLastWeek.getContent())
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(lastWeek, yesterday)
+                .doesNotContain(todayBegin, today, todayEnd, tomorrow, nextWeek);
     }
 
     @Test
     public void getFixturesNextWeek() {
         clearTable();
-        Stream.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
+        List.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
                 .forEach(service::addRecord);
-
         List<Fixture> fixturesNextWeek = service.getFixturesNextWeek();
-
-        assertTrue(fixturesNextWeek.containsAll(Arrays.asList(todayBegin, today, todayEnd, tomorrow, nextWeek)));
-        Stream.of(lastWeek, yesterday)
-                .forEach(it -> assertFalse(fixturesNextWeek.contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesNextWeek)
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(todayBegin, today, todayEnd, tomorrow, nextWeek)
+                .doesNotContain(lastWeek, yesterday);
     }
 
     @Test
     public void getFixturesNextWeekForPageableOf2ItemsOnSecondPageAndSortAscByEventDate() {
         clearTable();
-        Stream.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
+        List.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
                 .forEach(service::addRecord);
         final PageRequest pageable = PageRequest.of(1, 2, Sort.by(Sort.Direction.ASC, "eventDate"));
-
         Page<Fixture> fixturesNextWeek = service.getFixturesNextWeek(pageable);
-
-        assertTrue(fixturesNextWeek.getContent().containsAll(Arrays.asList(todayEnd, tomorrow)));
-        Stream.of(lastWeek, yesterday, todayBegin, today, nextWeek)
-                .forEach(it -> assertFalse(fixturesNextWeek.getContent().contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesNextWeek.getContent())
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(todayEnd, tomorrow)
+                .doesNotContain(lastWeek, yesterday, todayBegin, today, nextWeek);
     }
 
     @Test
     public void getFixturesNextWeekFiltered() {
         clearTable();
-        Stream.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
+        List.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
                 .forEach(service::addRecord);
-
         List<Fixture> fixturesNextWeek = service.getFixturesNextWeek(Status.NOT_STARTED);
-
-        assertTrue(fixturesNextWeek.containsAll(Arrays.asList(today, todayEnd, tomorrow, nextWeek)));
-        Stream.of(lastWeek, yesterday, todayBegin)
-                .forEach(it -> assertFalse(fixturesNextWeek.contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesNextWeek)
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(today, todayEnd, tomorrow, nextWeek)
+                .doesNotContain(lastWeek, yesterday, todayBegin);
     }
 
     @Test
     public void getFixturesNextWeekFilteredForPageableOf2ItemsOnSecondPageAndSortAscByEventDate() {
         clearTable();
-        Stream.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
+        List.of(lastWeek, yesterday, todayBegin, today, todayEnd, tomorrow, nextWeek)
                 .forEach(service::addRecord);
         final PageRequest pageable = PageRequest.of(1, 2, Sort.by(Sort.Direction.ASC, "eventDate"));
-
         Page<Fixture> fixturesNextWeek = service.getFixturesNextWeek(Status.NOT_STARTED, pageable);
 
-        assertTrue(fixturesNextWeek.getContent().containsAll(Arrays.asList(tomorrow, nextWeek)));
-        Stream.of(lastWeek, yesterday, todayBegin, today, todayEnd)
-                .forEach(it -> assertFalse(fixturesNextWeek.getContent().contains(it)));
+        org.assertj.core.api.Assertions.assertThat(fixturesNextWeek.getContent())
+                .usingElementComparator(FixtureByIdComparator())
+                .contains(tomorrow, nextWeek)
+                .doesNotContain(lastWeek, yesterday, todayBegin, today, todayEnd);
+    }
+
+    @TestConfiguration
+    public static class Configuration {
+        @Bean
+        public FixtureService fixtureService(FixtureRepository fixtureRepository) {
+            return new FixtureServiceImpl(fixtureRepository);
+        }
     }
 }
