@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import ru.kappers.AbstractDatabaseTest;
+import ru.kappers.assertion.Assertions;
 import ru.kappers.config.KappersProperties;
 import ru.kappers.model.CurrencyRate;
 import ru.kappers.repository.CurrRateRepository;
@@ -29,9 +30,9 @@ public class CurrencyRateServiceImplTest extends AbstractDatabaseTest {
     public void save() {
         final var currencyRate = newCurrencyRate();
         CurrencyRate result = currencyRateService.save(currencyRate);
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isNotEqualTo(0);
-        assertThat(result).usingRecursiveComparison()
+        Assertions.assertThat(result).isNotNull()
+                .hasNoId(0)
+                .usingRecursiveComparison()
                 .ignoringFields("id")
                 .isEqualTo(currencyRate);
     }
@@ -54,21 +55,22 @@ public class CurrencyRateServiceImplTest extends AbstractDatabaseTest {
 
     @Test
     public void currencyRateByDate() {
-        CurrencyRate gld = currencyRateService.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
-        assertThat(gld).isNotNull();
-        assertThat(gld.getNumCode()).isEqualTo("999");
+        CurrencyRate gldCurrencyRate = currencyRateService.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
+        Assertions.assertThat(gldCurrencyRate).isNotNull()
+                .hasNumCode("999");
     }
 
     @Test
     public void update() {
-        CurrencyRate gld = currencyRateService.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
-        assertThat(gld).isNotNull();
-        assertThat(gld.getValue()).isEqualTo(new BigDecimal("2000.0000"));
+        CurrencyRate gldCurrencyRate = currencyRateService.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
+        Assertions.assertThat(gldCurrencyRate).isNotNull()
+                .hasValue(new BigDecimal("2000.0000"));
 
         final BigDecimal expectedValue = BigDecimal.valueOf(3000);
-        gld.setValue(expectedValue);
-        CurrencyRate update = currencyRateService.update(gld);
-        assertThat(update.getValue()).isEqualTo(expectedValue);
+        gldCurrencyRate.setValue(expectedValue);
+        CurrencyRate update = currencyRateService.update(gldCurrencyRate);
+        Assertions.assertThat(update).isNotNull()
+                        .hasValue(expectedValue);
     }
 
     @Test
@@ -81,9 +83,7 @@ public class CurrencyRateServiceImplTest extends AbstractDatabaseTest {
                 .build());
 
         CurrencyRate result = currencyRateService.currencyRateToday(charCode);
-
-        assertThat(result).usingRecursiveComparison()
-                .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
+        Assertions.assertThat(result).usingRecursiveComparison()
                 .isEqualTo(currencyRate);
     }
 
@@ -96,8 +96,8 @@ public class CurrencyRateServiceImplTest extends AbstractDatabaseTest {
     @Test
     public void allCurrencyRatesByDate() {
         List<CurrencyRate> allByDate = currencyRateService.allCurrencyRatesByDate(LocalDate.parse("2018-11-21"));
-        CurrencyRate gld = currencyRateService.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
-        assertThat(allByDate).contains(gld);
+        CurrencyRate gldCurrencyRate = currencyRateService.currencyRateByDate(LocalDate.parse("2018-11-21"), "GLD");
+        assertThat(allByDate).contains(gldCurrencyRate);
     }
 
     @TestConfiguration

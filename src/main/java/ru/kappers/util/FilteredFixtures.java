@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.kappers.model.Fixture;
 import ru.kappers.model.utilmodel.FixtureFilter;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 @Slf4j
@@ -21,7 +22,7 @@ public class FilteredFixtures {
         return filters;
     }
 
-    public List<Fixture> refresh() throws IllegalAccessException, NoSuchFieldException, InstantiationException {
+    public List<Fixture> refresh() throws IllegalAccessException, NoSuchFieldException, InstantiationException, NoSuchMethodException, InvocationTargetException {
        List<Fixture> result = new ArrayList<>();
         for (Fixture f:fixtures) {
             for (FixtureFilter filter: filters) {

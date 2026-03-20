@@ -3,6 +3,7 @@ package ru.kappers.assertion;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.RecursiveComparisonAssert;
 import ru.kappers.model.Role;
 
 import java.util.Objects;
@@ -44,5 +45,10 @@ public class RoleAssert extends AbstractAssert<RoleAssert, Role> {
     public RoleAssert hasNoId(int id) {
         idAssertion().isNotEqualTo(id);
         return this;
+    }
+
+    @Override
+    public RecursiveComparisonAssert<?> usingRecursiveComparison() {
+        return super.usingRecursiveComparison();
     }
 }
