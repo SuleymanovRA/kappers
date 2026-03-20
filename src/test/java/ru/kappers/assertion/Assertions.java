@@ -1,9 +1,7 @@
 package ru.kappers.assertion;
 
 import lombok.experimental.UtilityClass;
-import ru.kappers.model.KapperInfo;
-import ru.kappers.model.Role;
-import ru.kappers.model.User;
+import ru.kappers.model.*;
 
 @UtilityClass
 public class Assertions {
@@ -17,5 +15,13 @@ public class Assertions {
 
     public static KapperInfoAssert assertThat(KapperInfo kapperInfo) {
         return new KapperInfoAssert(kapperInfo);
+    }
+
+    public static CurrencyRateAssert assertThat(CurrencyRate currencyRate) {
+        return new CurrencyRateAssert(currencyRate);
+    }
+
+    public static FixtureAssert assertThat(Fixture fixture) {
+        return new FixtureAssert(fixture);
     }
 }

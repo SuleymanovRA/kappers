@@ -1,7 +1,7 @@
 package ru.kappers.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,14 +22,9 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class FixtureServiceImpl implements FixtureService {
-
     private final FixtureRepository repository;
-
-    @Autowired
-    public FixtureServiceImpl(FixtureRepository repository) {
-        this.repository = repository;
-    }
 
     @Override
     public Fixture addRecord(Fixture fixture) {
@@ -40,13 +35,17 @@ public class FixtureServiceImpl implements FixtureService {
     @Override
     public void deleteRecord(Fixture fixture) {
         log.debug("deleteRecord(fixture: {})...", fixture);
+        deleteFixture(fixture);
+    }
+
+    private void deleteFixture(Fixture fixture) {
         repository.delete(fixture);
     }
 
     @Override
     public void deleteRecordById(int id) {
         log.debug("deleteRecordById(id: {})...", id);
-        deleteRecord(getById(id));
+        deleteFixture(getById(id));
     }
 
     @Override
