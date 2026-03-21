@@ -8,8 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import ru.kappers.logic.controller.web.EventControllerTest;
-import ru.kappers.logic.odds.LeonBetParserTest;
-import ru.kappers.service.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -18,8 +16,7 @@ import static org.junit.Assert.assertTrue;
 @ActiveProfiles("test")
 @TestExecutionListeners({DbUnitTestExecutionListener.class})
 @Suite.SuiteClasses({
-		EventControllerTest.class,
-		LeonBetParserTest.class
+		EventControllerTest.class
 })
 public class KappersApplicationTests {
 	@Test

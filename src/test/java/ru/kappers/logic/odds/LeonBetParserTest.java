@@ -1,54 +1,36 @@
 package ru.kappers.logic.odds;
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
+import org.assertj.core.data.Index;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ResourceUtils;
-import ru.kappers.KappersApplication;
-
+import ru.kappers.AbstractDatabaseTest;
 import ru.kappers.model.dto.leon.CompetitorLeonDTO;
 import ru.kappers.model.dto.leon.LeagueLeonDTO;
 import ru.kappers.model.dto.leon.OddsLeonDTO;
 import ru.kappers.model.dto.leon.SportLeonDTO;
 
-import ru.kappers.service.OddsLeonService;
-
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@Slf4j
-@ActiveProfiles("test")
-@ContextConfiguration
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {KappersApplication.class})
-@TestExecutionListeners({DbUnitTestExecutionListener.class})
-public class LeonBetParserTest extends AbstractTransactionalJUnit4SpringContextTests {
+@ContextConfiguration(classes = {LeonBetParserTest.Configuration.class})
+public class LeonBetParserTest extends AbstractDatabaseTest {
     @Autowired
-    private OddsLeonService oddsLeonService;
     private BetParser<OddsLeonDTO> parser;
-
-    @Before
-    public void setUp() throws Exception {
-        parser = new LeonBetParser(ResourceUtils.getFile("classpath:data")
-                .toURI().toURL().toString());
-    }
 
     @Test
     public void loadEventUrlsOfTournament() {
         List<String> list = parser.loadEventUrlsOfTournament("/events/Soccer/281474976710675-Europe-UEFA-Champions-League.htm");
-        assertThat(list.size(), is(1));
-        assertThat(list.get(0), is("/events/Soccer/281474976710675-Europe-UEFA-Champions-League/281474982732163-Tottenham-Hotspur-Liverpool"));
+        assertThat(list)
+                .hasSize(1)
+                .contains("/events/Soccer/281474976710675-Europe-UEFA-Champions-League/281474982732163-Tottenham-Hotspur-Liverpool",
+                        Index.atIndex(0));
     }
 
     @Test
@@ -56,71 +38,110 @@ public class LeonBetParserTest extends AbstractTransactionalJUnit4SpringContextT
         List<String> list = parser.loadEventUrlsOfTournament("/events/Soccer/281474976710675-Europe-UEFA-Champions-League.htm");
         List<OddsLeonDTO> eventsWithOdds = parser.getEventsWithOdds(list);
 
-        assertThat(eventsWithOdds.isEmpty(), is(false));
-        // check LeonOddsDTO
-        final OddsLeonDTO oddsDTO = eventsWithOdds.get(0);
-        final LeagueLeonDTO leagueDTO = oddsDTO.getLeague();
-        final List<CompetitorLeonDTO> competitors = oddsDTO.getCompetitors();
-        assertThat(oddsDTO.getId(), is(281474982732163L));
-        assertThat(oddsDTO.getName(), is("Тоттенхэм Хотспур - Ливерпуль"));
-        assertThat(competitors, is(notNullValue()));
-        assertThat(oddsDTO.getKickoff(), is(1559415600000L));
-        assertThat(oddsDTO.getLastUpdated(), is(1558185003370L));
-        assertThat(leagueDTO, is(notNullValue()));
-        assertThat(oddsDTO.isOpen(), is(true));
-        assertThat(oddsDTO.getMarketsCount(), is(46));
-        assertThat(oddsDTO.getUrl(), is("/events/Soccer/281474976710675-Europe-UEFA-Champions-League/281474982732163-Tottenham-Hotspur-Liverpool"));
-        assertThat(oddsDTO.getMarkets().size(), is(oddsDTO.getMarketsCount()));
-        // check List<CompetitorDTO>
-        assertThat(competitors.size(), is(2));
-        CompetitorLeonDTO tottenhamDTO = competitors.get(0);
-        CompetitorLeonDTO liverpoolDTO = competitors.get(1);
-        if (tottenhamDTO.getId() != 281474976833057L) {
-            CompetitorLeonDTO tmp = tottenhamDTO;
-            tottenhamDTO = liverpoolDTO;
-            liverpoolDTO = tmp;
-        }
-        // check tottenhamDTO
-        assertThat(tottenhamDTO.getId(), is(281474976833057L));
-        assertThat(tottenhamDTO.getName(), is("Тоттенхэм Хотспур"));
-        assertThat(tottenhamDTO.getHomeAway(), is("HOME"));
-        assertThat(tottenhamDTO.getType(), is("TEAM"));
-        assertThat(tottenhamDTO.getLogo(), is("https://cdn.leon.ru/SC/leonru/config_logos/tottenham-hotspur-1.png"));
-        // check liverpoolDTO
-        assertThat(liverpoolDTO.getId(), is(281474976720725L));
-        assertThat(liverpoolDTO.getName(), is("Ливерпуль"));
-        assertThat(liverpoolDTO.getHomeAway(), is("AWAY"));
-        assertThat(liverpoolDTO.getType(), is("TEAM"));
-        assertThat(liverpoolDTO.getLogo(), is("https://cdn.leon.ru/SC/leonru/config_logos/liverpool_resize.png"));
-        // check LeagueDTO
-        final SportLeonDTO sportDTO = leagueDTO.getSport();
-        assertThat(leagueDTO.getId(), is(281474976710675L));
-        assertThat(leagueDTO.getName(), is("Европа - Лига Чемпионов"));
-        assertThat(sportDTO, is(notNullValue()));
-        assertThat(leagueDTO.getUrl(), is("/events/Soccer/281474976710675-Europe-UEFA-Champions-League"));
-        // check SportDTO
-        assertThat(sportDTO.getId(), is(17592186044417L));
-        assertThat(sportDTO.getName(), is("Футбол"));
-        assertThat(sportDTO.getBetline(), is(notNullValue()));
-        assertThat(sportDTO.getWeight(), is(100));
-        assertThat(sportDTO.getFamily(), is("Soccer"));
+        assertThat(eventsWithOdds).isNotEmpty();
+        assertOddsLeonDTO(eventsWithOdds.get(0));
+    }
+
+    private void assertOddsLeonDTO(OddsLeonDTO oddsLeonDTO) {
+        assertThat(oddsLeonDTO)
+                .usingRecursiveComparison()
+                .ignoringFields("competitors", "league", "markets")
+                .isEqualTo(OddsLeonDTO.builder()
+                        .id(281474982732163L)
+                        .name("Тоттенхэм Хотспур - Ливерпуль")
+                        .kickoff(1559415600000L)
+                        .lastUpdated(1558185003370L)
+                        .open(true)
+                        .marketsCount(46)
+                        .url("/events/Soccer/281474976710675-Europe-UEFA-Champions-League/281474982732163-Tottenham-Hotspur-Liverpool")
+                        .build());
+        assertThat(oddsLeonDTO.getMarkets()).as("markets")
+                        .hasSize(oddsLeonDTO.getMarketsCount());
+        assertCompetitors(oddsLeonDTO.getCompetitors());
+        assertLeague(oddsLeonDTO.getLeague());
+    }
+
+    private void assertCompetitors(List<CompetitorLeonDTO> competitorLeonDTOS) {
+        assertThat(competitorLeonDTOS).as("competitors")
+                .isNotNull()
+                .hasSize(2)
+                .usingRecursiveFieldByFieldElementComparator()
+                .contains(
+                        CompetitorLeonDTO.builder()
+                                .id(281474976833057L)
+                                .name("Тоттенхэм Хотспур")
+                                .homeAway("HOME")
+                                .type("TEAM")
+                                .logo("https://cdn.leon.ru/SC/leonru/config_logos/tottenham-hotspur-1.png")
+                                .build(),
+                        CompetitorLeonDTO.builder()
+                                .id(281474976720725L)
+                                .name("Ливерпуль")
+                                .homeAway("AWAY")
+                                .type("TEAM")
+                                .logo("https://cdn.leon.ru/SC/leonru/config_logos/liverpool_resize.png")
+                                .build()
+                );
+    }
+
+    private void assertLeague(LeagueLeonDTO leagueLeonDTO) {
+        assertThat(leagueLeonDTO).as("league")
+                .isNotNull()
+                .usingRecursiveComparison()
+                .ignoringFields("sport")
+                .isEqualTo(LeagueLeonDTO.builder()
+                        .id(281474976710675L)
+                        .name("Европа - Лига Чемпионов")
+                        .url("/events/Soccer/281474976710675-Europe-UEFA-Champions-League")
+                        .build());
+        assertSportLeonDTO(leagueLeonDTO.getSport());
+    }
+
+    private void assertSportLeonDTO(SportLeonDTO sportLeonDTO) {
+        assertThat(sportLeonDTO).as("sport")
+                .isNotNull()
+                .usingRecursiveComparison()
+                .ignoringFields("betline")
+                .isEqualTo(SportLeonDTO.builder()
+                        .id(17592186044417L)
+                        .name("Футбол")
+                        .weight(100)
+                        .family("Soccer")
+                        .build());
+        assertThat(sportLeonDTO.getBetline()).as("betline")
+                .isNotNull();
     }
 
     @Test
     public void loadEventOdds() {
-        final OddsLeonDTO oddsDTO = parser.loadEventOdds("/events/Soccer/281474976710675-Europe-UEFA-Champions-League/281474982732162-Ajax-Tottenham-Hotspur");
-
-        assertThat(oddsDTO, is(notNullValue()));
-        assertThat(oddsDTO.getId(), is(1143492107996767L));
-        assertThat(oddsDTO.getName(), is("Реал Вальядолид - Валенсия"));
-        assertThat(oddsDTO.getCompetitors(), is(notNullValue()));
-        assertThat(oddsDTO.getKickoff(), is(1558188900000L));
-        assertThat(oddsDTO.getLeague(), is(notNullValue()));
-        assertThat(oddsDTO.isOpen(), is(false));
-        assertThat(oddsDTO.getMarketsCount(), is(0));
-        assertThat(oddsDTO.getUrl(), is("/events/Soccer/1143492092890276-Spain-LaLiga/1143492107996767-Real-Valladolid-Valencia-CF"));
-        assertThat(oddsDTO.getMarkets(), is(nullValue()));
+        final var oddsLeonDTO = parser.loadEventOdds("/events/Soccer/281474976710675-Europe-UEFA-Champions-League/281474982732162-Ajax-Tottenham-Hotspur");
+        assertThat(oddsLeonDTO)
+                .isNotNull()
+                .usingRecursiveComparison()
+                .ignoringFields("competitors", "league", "markets")
+                .isEqualTo(OddsLeonDTO.builder()
+                        .id(1143492107996767L)
+                        .name("Реал Вальядолид - Валенсия")
+                        .kickoff(1558188900000L)
+                        .lastUpdated(1558201200964L)
+                        .open(false)
+                        .marketsCount(0)
+                        .url("/events/Soccer/1143492092890276-Spain-LaLiga/1143492107996767-Real-Valladolid-Valencia-CF")
+                        .build());
+        assertThat(oddsLeonDTO.getCompetitors()).as("competitors")
+                .isNotNull();
+        assertThat(oddsLeonDTO.getLeague()).as("league")
+                .isNotNull();
+        assertThat(oddsLeonDTO.getMarkets()).as("markets")
+                .isNull();
     }
 
-
+    @TestConfiguration
+    public static class Configuration {
+        @Bean
+        public BetParser<OddsLeonDTO> leonBetParser() throws FileNotFoundException, MalformedURLException {
+            return new LeonBetParser(ResourceUtils.getFile("classpath:data")
+                    .toURI().toURL().toString());
+        }
+    }
 }
