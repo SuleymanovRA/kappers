@@ -19,15 +19,12 @@ public class OddsLeonDTO {
     private String name;
     /** участники соревнования */
     private List<CompetitorLeonDTO> competitors;
-
     private long kickoff;
     /** это дата/время последнего изменения? */
     private long lastUpdated;
     private LeagueLeonDTO league;
-
     private boolean open;
     private int marketsCount;
     private String url;
     private List<MarketLeonDTO> markets;
-
 }
