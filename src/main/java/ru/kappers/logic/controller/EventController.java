@@ -1,8 +1,8 @@
 package ru.kappers.logic.controller;
 
 import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -10,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.kappers.model.Event;
 import ru.kappers.model.Fixture;
-import ru.kappers.model.User;
 import ru.kappers.model.dto.EventDTO;
 import ru.kappers.model.utilmodel.Odds;
 import ru.kappers.service.EventService;
@@ -20,39 +19,19 @@ import ru.kappers.service.UserService;
 @Slf4j
 @RestController
 @RequestMapping(value = "/rest/events")
+@RequiredArgsConstructor
 public class EventController {
-    private FixtureService fService;
-    private EventService eService;
-    private UserService userService;
-    private ConversionService conversionService;
-
+    private final FixtureService fixtureService;
+    private final EventService eventService;
+    private final UserService userService;
+    private final ConversionService conversionService;
     public static final Gson GSON = new Gson();
-
-    @Autowired
-    public void setfService(FixtureService fService) {
-        this.fService = fService;
-    }
-
-    @Autowired
-    public void seteService(EventService eService) {
-        this.eService = eService;
-    }
-
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Autowired
-    public void setConversionService(ConversionService conversionService) {
-        this.conversionService = conversionService;
-    }
 
     @ResponseBody
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public Odds getFixtureById(@PathVariable int id) {
         log.debug("getFixtureById(id: {})...", id);
-        Fixture fixture = fService.getById(id);
+        Fixture fixture = fixtureService.getById(id);
         return new Odds(fixture);
     }
     /**
@@ -68,17 +47,20 @@ public class EventController {
      * }
      *
      * */
+    @ResponseBody
     @RequestMapping(value = "/create", method = RequestMethod.POST, headers = "Accept=application/json",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Event createEvent(@RequestBody String content) {
+    public EventDTO createEvent(@RequestBody String content) {
         log.debug("createEvent(content: {})...", content);
-        EventDTO eventDTO = GSON.fromJson(content, EventDTO.class);
-        Event event = conversionService.convert(eventDTO, Event.class);
-        User u = userService.getByUserName(getCurrentAuthentication().getName());
-        return eService.createEventByUser(event, u);
+        var eventDTO = GSON.fromJson(content, EventDTO.class);
+        var event = conversionService.convert(eventDTO, Event.class);
+        var user = userService.getByUserName(getCurrentAuthentication().getName());
+        return conversionService.convert(
+                eventService.createEventByUser(event, user),
+                EventDTO.class);
     }
 
-    public Authentication getCurrentAuthentication() {
+    private Authentication getCurrentAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 }

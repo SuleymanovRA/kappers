@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventDTO {
-    /** Fixture ID */
+    /** Fixture ID (или {@linkplain #EMPTY_FIXTURE_ID}, если пустой ID) */
     private int f_id;
     /** возможный исход */
     private Outcomes outcome;
@@ -26,4 +26,6 @@ public class EventDTO {
     private int tokens;
     /** какую цену назначаем за открытие евента пользователями */
     private BigDecimal price;
+
+    public static final int EMPTY_FIXTURE_ID = -1;
 }
