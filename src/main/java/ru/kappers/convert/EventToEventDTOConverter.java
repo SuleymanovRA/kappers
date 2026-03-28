@@ -1,32 +1,33 @@
 package ru.kappers.convert;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
 import ru.kappers.model.Event;
 import ru.kappers.model.dto.EventDTO;
-import ru.kappers.service.FixtureService;
+
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.nonNull;
 
-/**
- * Конвертер из {@link EventDTO} в {@link Event}
- */
 @Service
-@RequiredArgsConstructor
-public class EventDTOToEventConverter implements Converter<EventDTO, Event> {
-    private final FixtureService fixtureService;
-
+public class EventToEventDTOConverter implements Converter<Event, EventDTO> {
     @Override
-    public Event convert(EventDTO source) {
+    public EventDTO convert(Event source) {
         checkArgument(nonNull(source), "source must not null");
-        return Event.builder()
-                .fixture(fixtureService.getById(source.getF_id()))
+        return EventDTO.builder()
+                .f_id(getFixtureIdOrEmpty(source))
                 .outcome(source.getOutcome())
                 .coefficient(source.getCoefficient())
                 .tokens(source.getTokens())
                 .price(source.getPrice())
                 .build();
+    }
+
+    private int getFixtureIdOrEmpty(Event source) {
+        if (Objects.isNull(source.getFixture())) {
+            return EventDTO.EMPTY_FIXTURE_ID;
+        }
+        return source.getFixture().getId();
     }
 }
