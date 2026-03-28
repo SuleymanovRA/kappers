@@ -12,22 +12,6 @@ jobs:
   build:
     runs-on: ubuntu-24.04
 
-    services:
-      postgres:
-        image: postgres:10.23-alpine
-        env:
-          POSTGRES_DB: testdb
-          POSTGRES_PASSWORD: postgres
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
-
     steps:
       - name: Check out repository code
         uses: actions/checkout@v6
@@ -41,8 +25,6 @@ jobs:
 
       - name: Build with Maven
         run: "mvn -B clean package --file pom.xml
-              -Dspring.datasource.password=postgres
-              -Dspring.datasource.url=jdbc:postgresql://localhost:5432/testdb
               -Dspring.jpa.show-sql=false
               -Dlogging.level.ru.kappers=warn
               -Dlogging.level.org.flywaydb=warn
