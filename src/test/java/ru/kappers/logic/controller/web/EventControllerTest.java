@@ -30,6 +30,9 @@ import ru.kappers.service.EventService;
 import ru.kappers.service.FixtureService;
 import ru.kappers.service.UserService;
 
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -94,16 +97,16 @@ public class EventControllerTest {
         prepareEventCreationByUser();
         prepareFixtureSearch(eventDTO);
 
-        mockMvc.perform(post("/rest/events/create")
+        var mvcResult = mockMvc.perform(post("/rest/events/create")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(GSON.toJson(eventDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.f_id").value(eventDTO.getF_id()))
-                .andExpect(jsonPath("$.outcome").value(eventDTO.getOutcome().name()))
-                .andExpect(jsonPath("$.coefficient").value(eventDTO.getCoefficient()))
-                .andExpect(jsonPath("$.tokens").value(eventDTO.getTokens()))
-                .andExpect(jsonPath("$.price").value(eventDTO.getPrice()));
+                .andReturn();
+        var resultEventDTO = GSON.fromJson(mvcResult.getResponse().getContentAsString(), EventDTO.class);
+        assertThat(resultEventDTO).usingRecursiveComparison()
+                .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
+                .isEqualTo(eventDTO);
     }
 
     private EventDTO generatedEventDTO() {
