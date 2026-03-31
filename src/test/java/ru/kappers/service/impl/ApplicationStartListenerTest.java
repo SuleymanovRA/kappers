@@ -8,6 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import ru.kappers.config.KappersProperties;
+import ru.kappers.config.KappersProperties.CurrencyRates;
 import ru.kappers.service.CurrencyService;
 import ru.kappers.service.MessageTranslator;
 
@@ -28,6 +29,9 @@ public class ApplicationStartListenerTest {
 
     @Test
     public void onApplicationEvent() {
+        var currencyRates = new CurrencyRates();
+        currencyRates.setRefreshAfterApplicationStartEnabled(true);
+        when(kappersProperties.getCurrencyRates()).thenReturn(currencyRates);
         doAnswer(it -> {
             Runnable task = it.getArgument(0);
             task.run();
