@@ -1,40 +1,41 @@
 package ru.kappers.exceptions;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import ru.kappers.UnitTest;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserNotHaveKapperRoleExceptionTest {
+
+class UserNotHaveKapperRoleExceptionTest extends UnitTest {
     @Test
-    public void constructorWithMessageOnly() {
+    void constructorWithMessageOnly() {
         final String testMessage = "test message";
-
-        UserNotHaveKapperRoleException exception = new UserNotHaveKapperRoleException(testMessage);
-
-        assertThat(exception.getMessage(), is(testMessage));
-        assertThat(exception.getCause(), is(nullValue()));
+        var resultException = new UserNotHaveKapperRoleException(testMessage);
+        assertThat(resultException)
+                .hasMessage(testMessage)
+                .hasNoCause();
     }
 
     @Test
-    public void constructorWithExceptionOnly() {
-        final Exception testException = new Exception();
-
-        UserNotHaveKapperRoleException exception = new UserNotHaveKapperRoleException(testException);
-
-        assertThat(exception.getMessage(), is(UserNotHaveKapperRoleException.DEFAULT_MESSAGE));
-        assertThat(exception.getCause(), is(testException));
+    void constructorWithExceptionOnly() {
+        final var exception = new Exception();
+        var resultException = new UserNotHaveKapperRoleException(exception);
+        assertThat(resultException)
+                .hasMessage(UserNotHaveKapperRoleException.DEFAULT_MESSAGE)
+                .getCause()
+                .isNotNull()
+                .isEqualTo(exception);
     }
 
     @Test
-    public void constructorWithMessageAndException() {
+    void constructorWithMessageAndException() {
         final String testMessage = "test message2";
         final Exception testException = new Exception();
-
-        UserNotHaveKapperRoleException exception = new UserNotHaveKapperRoleException(testMessage, testException);
-
-        assertThat(exception.getMessage(), is(testMessage));
-        assertThat(exception.getCause(), is(testException));
+        var resultException = new UserNotHaveKapperRoleException(testMessage, testException);
+        assertThat(resultException)
+                .hasMessage(testMessage)
+                .getCause()
+                .isNotNull()
+                .isEqualTo(testException);
     }
 }

@@ -1,31 +1,28 @@
 package ru.kappers.exceptions;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import ru.kappers.UnitTest;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class CurrencyRateGettingExceptionTest {
 
+class CurrencyRateGettingExceptionTest extends UnitTest {
     @Test
-    public void constructorWithMessageOnly() {
+    void constructorWithMessageOnly() {
         final String testMessage = "test message";
-
-        CurrencyRateGettingException exception = new CurrencyRateGettingException(testMessage);
-
-        assertThat(exception.getMessage(), is(testMessage));
-        assertThat(exception.getCause(), is(nullValue()));
+        var currencyRateGettingException = new CurrencyRateGettingException(testMessage);
+        assertThat(currencyRateGettingException)
+                .hasMessage(testMessage)
+                .hasNoCause();
     }
 
     @Test
-    public void constructorWithMessageAndException() {
+    void constructorWithMessageAndException() {
         final String testMessage = "test message2";
-        final Exception testException = new Exception();
-
-        CurrencyRateGettingException exception = new CurrencyRateGettingException(testMessage, testException);
-
-        assertThat(exception.getMessage(), is(testMessage));
-        assertThat(exception.getCause(), is(testException));
+        final var exception = new Exception();
+        var currencyRateGettingException = new CurrencyRateGettingException(testMessage, exception);
+        assertThat(currencyRateGettingException)
+                .hasMessage(testMessage)
+                .hasCause(exception);
     }
 }
