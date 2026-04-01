@@ -35,12 +35,14 @@ public class ApplicationStartListener implements ApplicationListener<ContextRefr
         log.debug("onApplicationEvent(event: {})...", event);
         log.info(translator.byCode("kappersMessage.springContextRefreshed"));
         log.info(translator.byCode("kappersMessage.KappersPropertiesForLog"), kappersProperties);
-        taskExecutor.execute(() -> {
-            try {
-                currencyService.tryRefreshCurrencyRatesForToday();
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
-        });
+        if (kappersProperties.getCurrencyRates().isRefreshAfterApplicationStartEnabled()) {
+            taskExecutor.execute(() -> {
+                try {
+                    currencyService.tryRefreshCurrencyRatesForToday();
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
+            });
+        }
     }
 }

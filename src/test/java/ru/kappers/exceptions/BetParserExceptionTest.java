@@ -1,31 +1,28 @@
 package ru.kappers.exceptions;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import ru.kappers.UnitTest;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class BetParserExceptionTest {
 
+class BetParserExceptionTest extends UnitTest {
     @Test
-    public void constructorWithMessageOnly() {
+    void constructorWithMessageOnly() {
         final String testMessage = "test message";
-
-        BetParserException exception = new BetParserException(testMessage);
-
-        assertThat(exception.getMessage(), is(testMessage));
-        assertThat(exception.getCause(), is(nullValue()));
+        var betParserException = new BetParserException(testMessage);
+        assertThat(betParserException)
+                .hasMessage(testMessage)
+                .hasNoCause();
     }
 
     @Test
-    public void constructorWithMessageAndException() {
+    void constructorWithMessageAndException() {
         final String testMessage = "test message2";
-        final Exception testException = new Exception();
-
-        BetParserException exception = new BetParserException(testMessage, testException);
-
-        assertThat(exception.getMessage(), is(testMessage));
-        assertThat(exception.getCause(), is(testException));
+        final var exception = new Exception();
+        var betParserException = new BetParserException(testMessage, exception);
+        assertThat(betParserException)
+                .hasMessage(testMessage)
+                .hasCause(exception);
     }
 }

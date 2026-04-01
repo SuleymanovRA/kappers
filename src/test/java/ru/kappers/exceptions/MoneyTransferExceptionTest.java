@@ -1,19 +1,19 @@
 package ru.kappers.exceptions;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import ru.kappers.UnitTest;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class MoneyTransferExceptionTest {
+class MoneyTransferExceptionTest extends UnitTest {
 
     @Test
-    public void constructorWithExceptionOnly() {
-        final Exception testException = new Exception();
-
-        MoneyTransferException exception = new MoneyTransferException(testException);
-
-        assertThat(exception.getMessage(), is(MoneyTransferException.DEFAULT_MESSAGE));
-        assertThat(exception.getCause(), is(testException));
+    void constructorWithExceptionOnly() {
+        final var exception = new Exception("test");
+        var moneyTransferException = new MoneyTransferException(exception);
+        assertThat(moneyTransferException)
+                .hasMessage(MoneyTransferException.DEFAULT_MESSAGE)
+                .getCause()
+                .hasMessage(exception.getMessage());
     }
 }

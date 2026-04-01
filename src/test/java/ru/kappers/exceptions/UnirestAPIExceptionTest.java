@@ -1,41 +1,38 @@
 package ru.kappers.exceptions;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import ru.kappers.UnitTest;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class UnirestAPIExceptionTest {
+
+class UnirestAPIExceptionTest extends UnitTest {
 
     @Test
-    public void constructorWithMessageOnly() {
+    void constructorWithMessageOnly() {
         final String testMessage = "test message";
-
-        UnirestAPIException exception = new UnirestAPIException(testMessage);
-
-        assertThat(exception.getMessage(), is(testMessage));
-        assertThat(exception.getCause(), is(nullValue()));
+        var unirestAPIException = new UnirestAPIException(testMessage);
+        assertThat(unirestAPIException)
+                .hasMessage(testMessage)
+                .hasNoCause();
     }
 
     @Test
-    public void constructorWithExceptionOnly() {
-        final Exception testException = new Exception();
-
-        UnirestAPIException exception = new UnirestAPIException(testException);
-
-        assertThat(exception.getMessage(), is(UnirestAPIException.ERROR_TEXT));
-        assertThat(exception.getCause(), is(testException));
+    void constructorWithExceptionOnly() {
+        final var exception = new Exception();
+        var unirestAPIException = new UnirestAPIException(exception);
+        assertThat(unirestAPIException)
+                .hasMessage(UnirestAPIException.ERROR_TEXT)
+                .hasCause(exception);
     }
 
     @Test
-    public void constructorWithMessageAndException() {
+    void constructorWithMessageAndException() {
         final String testMessage = "test message2";
-        final Exception testException = new Exception();
-
-        UnirestAPIException exception = new UnirestAPIException(testMessage, testException);
-
-        assertThat(exception.getMessage(), is(testMessage));
-        assertThat(exception.getCause(), is(testException));
+        final var exception = new Exception();
+        var unirestAPIException = new UnirestAPIException(testMessage, exception);
+        assertThat(unirestAPIException)
+                .hasMessage(testMessage)
+                .hasCause(exception);
     }
 }

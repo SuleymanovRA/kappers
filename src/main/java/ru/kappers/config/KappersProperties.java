@@ -43,5 +43,7 @@ public class KappersProperties {
         private String refreshCron = CRON_EVERY_DAY_AT_00_00;
         /** включено обновление курсов валют по расписанию cron-выражения, по умолчанию true */
         private boolean refreshCronEnabled = true;
+        /** включено обновление курсов валют после старта сервиса (контекста), по умолчанию true */
+        private boolean refreshAfterApplicationStartEnabled = true;
     }
 }
