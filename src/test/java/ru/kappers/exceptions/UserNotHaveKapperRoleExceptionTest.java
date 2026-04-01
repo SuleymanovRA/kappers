@@ -23,7 +23,6 @@ class UserNotHaveKapperRoleExceptionTest extends UnitTest {
         assertThat(resultException)
                 .hasMessage(UserNotHaveKapperRoleException.DEFAULT_MESSAGE)
                 .getCause()
-                .isNotNull()
                 .isEqualTo(exception);
     }
 
@@ -35,7 +34,6 @@ class UserNotHaveKapperRoleExceptionTest extends UnitTest {
         assertThat(resultException)
                 .hasMessage(testMessage)
                 .getCause()
-                .isNotNull()
                 .isEqualTo(testException);
     }
 }
