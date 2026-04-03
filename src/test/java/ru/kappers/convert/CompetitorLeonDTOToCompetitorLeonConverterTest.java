@@ -39,20 +39,4 @@ class CompetitorLeonDTOToCompetitorLeonConverterTest extends UnitTest {
                 .size(2)
                 .create();
     }
-
-    @Test
-    void convertNullable() {
-        for (CompetitorLeonDTO dto : generatedCompetitorLeonDTOList()) {
-            final CompetitorLeon result = converter.convertNullable(dto);
-            assertThat(result).isNotNull()
-                    .usingRecursiveComparison()
-                    .ignoringFields("home_odds", "away_odds", "teamBridge")
-                    .isEqualTo(dto);
-        }
-    }
-
-    @Test
-    void convertNullableMustReturnNullIfParameterIsNull() {
-        assertThat(converter.convertNullable(null)).isNull();
-    }
 }

@@ -1,32 +1,24 @@
 package ru.kappers.convert;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.stereotype.Service;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.kappers.model.Event;
 import ru.kappers.model.dto.EventDTO;
 import ru.kappers.service.FixtureService;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.nonNull;
+import static org.mapstruct.InjectionStrategy.CONSTRUCTOR;
+import static org.mapstruct.NullValueMappingStrategy.RETURN_DEFAULT;
 
 /**
  * Конвертер из {@link EventDTO} в {@link Event}
  */
-@Service
-@RequiredArgsConstructor
-public class EventDTOToEventConverter implements Converter<EventDTO, Event> {
-    private final FixtureService fixtureService;
+@Mapper(componentModel = "spring", nullValueMappingStrategy = RETURN_DEFAULT, injectionStrategy = CONSTRUCTOR)
+public abstract class EventDTOToEventConverter extends BaseMapStructConverter<EventDTO, Event> {
+    @Autowired
+    protected FixtureService fixtureService;
 
+    @Mapping(target = "fixture", expression = "java(fixtureService.getById(source.getF_id()))")
     @Override
-    public Event convert(EventDTO source) {
-        checkArgument(nonNull(source), "source must not null");
-        return Event.builder()
-                .fixture(fixtureService.getById(source.getF_id()))
-                .outcome(source.getOutcome())
-                .coefficient(source.getCoefficient())
-                .tokens(source.getTokens())
-                .price(source.getPrice())
-                .build();
-    }
+    public abstract Event convert(EventDTO source);
 }
