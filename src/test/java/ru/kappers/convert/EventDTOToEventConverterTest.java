@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 class EventDTOToEventConverterTest extends UnitTest {
     @InjectMocks
-    private EventDTOToEventConverter converter;
+    private EventDTOToEventConverterImpl converter;
     @Mock
     private FixtureService fixtureService;
 
