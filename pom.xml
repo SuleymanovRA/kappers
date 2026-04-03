@@ -509,9 +509,6 @@
                             -Amapstruct.suppressGeneratorVersionInfoComment=true
                         </arg>
                         <arg>
-                            -Amapstruct.verbose=true
-                        </arg>
-                        <arg>
                             -Amapstruct.defaultInjectionStrategy=constructor
                         </arg>
                         <arg>
