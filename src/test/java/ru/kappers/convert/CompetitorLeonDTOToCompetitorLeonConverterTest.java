@@ -1,50 +1,58 @@
 package ru.kappers.convert;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.instancio.Instancio;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
+import ru.kappers.UnitTest;
 import ru.kappers.model.dto.leon.CompetitorLeonDTO;
 import ru.kappers.model.leonmodels.CompetitorLeon;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CompetitorLeonDTOToCompetitorLeonConverterTest {
+
+class CompetitorLeonDTOToCompetitorLeonConverterTest extends UnitTest {
     @InjectMocks
-    private CompetitorLeonDTOToCompetitorLeonConverter converter;
+    private CompetitorLeonDTOToCompetitorLeonConverterImpl converter;
 
     @Test
-    public void convertMustReturnNullIfParameterIsNull() {
-        assertThat(converter.convert(null), is(nullValue()));
+    void convertMustThrowExceptionIfParameterIsNull() {
+        assertThatThrownBy(() -> converter.convert(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void convert() {
-        List<CompetitorLeonDTO> dtoList = Arrays.asList(
-                CompetitorLeonDTO.builder()
-                        .id(1L)
-                        .logo("http://test1.jpg")
-                        .name("test name1")
-                        .build(),
-                CompetitorLeonDTO.builder()
-                        .id(2L)
-                        .logo("http://test2.jpg")
-                        .name("test name2")
-                        .build()
-        );
-
-        for (CompetitorLeonDTO dto : dtoList) {
+    void convert() {
+        for (CompetitorLeonDTO dto : generatedCompetitorLeonDTOList()) {
             final CompetitorLeon result = converter.convert(dto);
-
-            assertThat(result, is(notNullValue()));
-            assertThat(result.getId(), is(dto.getId()));
-            assertThat(result.getLogo(), is(dto.getLogo()));
-            assertThat(result.getName(), is(dto.getName()));
+            assertThat(result).isNotNull()
+                    .usingRecursiveComparison()
+                    .ignoringFields("home_odds", "away_odds", "teamBridge")
+                    .isEqualTo(dto);
         }
+    }
+
+    private List<CompetitorLeonDTO> generatedCompetitorLeonDTOList() {
+        return Instancio.ofList(CompetitorLeonDTO.class)
+                .size(2)
+                .create();
+    }
+
+    @Test
+    void convertNullable() {
+        for (CompetitorLeonDTO dto : generatedCompetitorLeonDTOList()) {
+            final CompetitorLeon result = converter.convertNullable(dto);
+            assertThat(result).isNotNull()
+                    .usingRecursiveComparison()
+                    .ignoringFields("home_odds", "away_odds", "teamBridge")
+                    .isEqualTo(dto);
+        }
+    }
+
+    @Test
+    void convertNullableMustReturnNullIfParameterIsNull() {
+        assertThat(converter.convertNullable(null)).isNull();
     }
 }

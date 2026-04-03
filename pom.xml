@@ -500,6 +500,27 @@
                             <version>0.2.0</version>
                         </path>
                     </annotationProcessorPaths>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <arg>
+                            -Amapstruct.suppressGeneratorTimestamp=true
+                        </arg>
+                        <arg>
+                            -Amapstruct.suppressGeneratorVersionInfoComment=true
+                        </arg>
+                        <arg>
+                            -Amapstruct.verbose=true
+                        </arg>
+                        <arg>
+                            -Amapstruct.defaultInjectionStrategy=constructor
+                        </arg>
+                        <arg>
+                            -Amapstruct.nullValueIterableMappingStrategy=RETURN_DEFAULT
+                        </arg>
+                        <arg>
+                            -Amapstruct.nullValueMapMappingStrategy=RETURN_DEFAULT
+                        </arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>
