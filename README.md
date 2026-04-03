@@ -28,6 +28,7 @@ For additional information apply to founders. Contacts are below.
 - Kotlin
 - Spring Framework 5 (IoC, Core, Boot 2, Security, MVC, Data, JPA, Transactions, JDBC, JAX-RS (REST), Test, Test DBUnit)
 - Lombok
+- MapStruct
 - Swagger 2
 - Joda Money
 - Jadira Framework
