@@ -30,6 +30,7 @@
 - Kotlin
 - Spring Framework 5 (IoC, Core, Boot 2, Security, MVC, Data, JPA, Транзакции, JDBC, JAX-RS (REST), Test, Test DBUnit)
 - Lombok
+- MapStruct
 - Swagger 2
 - Joda Money
 - Jadira Framework
