@@ -11,15 +11,17 @@ import ru.kappers.util.DateTimeUtil;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
 
 class FixtureRapidDTOToFixtureConverterTest extends UnitTest {
     @InjectMocks
-    private FixtureRapidDTOToFixtureConverter converter;
+    private FixtureRapidDTOToFixtureConverterImpl converter;
 
     @Test
-    void convertMustReturnNullIfParameterIsNull() {
-        assertThat(converter.convert(null)).isNull();
+    void convertMustThrowExceptionIfParameterIsNull() {
+        assertThatThrownBy(() -> converter.convert(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

@@ -8,6 +8,7 @@ import ru.kappers.model.Event;
 import ru.kappers.model.dto.EventDTO;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
 
 class EventToEventDTOConverterTest extends UnitTest {
@@ -38,5 +39,11 @@ class EventToEventDTOConverterTest extends UnitTest {
         assertThat(eventDTO)
                 .extracting(EventDTO::getF_id)
                 .isEqualTo(EventDTO.EMPTY_FIXTURE_ID);
+    }
+
+    @Test
+    void convertMustThrowExceptionIfParameterIsNull() {
+        assertThatThrownBy(() -> eventToEventDTOConverter.convert(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
