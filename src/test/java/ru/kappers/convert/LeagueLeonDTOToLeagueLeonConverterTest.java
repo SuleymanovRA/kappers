@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class LeagueLeonDTOToLeagueLeonConverterTest extends UnitTest {
     @InjectMocks
-    private LeagueLeonDTOToLeagueLeonConverter converter;
+    private LeagueLeonDTOToLeagueLeonConverterImpl converter;
 
     @Test
     void convertMustThrowExceptionIfParameterIsNull() {

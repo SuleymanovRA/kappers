@@ -1,29 +1,15 @@
 package ru.kappers.convert;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.stereotype.Service;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.kappers.model.dto.leon.LeagueLeonDTO;
 import ru.kappers.model.leonmodels.LeagueLeon;
 
-import javax.annotation.Nullable;
+import static org.mapstruct.NullValueMappingStrategy.RETURN_DEFAULT;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.nonNull;
-
-@Slf4j
-@Service
-public class LeagueLeonDTOToLeagueLeonConverter implements Converter<LeagueLeonDTO, LeagueLeon> {
-
-    @Nullable
+@Mapper(componentModel = "spring", nullValueMappingStrategy = RETURN_DEFAULT)
+public abstract class LeagueLeonDTOToLeagueLeonConverter extends BaseMapStructConverter<LeagueLeonDTO, LeagueLeon> {
+    @Mapping(source = "sport.name", target = "sport")
     @Override
-    public LeagueLeon convert(@Nullable LeagueLeonDTO source) {
-        checkArgument(nonNull(source), "source must not null");
-        return LeagueLeon.builder()
-                .id(source.getId())
-                .name(source.getName())
-                .url(source.getUrl())
-                .sport(source.getSport().getName())
-                .build();
-    }
+    public abstract LeagueLeon convert(LeagueLeonDTO source);
 }
