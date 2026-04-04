@@ -9,7 +9,7 @@ import ru.kappers.util.DateTimeUtil;
 import javax.annotation.Nullable;
 
 @Service
-public class LeagueRapidDTOLeagueConverter implements Converter<LeagueRapidDTO, League> {
+public class LeagueRapidDTOToLeagueConverter implements Converter<LeagueRapidDTO, League> {
     @Nullable
     @Override
     public League convert(@Nullable LeagueRapidDTO source) {
