@@ -33,7 +33,7 @@ class LeagueRapidDTOToLeagueConverterTest extends UnitTest {
                     .usingRecursiveComparison()
                     .ignoringFields("id", "logoUrl", "seasonStart", "seasonEnd", "leagueBridge")
                     .isEqualTo(dto);
-            assertLeagueNotByFieldName(league, dto);
+            assertLeagueNotByFieldNames(league, dto);
         }
     }
 
@@ -45,7 +45,7 @@ class LeagueRapidDTOToLeagueConverterTest extends UnitTest {
                 .create();
     }
 
-    private void assertLeagueNotByFieldName(League league, LeagueRapidDTO leagueRapidDTO) {
+    private void assertLeagueNotByFieldNames(League league, LeagueRapidDTO leagueRapidDTO) {
         assertThat(league)
                 .extracting(
                         League::getId,
