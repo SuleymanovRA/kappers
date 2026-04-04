@@ -1,58 +1,46 @@
 package ru.kappers.convert;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.instancio.Instancio;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
+import ru.kappers.UnitTest;
 import ru.kappers.model.dto.leon.LeagueLeonDTO;
-import ru.kappers.model.dto.leon.SportLeonDTO;
 import ru.kappers.model.leonmodels.LeagueLeon;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(MockitoJUnitRunner.class)
-public class LeagueLeonDTOToLeagueLeonConverterTest {
+
+class LeagueLeonDTOToLeagueLeonConverterTest extends UnitTest {
     @InjectMocks
-    private LeagueLeonDTOToLeagueLeonConverter converter;
+    private LeagueLeonDTOToLeagueLeonConverterImpl converter;
 
     @Test
-    public void convertMustReturnNullIfParameterIsNull() {
-        assertThat(converter.convert(null), is(nullValue()));
+    void convertMustThrowExceptionIfParameterIsNull() {
+        assertThatThrownBy(() -> converter.convert(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void convert() {
-        final List<LeagueLeonDTO> dtoList = Arrays.asList(
-                LeagueLeonDTO.builder()
-                        .id(1L)
-                        .name("test name1")
-                        .url("http://url1/")
-                        .sport(SportLeonDTO.builder()
-                                .name("test sport name1")
-                                .build())
-                        .build(),
-                LeagueLeonDTO.builder()
-                        .id(2L)
-                        .name("test name2")
-                        .url("http://url2/")
-                        .sport(SportLeonDTO.builder()
-                                .name("test sport name2")
-                                .build())
-                        .build()
-        );
-
-        for (LeagueLeonDTO dto : dtoList) {
-            final LeagueLeon result = converter.convert(dto);
-
-            assertThat(result, is(notNullValue()));
-            assertThat(result.getId(), is(dto.getId()));
-            assertThat(result.getName(), is(dto.getName()));
-            assertThat(result.getUrl(), is(dto.getUrl()));
-            assertThat(result.getSport(), is(dto.getSport().getName()));
+    void convert() {
+        for (LeagueLeonDTO leagueLeonDTO : generatedLeagueLeonDTOList()) {
+            final LeagueLeon result = converter.convert(leagueLeonDTO);
+            assertThat(result)
+                    .isNotNull()
+                    .usingRecursiveComparison()
+                    .ignoringFields("sport", "leagueBridge")
+                    .isEqualTo(leagueLeonDTO);
+            assertThat(result)
+                    .extracting(LeagueLeon::getSport)
+                    .isEqualTo(leagueLeonDTO.getSport().getName());
         }
+    }
+
+    private List<LeagueLeonDTO> generatedLeagueLeonDTOList() {
+        return Instancio.ofList(LeagueLeonDTO.class)
+                .size(2)
+                .create();
     }
 }
