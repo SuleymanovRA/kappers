@@ -7,6 +7,10 @@ import ru.kappers.model.dto.leon.LeagueLeonDTO;
 import ru.kappers.model.leonmodels.LeagueLeon;
 
 import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.nonNull;
+
 @Slf4j
 @Service
 public class LeagueLeonDTOToLeagueLeonConverter implements Converter<LeagueLeonDTO, LeagueLeon> {
@@ -14,9 +18,7 @@ public class LeagueLeonDTOToLeagueLeonConverter implements Converter<LeagueLeonD
     @Nullable
     @Override
     public LeagueLeon convert(@Nullable LeagueLeonDTO source) {
-        if (source == null) {
-            return null;
-        }
+        checkArgument(nonNull(source), "source must not null");
         return LeagueLeon.builder()
                 .id(source.getId())
                 .name(source.getName())
