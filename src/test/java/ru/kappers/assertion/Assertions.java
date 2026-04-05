@@ -2,6 +2,7 @@ package ru.kappers.assertion;
 
 import lombok.experimental.UtilityClass;
 import ru.kappers.model.*;
+import ru.kappers.model.catalog.Team;
 
 @UtilityClass
 public class Assertions {
@@ -23,5 +24,9 @@ public class Assertions {
 
     public static FixtureAssert assertThat(Fixture fixture) {
         return new FixtureAssert(fixture);
+    }
+
+    public static TeamAssert assertThat(Team team) {
+        return new TeamAssert(team);
     }
 }

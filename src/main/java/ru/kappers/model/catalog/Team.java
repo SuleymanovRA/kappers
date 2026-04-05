@@ -21,11 +21,9 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "team")
 public class Team {
-
     @Id
     @Column(name = "team_id", nullable = false, insertable = false, updatable = false)
     private Integer id;
-
     /**
      * название команды
      */
@@ -33,15 +31,12 @@ public class Team {
     @Size(max = 255)
     @NotBlank
     private String name;
-
     @Column(name = "code")
     @Size(max = 8)
     private String code;
-
     @Column(name = "logo")
     @Size(max = 512)
     private String logo;
-
     /**
      * маппер для связи с сущностью CompetitorLeon
      */

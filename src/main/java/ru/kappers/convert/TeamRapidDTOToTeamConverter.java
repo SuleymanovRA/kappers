@@ -8,7 +8,7 @@ import ru.kappers.model.dto.rapidapi.TeamRapidDTO;
 import javax.annotation.Nullable;
 
 @Service
-public class TeamRapidDTOTeamConverter implements Converter<TeamRapidDTO, Team> {
+public class TeamRapidDTOToTeamConverter implements Converter<TeamRapidDTO, Team> {
     @Nullable
     @Override
     public Team convert(@Nullable TeamRapidDTO source) {
