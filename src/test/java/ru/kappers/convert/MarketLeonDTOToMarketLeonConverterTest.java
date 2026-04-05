@@ -10,15 +10,17 @@ import ru.kappers.model.dto.leon.MarketLeonDTO;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 class MarketLeonDTOToMarketLeonConverterTest extends UnitTest {
     @InjectMocks
-    private MarketLeonDTOToMarketLeonConverter converter;
+    private MarketLeonDTOToMarketLeonConverterImpl converter;
 
     @Test
-    void convertMustReturnNullIfParameterIsNull() {
-        assertThat(converter.convert(null)).isNull();
+    void convertMustThrowExceptionIfParameterIsNull() {
+        assertThatThrownBy(() -> converter.convert(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
