@@ -1,12 +1,13 @@
 package ru.kappers.convert;
 
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import lombok.Builder;
+import org.instancio.Instancio;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.convert.ConversionService;
+import ru.kappers.UnitTest;
 import ru.kappers.model.dto.leon.CompetitorLeonDTO;
 import ru.kappers.model.dto.leon.LeagueLeonDTO;
 import ru.kappers.model.dto.leon.OddsLeonDTO;
@@ -22,14 +23,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OddsLeonDTOToOddsLeonConverterTest {
+class OddsLeonDTOToOddsLeonConverterTest extends UnitTest {
     @InjectMocks
     private OddsLeonDTOToOddsLeonConverter converter;
     @Mock
@@ -40,86 +40,115 @@ public class OddsLeonDTOToOddsLeonConverterTest {
     private ConversionService conversionService;
 
     @Test
-    public void convertMustReturnNullIfParameterIsNull() {
-        assertThat(converter.convert(null), is(nullValue()));
+    void convertMustReturnNullIfParameterIsNull() {
+        assertThat(converter.convert(null)).isNull();
     }
 
+    @Builder
+    record TestConvertionData(
+            LeagueLeon leagueLeon,
+            CompetitorLeon competitorLeon,
+            CompetitorLeon competitorLeon2
+    ) {}
+
     @Test
-    public void convert() {
-        final String compName1 = "Участник 1";
-        final String compName2 = "Участник 2";
-        final CompetitorLeon competitor1 = mock(CompetitorLeon.class);
-        final CompetitorLeon competitor2 = mock(CompetitorLeon.class);
-        final LeagueLeon league = mock(LeagueLeon.class);
-        final List<CompetitorLeonDTO> competitorLeonDTOList = Arrays.asList(
+    void convert() {
+        final TestConvertionData testData = generatedTestConvertionData();
+        for (OddsLeonDTO oddsLeonDTO : generatedOddsLeonDTOList(testData)) {
+            reset(competitorService, leagueService, conversionService);
+            prepareCompetitorSaving();
+            prepareLeagueSaving();
+            prepareCompetitorLeonConversion(testData.competitorLeon, testData.competitorLeon2);
+            prepareLeagueLeonConversion(testData.leagueLeon);
+
+            final OddsLeon oddsLeon = converter.convert(oddsLeonDTO);
+            assertOddsLeonByFieldNames(oddsLeon, oddsLeonDTO);
+            assertOddsLeonSpecificFields(oddsLeon, oddsLeonDTO, testData);
+            assertRunnersIsNotNull(oddsLeon);
+        }
+    }
+
+    private TestConvertionData generatedTestConvertionData() {
+        return TestConvertionData.builder()
+                .leagueLeon(Instancio.create(LeagueLeon.class))
+                .competitorLeon(Instancio.create(CompetitorLeon.class))
+                .competitorLeon2(Instancio.create(CompetitorLeon.class))
+                .build();
+    }
+
+    private List<OddsLeonDTO> generatedOddsLeonDTOList(TestConvertionData testData) {
+        final var leagueLeonDTO = LeagueLeonDTO.builder().
+                name(testData.leagueLeon.getName())
+                .build();
+        final List<CompetitorLeonDTO> competitorLeonDTOList = generatedCompetitorLeonDTOList(testData.competitorLeon, testData.competitorLeon2);
+        return Instancio.ofList(OddsLeonDTO.class)
+                .size(2)
+                .set(field(OddsLeonDTO::getCompetitors), competitorLeonDTOList)
+                .set(field(OddsLeonDTO::getLeague), leagueLeonDTO)
+                .set(field(OddsLeonDTO::isOpen), true)
+                .create();
+    }
+
+    private List<CompetitorLeonDTO> generatedCompetitorLeonDTOList(CompetitorLeon competitorLeon, CompetitorLeon competitorLeon2) {
+        return Arrays.asList(
                 CompetitorLeonDTO.builder()
-                        .name(compName1)
+                        .name(competitorLeon.getName())
                         .homeAway("HOME")
                         .build(),
                 CompetitorLeonDTO.builder()
-                        .name(compName2)
+                        .name(competitorLeon2.getName())
                         .homeAway("AWAY")
                         .build()
         );
-        final LeagueLeonDTO leagueLeonDTO = LeagueLeonDTO.builder().
-                name("League 1")
-                .build();
+    }
 
-        final List<OddsLeonDTO> dtoList = Arrays.asList(
-                OddsLeonDTO.builder()
-                        .competitors(competitorLeonDTOList)
-                        .league(leagueLeonDTO)
-                        .id(1L)
-                        .name("odd 1")
-                        .kickoff(1L)
-                        .open(true)
-                        .url("http://url1/")
-                        .lastUpdated(100L)
-                        .build(),
-                OddsLeonDTO.builder()
-                        .competitors(competitorLeonDTOList)
-                        .league(leagueLeonDTO)
-                        .id(2L)
-                        .name("odd 2")
-                        .kickoff(10L)
-                        .open(true)
-                        .url("http://url2/")
-                        .lastUpdated(1000L)
-                        .build()
-        );
+    private void prepareCompetitorSaving() {
+        when(competitorService.save(any())).thenAnswer(it -> it.getArgument(0));
+    }
 
-        for (OddsLeonDTO dto : dtoList) {
-            reset(competitorService, conversionService, leagueService);
-            when(competitorService.save(any())).thenAnswer(it -> it.getArgument(0));
-            when(conversionService.convert(any(CompetitorLeonDTO.class), eq(CompetitorLeon.class))).thenAnswer(it -> {
-                CompetitorLeonDTO dtoInner = it.getArgument(0);
-                return dtoInner.getName().equals(compName1) ? competitor1 : competitor2;
-            });
-            when(leagueService.save(any())).thenAnswer(it -> it.getArgument(0));
-            when(conversionService.convert(any(LeagueLeonDTO.class), eq(LeagueLeon.class))).thenReturn(league);
+    private void prepareLeagueSaving() {
+        when(leagueService.save(any())).thenAnswer(it -> it.getArgument(0));
+    }
 
-            final OddsLeon result = converter.convert(dto);
+    private void prepareCompetitorLeonConversion(CompetitorLeon competitorLeon, CompetitorLeon competitorLeon2) {
+        when(conversionService.convert(any(CompetitorLeonDTO.class), eq(CompetitorLeon.class))).thenAnswer(it -> {
+            CompetitorLeonDTO dtoInner = it.getArgument(0);
+            return dtoInner.getName().equals(competitorLeon.getName()) ? competitorLeon : competitorLeon2;
+        });
+    }
 
-            assertThat(result, is(notNullValue()));
-            assertThat(result.getId(), is(dto.getId()));
-            assertThat(result.getName(), is(dto.getName()));
-            assertThat(result.getKickoff(), is(LocalDateTime.ofInstant(Instant.ofEpochMilli(dto.getKickoff()),
-                    TimeZone.getDefault().toZoneId())));
-            assertThat(result.isOpen(), is(dto.isOpen()));
-            assertThat(result.getUrl(), is(dto.getUrl()));
-            assertThat(result.getLastUpdated(), is(LocalDateTime.ofInstant(Instant.ofEpochMilli(dto.getLastUpdated()),
-                    TimeZone.getDefault().toZoneId())));
-            assertThat(result.getLeague(), is(league));
-            assertThat(result.getHome(), is(competitor1));
-            assertThat(result.getAway(), is(competitor2));
-            assertThat(result.getRunners(), is(notNullValue()));
-            verify(competitorService).getByName(compName1);
-            verify(competitorService).getByName(compName2);
-            verify(conversionService, times(competitorLeonDTOList.size())).convert(any(CompetitorLeonDTO.class), eq(CompetitorLeon.class));
-            verify(competitorService, times(competitorLeonDTOList.size())).save(any());
-            verify(leagueService).getByName(eq(dto.getLeague().getName()));
-            verify(conversionService).convert(any(LeagueLeonDTO.class), eq(LeagueLeon.class));
-            verify(leagueService).save(any());
-        }
+    private void prepareLeagueLeonConversion(LeagueLeon leagueLeon) {
+        when(conversionService.convert(any(LeagueLeonDTO.class), eq(LeagueLeon.class))).thenReturn(leagueLeon);
+    }
+
+    private void assertOddsLeonByFieldNames(OddsLeon oddsLeon, OddsLeonDTO oddsLeonDTO) {
+        assertThat(oddsLeon)
+                .isNotNull()
+                .usingRecursiveComparison()
+                .ignoringFields("kickoff", "lastUpdated", "league", "home", "away", "runners")
+                .isEqualTo(oddsLeonDTO);
+    }
+
+    private void assertOddsLeonSpecificFields(OddsLeon oddsLeon, OddsLeonDTO oddsLeonDTO, TestConvertionData testData) {
+        assertThat(oddsLeon)
+                .extracting(
+                        OddsLeon::getKickoff,
+                        OddsLeon::getLastUpdated,
+                        OddsLeon::getLeague,
+                        OddsLeon::getHome,
+                        OddsLeon::getAway
+                ).containsExactly(
+                        LocalDateTime.ofInstant(Instant.ofEpochMilli(oddsLeonDTO.getKickoff()), TimeZone.getDefault().toZoneId()),
+                        LocalDateTime.ofInstant(Instant.ofEpochMilli(oddsLeonDTO.getLastUpdated()), TimeZone.getDefault().toZoneId()),
+                        testData.leagueLeon,
+                        testData.competitorLeon,
+                        testData.competitorLeon2
+                );
+    }
+
+    private void assertRunnersIsNotNull(OddsLeon oddsLeon) {
+        assertThat(oddsLeon)
+                .extracting(OddsLeon::getRunners)
+                .isNotNull();
     }
 }
