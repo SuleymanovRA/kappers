@@ -58,7 +58,7 @@ class OddsLeonDTOToOddsLeonConverterTest extends UnitTest {
             reset(competitorService, leagueService, conversionService);
             prepareCompetitorSaving();
             prepareLeagueSaving();
-            prepareCompetitorLeonConversion(testData.competitorLeon, testData.competitorLeon2);
+            prepareCompetitorLeonConversion(testData);
             prepareLeagueLeonConversion(testData.leagueLeon);
 
             final OddsLeon oddsLeon = converter.convert(oddsLeonDTO);
@@ -110,10 +110,11 @@ class OddsLeonDTOToOddsLeonConverterTest extends UnitTest {
         when(leagueService.save(any())).thenAnswer(it -> it.getArgument(0));
     }
 
-    private void prepareCompetitorLeonConversion(CompetitorLeon competitorLeon, CompetitorLeon competitorLeon2) {
+    private void prepareCompetitorLeonConversion(TestConvertionData testData) {
         when(conversionService.convert(any(CompetitorLeonDTO.class), eq(CompetitorLeon.class))).thenAnswer(it -> {
             CompetitorLeonDTO dtoInner = it.getArgument(0);
-            return dtoInner.getName().equals(competitorLeon.getName()) ? competitorLeon : competitorLeon2;
+            return dtoInner.getName().equals(testData.competitorLeon.getName()) ? testData.competitorLeon :
+                    testData.competitorLeon2;
         });
     }
 
