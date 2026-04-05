@@ -8,28 +8,30 @@ import ru.kappers.model.dto.rapidapi.TeamRapidDTO;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static ru.kappers.assertion.Assertions.assertThat;
 
 
 class TeamRapidDTOToTeamConverterTest extends UnitTest {
     @InjectMocks
-    private TeamRapidDTOToTeamConverter converter;
+    private TeamRapidDTOToTeamConverterImpl converter;
 
     @Test
-    void convertMustReturnNullIfParameterIsNull() {
-        assertThat(converter.convert(null)).isNull();
+    void convertMustThrowExceptionIfParameterIsNull() {
+        assertThatThrownBy(() -> converter.convert(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void convert() {
-        for (TeamRapidDTO dto : generatedTeamRapidDTOList()) {
-            final var team = converter.convert(dto);
+        for (TeamRapidDTO teamRapidDTO : generatedTeamRapidDTOList()) {
+            final var team = converter.convert(teamRapidDTO);
             assertThat(team)
                     .isNotNull()
-                    .hasId(dto.getTeam_id())
+                    .hasId(teamRapidDTO.getTeam_id())
                     .usingRecursiveComparison()
                     .ignoringFields("id", "teamBridge")
-                    .isEqualTo(dto);
+                    .isEqualTo(teamRapidDTO);
         }
     }
 
