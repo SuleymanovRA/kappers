@@ -1,51 +1,42 @@
 package ru.kappers.convert;
 
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.instancio.Instancio;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
+import ru.kappers.UnitTest;
 import ru.kappers.model.dto.leon.MarketLeonDTO;
-import ru.kappers.model.leonmodels.MarketLeon;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(MockitoJUnitRunner.class)
-public class MarketLeonDTOToMarketLeonConverterTest {
+
+class MarketLeonDTOToMarketLeonConverterTest extends UnitTest {
     @InjectMocks
-    private MarketLeonDTOToMarketLeonConverter converter;
+    private MarketLeonDTOToMarketLeonConverterImpl converter;
 
     @Test
-    public void convertMustReturnNullIfParameterIsNull() {
-        assertThat(converter.convert(null), is(nullValue()));
+    void convertMustThrowExceptionIfParameterIsNull() {
+        assertThatThrownBy(() -> converter.convert(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void convert() {
-        final List<MarketLeonDTO> dtoList = Arrays.asList(
-                MarketLeonDTO.builder()
-                        .id(1L)
-                        .name("name 1")
-                        .open(true)
-                        .build(),
-                MarketLeonDTO.builder()
-                        .id(2L)
-                        .name("name 2")
-                        .open(false)
-                        .build()
-        );
-
-        for (MarketLeonDTO dto : dtoList) {
-            final MarketLeon result = converter.convert(dto);
-
-            assertThat(result, is(notNullValue()));
-            assertThat(result.getId(), is(dto.getId()));
-            assertThat(result.getName(), is(dto.getName()));
-            assertThat(result.isOpen(), is(dto.isOpen()));
+    void convert() {
+        for (MarketLeonDTO marketLeonDTO : generatedMarketLeonDTOList()) {
+            final var marketLeon = converter.convert(marketLeonDTO);
+            assertThat(marketLeon)
+                    .isNotNull()
+                    .usingRecursiveComparison()
+                    .isEqualTo(marketLeonDTO);
         }
+    }
+
+    private List<MarketLeonDTO> generatedMarketLeonDTOList() {
+        return Instancio.ofList(MarketLeonDTO.class)
+                .size(2)
+                .create();
     }
 }
