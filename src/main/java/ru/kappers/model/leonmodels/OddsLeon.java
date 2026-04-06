@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -45,5 +46,6 @@ public class OddsLeon {
     @OneToMany(mappedBy = "odd", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private List<RunnerLeon> runners;
+    @Builder.Default
+    private List<RunnerLeon> runners = new ArrayList<>();
 }
