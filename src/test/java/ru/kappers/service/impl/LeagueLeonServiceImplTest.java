@@ -12,6 +12,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+//todo Переписать на тест с БД
 @RunWith(MockitoJUnitRunner.class)
 public class LeagueLeonServiceImplTest {
     @InjectMocks

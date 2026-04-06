@@ -33,5 +33,6 @@ public interface CompetitorLeonService {
      */
     List<CompetitorLeon> getAllByIdIsNotIn(Iterable<Long> ids);
 
+    //todo Переписать на Optional чтобы не возвращать null
     CompetitorLeon getByName(String name);
 }
