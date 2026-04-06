@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.*;
 
 class OddsLeonDTOToOddsLeonConverterTest extends UnitTest {
     @InjectMocks
-    private OddsLeonDTOToOddsLeonConverter converter;
+    private OddsLeonDTOToOddsLeonConverterImpl converter;
     @Mock
     private CompetitorLeonService competitorService;
     @Mock
@@ -40,8 +41,9 @@ class OddsLeonDTOToOddsLeonConverterTest extends UnitTest {
     private ConversionService conversionService;
 
     @Test
-    void convertMustReturnNullIfParameterIsNull() {
-        assertThat(converter.convert(null)).isNull();
+    void convertMustThrowExceptionIfParameterIsNull() {
+        assertThatThrownBy(() -> converter.convert(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Builder
