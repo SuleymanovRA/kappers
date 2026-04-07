@@ -39,7 +39,7 @@ class MarketLeonDTOAndOddsLeonToRunnerLeonListConverterTest extends UnitTest {
         double precision = 0.01;
         return Math.abs(d1 - d2) <= precision ? 0 : 1;
     };
-    private MarketLeonDTOToMarketLeonConverter marketLeonDTOToMarketLeonConverter = Mappers.getMapper(MarketLeonDTOToMarketLeonConverter.class);
+    private final MarketLeonDTOToMarketLeonConverter marketLeonDTOToMarketLeonConverter = Mappers.getMapper(MarketLeonDTOToMarketLeonConverter.class);
 
     @Test
     void convertMustReturnImptyListIfParameterIsNull() {
@@ -55,9 +55,7 @@ class MarketLeonDTOAndOddsLeonToRunnerLeonListConverterTest extends UnitTest {
 
         var marketLeonDTOAndOddsLeon = generatedMarketLeonDTOAndOddsLeon();
         var runnerLeonList = converter.convert(marketLeonDTOAndOddsLeon);
-        assertRunnersByFieldNames(runnerLeonList, marketLeonDTOAndOddsLeon);
-        assertRunnersMarket(runnerLeonList, marketLeonDTOAndOddsLeon.getMarketLeonDTO());
-        assertRunnersOdd(runnerLeonList, marketLeonDTOAndOddsLeon.getOddsLeon());
+        assertRunners(runnerLeonList, marketLeonDTOAndOddsLeon);
     }
 
     private void prepareMarketLeonDTOConvertion() {
@@ -79,6 +77,12 @@ class MarketLeonDTOAndOddsLeonToRunnerLeonListConverterTest extends UnitTest {
         return Instancio.of(MarketLeonDTO.class)
                 .generate(field(MarketLeonDTO::getRunners), gen -> gen.collection().size(2))
                 .create();
+    }
+
+    private void assertRunners(List<RunnerLeon> runnerLeonList, MarketLeonDTOAndOddsLeon marketLeonDTOAndOddsLeon) {
+        assertRunnersByFieldNames(runnerLeonList, marketLeonDTOAndOddsLeon);
+        assertRunnersMarket(runnerLeonList, marketLeonDTOAndOddsLeon.getMarketLeonDTO());
+        assertRunnersOdd(runnerLeonList, marketLeonDTOAndOddsLeon.getOddsLeon());
     }
 
     private void assertRunnersByFieldNames(List<RunnerLeon> runnerLeonList, MarketLeonDTOAndOddsLeon marketLeonDTOAndOddsLeon) {
