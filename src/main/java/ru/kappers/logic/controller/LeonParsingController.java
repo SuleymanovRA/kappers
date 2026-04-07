@@ -3,20 +3,23 @@ package ru.kappers.logic.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.data.util.Pair;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import ru.kappers.logic.odds.BetParser;
 import ru.kappers.model.dto.leon.MarketLeonDTO;
+import ru.kappers.model.dto.leon.MarketLeonDTOAndOddsLeon;
 import ru.kappers.model.dto.leon.OddsLeonDTO;
 import ru.kappers.model.leonmodels.OddsLeon;
 import ru.kappers.model.leonmodels.RunnerLeon;
-import ru.kappers.service.*;
+import ru.kappers.service.MessageTranslator;
+import ru.kappers.service.OddsLeonService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +70,7 @@ public class LeonParsingController {
      * где url это путь к турниру, события из которой хотим сохранить в нашу базу
      */
 
+    //todo Перенести эту логику из контроллера в сервис
     @RequestMapping(value = "/oddLeons", method = RequestMethod.POST, headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getOddLeons(@RequestBody String content) {
         JsonArray asJsonArray = GSON.fromJson(content, JsonArray.class);
@@ -105,8 +109,11 @@ public class LeonParsingController {
     private List<RunnerLeon> runnerLeonConverter(List<MarketLeonDTO> markets, OddsLeon odd) {
         final List<RunnerLeon> runners = new ArrayList<>(markets.size());
         for (MarketLeonDTO market : markets) {
-            Pair<MarketLeonDTO, OddsLeon> pair = Pair.of(market, odd);
-            runners.addAll(conversionService.convert(pair, (Class<List<RunnerLeon>>) (Class<?>) List.class));
+            var marketLeonDTOAndOddsLeon = MarketLeonDTOAndOddsLeon.builder()
+                    .marketLeonDTO(market)
+                    .oddsLeon(odd)
+                    .build();
+            runners.addAll(conversionService.convert(marketLeonDTOAndOddsLeon, (Class<List<RunnerLeon>>) (Class<?>) List.class));
         }
         return runners;
     }

@@ -20,7 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.kappers.convert.OddsLeonDTOToOddsLeonConverter;
-import ru.kappers.convert.PairOfMarketLeonDTOAndOddsLeonToRunnerLeonListConverter;
+import ru.kappers.convert.MarketLeonDTOAndOddsLeonToRunnerLeonListConverter;
 import ru.kappers.logic.controller.EventController;
 import ru.kappers.model.Event;
 import ru.kappers.model.Fixture;
@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(EventController.class)
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @MockBean(OddsLeonDTOToOddsLeonConverter.class)
-@MockBean(PairOfMarketLeonDTOAndOddsLeonToRunnerLeonListConverter.class)
+@MockBean(MarketLeonDTOAndOddsLeonToRunnerLeonListConverter.class)
 public class EventControllerTest {
     public Gson GSON = new Gson();
     @MockBean

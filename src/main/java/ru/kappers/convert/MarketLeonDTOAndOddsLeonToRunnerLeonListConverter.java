@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.kappers.model.dto.leon.MarketLeonDTO;
+import ru.kappers.model.dto.leon.MarketLeonDTOAndOddsLeon;
 import ru.kappers.model.dto.leon.RunnerLeonDTO;
 import ru.kappers.model.leonmodels.MarketLeon;
 import ru.kappers.model.leonmodels.OddsLeon;
@@ -21,13 +21,13 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class PairOfMarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements Converter<Pair<MarketLeonDTO, OddsLeon>, List<RunnerLeon>> {
+public class MarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements Converter<MarketLeonDTOAndOddsLeon, List<RunnerLeon>> {
     private final MarketLeonService marketService;
     private final RunnerLeonService runnerService;
     private final ConversionService conversionService;
 
     @Autowired
-    public PairOfMarketLeonDTOAndOddsLeonToRunnerLeonListConverter(MarketLeonService marketService, RunnerLeonService runnerService, @Lazy ConversionService conversionService) {
+    public MarketLeonDTOAndOddsLeonToRunnerLeonListConverter(MarketLeonService marketService, RunnerLeonService runnerService, @Lazy ConversionService conversionService) {
         this.marketService = marketService;
         this.runnerService = runnerService;
         this.conversionService = conversionService;
@@ -42,6 +42,7 @@ public class PairOfMarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements 
                     .price(runnerDTO.getPrice())
                     .open(runnerDTO.isOpen())
                     .market(market)
+                    .odd(odd)
                     .tags(runnerDTO.getTags() != null ? runnerDTO.getTags().toString() : "")
                     .build();
         } else {
@@ -49,27 +50,22 @@ public class PairOfMarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements 
             byId.setOpen(runnerDTO.isOpen());
             return byId;
         }
-
     }
 
     @Override
-    public List<RunnerLeon> convert(@Nullable Pair<MarketLeonDTO, OddsLeon> source) {
+    public List<RunnerLeon> convert(@Nullable MarketLeonDTOAndOddsLeon source) {
         if (source == null) {
-            return new ArrayList<>();
+            return List.of();
         }
-
-        final MarketLeonDTO marketDTO = source.getFirst();
-        final List<RunnerLeon> runners = new ArrayList<>(marketDTO.getRunners().size());
-
+        final MarketLeonDTO marketDTO = source.getMarketLeonDTO();
         MarketLeon market = marketService.getByName(marketDTO.getName());
         if (market == null) {
             market = marketService.save(conversionService.convert(marketDTO, MarketLeon.class));
         }
-
+        final List<RunnerLeon> runners = new ArrayList<>(marketDTO.getRunners().size());
         for (RunnerLeonDTO runnerDTO : marketDTO.getRunners()) {
-            runners.add(getRunner(runnerDTO, market, source.getSecond()));
+            runners.add(getRunner(runnerDTO, market, source.getOddsLeon()));
         }
         return runners;
-
     }
 }

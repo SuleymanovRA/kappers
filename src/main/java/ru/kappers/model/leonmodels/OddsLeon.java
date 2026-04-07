@@ -1,7 +1,6 @@
 package ru.kappers.model.leonmodels;
 
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -10,7 +9,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
+/**
+ * Спортивное событие с коэффицентами от букмекеров
+ */
 @Data
 @Builder
 @Entity
