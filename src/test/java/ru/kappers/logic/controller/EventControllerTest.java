@@ -1,7 +1,6 @@
-package ru.kappers.logic.controller.web;
+package ru.kappers.logic.controller;
 
 import com.google.gson.Gson;
-import lombok.extern.slf4j.Slf4j;
 import org.instancio.Instancio;
 import org.instancio.generators.Generators;
 import org.junit.Test;
@@ -19,9 +18,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.kappers.convert.OddsLeonDTOToOddsLeonConverter;
 import ru.kappers.convert.MarketLeonDTOAndOddsLeonToRunnerLeonListConverter;
-import ru.kappers.logic.controller.EventController;
+import ru.kappers.convert.OddsLeonDTOToOddsLeonConverter;
 import ru.kappers.model.Event;
 import ru.kappers.model.Fixture;
 import ru.kappers.model.User;
@@ -41,7 +39,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Slf4j
 @RunWith(SpringRunner.class)
 @ExtendWith({MockitoExtension.class, SpringExtension.class})
 @ActiveProfiles("test")
