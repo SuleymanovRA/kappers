@@ -1,6 +1,6 @@
 package ru.kappers.convert;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.convert.ConversionService;
@@ -22,7 +22,6 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.nonNull;
 
-@Slf4j
 @Service
 public class MarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements Converter<MarketLeonDTOAndOddsLeon, List<RunnerLeon>> {
     private final MarketLeonService marketService;
@@ -30,10 +29,18 @@ public class MarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements Conver
     private final ConversionService conversionService;
 
     @Autowired
-    public MarketLeonDTOAndOddsLeonToRunnerLeonListConverter(MarketLeonService marketService, RunnerLeonService runnerService, @Lazy ConversionService conversionService) {
+    public MarketLeonDTOAndOddsLeonToRunnerLeonListConverter(MarketLeonService marketService,
+        RunnerLeonService runnerService, @Lazy ConversionService conversionService) {
         this.marketService = marketService;
         this.runnerService = runnerService;
         this.conversionService = conversionService;
+    }
+
+    @Builder
+    private record RunnerSearchParameters(
+            RunnerLeonDTO runnerDTO,
+            MarketLeon market,
+            OddsLeon odd) {
     }
 
     @Override
@@ -43,7 +50,11 @@ public class MarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements Conver
         MarketLeon market = getMarket(marketDTO);
         final List<RunnerLeon> runners = new ArrayList<>(marketDTO.getRunners().size());
         for (RunnerLeonDTO runnerDTO : marketDTO.getRunners()) {
-            runners.add(getRunner(runnerDTO, market, source.getOddsLeon()));
+            runners.add(getRunner(RunnerSearchParameters.builder()
+                    .runnerDTO(runnerDTO)
+                    .market(market)
+                    .odd(source.getOddsLeon())
+                    .build()));
         }
         return runners;
     }
@@ -61,15 +72,16 @@ public class MarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements Conver
         return marketService.save(conversionService.convert(marketDTO, MarketLeon.class));
     }
 
-    private RunnerLeon getRunner(RunnerLeonDTO runnerDTO, MarketLeon market, OddsLeon odd) {
-        return findRunner(runnerDTO, market, odd)
-                .map(runnerLeon -> updatedRunnerLeon(runnerLeon, runnerDTO))
-                .orElse(newRunnerLeon(runnerDTO, market, odd));
+    private RunnerLeon getRunner(RunnerSearchParameters searchParameters) {
+        return findRunner(searchParameters)
+                .map(runnerLeon -> updatedRunnerLeon(runnerLeon, searchParameters.runnerDTO))
+                .orElse(newRunnerLeon(searchParameters));
     }
 
-    private Optional<RunnerLeon> findRunner(RunnerLeonDTO runnerDTO, MarketLeon market, OddsLeon odd) {
+    private Optional<RunnerLeon> findRunner(RunnerSearchParameters searchParameters) {
         return Optional.ofNullable(
-                runnerService.getFirstByMarketAndOddAndName(market.getId(), odd.getId(), runnerDTO.getName()));
+                runnerService.getFirstByMarketAndOddAndName(searchParameters.market.getId(),
+                        searchParameters.odd.getId(), searchParameters.runnerDTO.getName()));
     }
 
     private RunnerLeon updatedRunnerLeon(RunnerLeon runnerLeon, RunnerLeonDTO runnerDTO) {
@@ -79,14 +91,15 @@ public class MarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements Conver
                 .build();
     }
 
-    private RunnerLeon newRunnerLeon(RunnerLeonDTO runnerDTO, MarketLeon market, OddsLeon odd) {
+    private RunnerLeon newRunnerLeon(RunnerSearchParameters searchParameters) {
+        RunnerLeonDTO runnerDTO = searchParameters.runnerDTO;
         return RunnerLeon.builder()
                 .name(runnerDTO.getName())
                 .open(runnerDTO.isOpen())
                 .tags(runnerDTO.getTags() != null ? runnerDTO.getTags().toString() : "")
                 .price(runnerDTO.getPrice())
-                .market(market)
-                .odd(odd)
+                .market(searchParameters.market)
+                .odd(searchParameters.odd)
                 .build();
     }
 }
