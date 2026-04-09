@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -108,7 +107,6 @@ public class Fixture implements Serializable, Comparable<Fixture> {
          * @param value значение статуса
          * @return найденный статус или {@literal null}
          */
-        @Nullable
         public static Status byValue(String value) {
             for (Status val : Status.values()) {
                 if (Objects.equals(value, val.value)) {
@@ -139,7 +137,6 @@ public class Fixture implements Serializable, Comparable<Fixture> {
          * @param value значение статуса
          * @return найденный статус или {@literal null}
          */
-        @Nullable
         public static ShortStatus byValue(String value) {
             for (ShortStatus val : ShortStatus.values()) {
                 if (Objects.equals(value, val.value)) {
