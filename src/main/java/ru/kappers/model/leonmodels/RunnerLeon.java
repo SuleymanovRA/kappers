@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 
 @Slf4j
 @Data
-@Builder
+@Builder(toBuilder = true)
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor

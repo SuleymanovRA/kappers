@@ -15,9 +15,12 @@ import ru.kappers.model.leonmodels.RunnerLeon;
 import ru.kappers.service.MarketLeonService;
 import ru.kappers.service.RunnerLeonService;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.nonNull;
 
 @Slf4j
 @Service
@@ -33,39 +36,57 @@ public class MarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements Conver
         this.conversionService = conversionService;
     }
 
-    private RunnerLeon getRunner(RunnerLeonDTO runnerDTO, MarketLeon market, OddsLeon odd) {
-        RunnerLeon byId = runnerService.getFirstByMarketAndOddAndName(market.getId(), odd.getId(), runnerDTO.getName());
-        if (byId == null) {
-            return RunnerLeon.builder()
-                    // .id(runnerDTO.getId())
-                    .name(runnerDTO.getName())
-                    .price(runnerDTO.getPrice())
-                    .open(runnerDTO.isOpen())
-                    .market(market)
-                    .odd(odd)
-                    .tags(runnerDTO.getTags() != null ? runnerDTO.getTags().toString() : "")
-                    .build();
-        } else {
-            byId.setPrice(runnerDTO.getPrice());
-            byId.setOpen(runnerDTO.isOpen());
-            return byId;
-        }
-    }
-
     @Override
-    public List<RunnerLeon> convert(@Nullable MarketLeonDTOAndOddsLeon source) {
-        if (source == null) {
-            return List.of();
-        }
+    public List<RunnerLeon> convert(MarketLeonDTOAndOddsLeon source) {
+        checkArgument(nonNull(source), "source must not null");
         final MarketLeonDTO marketDTO = source.getMarketLeonDTO();
-        MarketLeon market = marketService.getByName(marketDTO.getName());
-        if (market == null) {
-            market = marketService.save(conversionService.convert(marketDTO, MarketLeon.class));
-        }
+        MarketLeon market = getMarket(marketDTO);
         final List<RunnerLeon> runners = new ArrayList<>(marketDTO.getRunners().size());
         for (RunnerLeonDTO runnerDTO : marketDTO.getRunners()) {
             runners.add(getRunner(runnerDTO, market, source.getOddsLeon()));
         }
         return runners;
+    }
+
+    private MarketLeon getMarket(MarketLeonDTO marketDTO) {
+        return findMarket(marketDTO)
+                .orElse(savedMarket(marketDTO));
+    }
+
+    private Optional<MarketLeon> findMarket(MarketLeonDTO marketDTO) {
+        return Optional.ofNullable(marketService.getByName(marketDTO.getName()));
+    }
+
+    private MarketLeon savedMarket(MarketLeonDTO marketDTO) {
+        return marketService.save(conversionService.convert(marketDTO, MarketLeon.class));
+    }
+
+    private RunnerLeon getRunner(RunnerLeonDTO runnerDTO, MarketLeon market, OddsLeon odd) {
+        return findRunner(runnerDTO, market, odd)
+                .map(runnerLeon -> updatedRunnerLeon(runnerLeon, runnerDTO))
+                .orElse(newRunnerLeon(runnerDTO, market, odd));
+    }
+
+    private Optional<RunnerLeon> findRunner(RunnerLeonDTO runnerDTO, MarketLeon market, OddsLeon odd) {
+        return Optional.ofNullable(
+                runnerService.getFirstByMarketAndOddAndName(market.getId(), odd.getId(), runnerDTO.getName()));
+    }
+
+    private RunnerLeon updatedRunnerLeon(RunnerLeon runnerLeon, RunnerLeonDTO runnerDTO) {
+        return runnerLeon.toBuilder()
+                .open(runnerDTO.isOpen())
+                .price(runnerDTO.getPrice())
+                .build();
+    }
+
+    private RunnerLeon newRunnerLeon(RunnerLeonDTO runnerDTO, MarketLeon market, OddsLeon odd) {
+        return RunnerLeon.builder()
+                .name(runnerDTO.getName())
+                .open(runnerDTO.isOpen())
+                .tags(runnerDTO.getTags() != null ? runnerDTO.getTags().toString() : "")
+                .price(runnerDTO.getPrice())
+                .market(market)
+                .odd(odd)
+                .build();
     }
 }

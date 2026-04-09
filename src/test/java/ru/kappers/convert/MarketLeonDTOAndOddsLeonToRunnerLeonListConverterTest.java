@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -42,20 +43,19 @@ class MarketLeonDTOAndOddsLeonToRunnerLeonListConverterTest extends UnitTest {
     private final MarketLeonDTOToMarketLeonConverter marketLeonDTOToMarketLeonConverter = Mappers.getMapper(MarketLeonDTOToMarketLeonConverter.class);
 
     @Test
-    void convertMustReturnImptyListIfParameterIsNull() {
-        assertThat(converter.convert(null))
-                .isNotNull()
-                .isEmpty();
+    void convertMustThrowExceptionIfParameterIsNull() {
+        assertThatThrownBy(() -> converter.convert(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void convert() {
+    void convertIfRunnersNotFound() {
         prepareMarketLeonDTOConvertion();
         prepareMarketLeonSaving();
 
         var marketLeonDTOAndOddsLeon = generatedMarketLeonDTOAndOddsLeon();
         var runnerLeonList = converter.convert(marketLeonDTOAndOddsLeon);
-        assertRunners(runnerLeonList, marketLeonDTOAndOddsLeon);
+        assertNewRunners(runnerLeonList, marketLeonDTOAndOddsLeon);
     }
 
     private void prepareMarketLeonDTOConvertion() {
@@ -79,10 +79,11 @@ class MarketLeonDTOAndOddsLeonToRunnerLeonListConverterTest extends UnitTest {
                 .create();
     }
 
-    private void assertRunners(List<RunnerLeon> runnerLeonList, MarketLeonDTOAndOddsLeon marketLeonDTOAndOddsLeon) {
+    private void assertNewRunners(List<RunnerLeon> runnerLeonList, MarketLeonDTOAndOddsLeon marketLeonDTOAndOddsLeon) {
         assertRunnersByFieldNames(runnerLeonList, marketLeonDTOAndOddsLeon);
         assertRunnersMarket(runnerLeonList, marketLeonDTOAndOddsLeon.getMarketLeonDTO());
         assertRunnersOdd(runnerLeonList, marketLeonDTOAndOddsLeon.getOddsLeon());
+        assertNewRunnersIds(runnerLeonList);
     }
 
     private void assertRunnersByFieldNames(List<RunnerLeon> runnerLeonList, MarketLeonDTOAndOddsLeon marketLeonDTOAndOddsLeon) {
@@ -109,5 +110,11 @@ class MarketLeonDTOAndOddsLeonToRunnerLeonListConverterTest extends UnitTest {
                 .extracting(RunnerLeon::getOdd)
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsOnly(oddsLeon);
+    }
+
+    private void assertNewRunnersIds(List<RunnerLeon> runnerLeonList) {
+        assertThat(runnerLeonList)
+                .extracting(RunnerLeon::getId)
+                .containsOnly(0L);
     }
 }
