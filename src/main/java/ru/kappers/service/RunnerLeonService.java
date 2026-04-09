@@ -15,5 +15,6 @@ public interface RunnerLeonService {
     RunnerLeon getById(long id);
     void deleteAllByOddId(long oddId);
     List<RunnerLeon> saveAll(List<RunnerLeon> runners);
+    //todo Переписать на Optional чтобы не возвращать null
     RunnerLeon getFirstByMarketAndOddAndName(long marketId, long oddId, String name);
 }
