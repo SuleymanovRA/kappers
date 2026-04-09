@@ -88,11 +88,6 @@
                 <version>1.21.4</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>com.github.DECENTfoundation</groupId>
-                <artifactId>DCoreKt-SDK</artifactId>
-                <version>1.2.0</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.joda</groupId>
@@ -317,10 +312,6 @@
             <artifactId>instancio-junit</artifactId>
             <version>${instancio.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.DECENTfoundation</groupId>
-            <artifactId>DCoreKt-SDK</artifactId>
         </dependency>
 
         <dependency>
