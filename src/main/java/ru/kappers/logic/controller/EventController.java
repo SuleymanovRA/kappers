@@ -1,6 +1,5 @@
 package ru.kappers.logic.controller;
 
-import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
@@ -25,10 +24,9 @@ public class EventController {
     private final EventService eventService;
     private final UserService userService;
     private final ConversionService conversionService;
-    public static final Gson GSON = new Gson();
 
     @ResponseBody
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Odds getFixtureById(@PathVariable int id) {
         log.debug("getFixtureById(id: {})...", id);
         Fixture fixture = fixtureService.getById(id);
@@ -48,11 +46,9 @@ public class EventController {
      *
      * */
     @ResponseBody
-    @RequestMapping(value = "/create", method = RequestMethod.POST, headers = "Accept=application/json",
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public EventDTO createEvent(@RequestBody String content) {
-        log.debug("createEvent(content: {})...", content);
-        var eventDTO = GSON.fromJson(content, EventDTO.class);
+    @PostMapping(value = "/create", headers = "Accept=application/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EventDTO createEvent(@RequestBody EventDTO eventDTO) {
+        log.debug("createEvent(eventDTO: {})...", eventDTO);
         var event = conversionService.convert(eventDTO, Event.class);
         var user = userService.getByUserName(getCurrentAuthentication().getName());
         return conversionService.convert(
