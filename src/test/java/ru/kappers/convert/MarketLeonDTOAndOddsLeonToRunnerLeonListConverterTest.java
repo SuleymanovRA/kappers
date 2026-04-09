@@ -69,7 +69,7 @@ class MarketLeonDTOAndOddsLeonToRunnerLeonListConverterTest extends UnitTest {
 
     private MarketLeonDTOAndOddsLeon generatedMarketLeonDTOAndOddsLeon() {
         return Instancio.of(MarketLeonDTOAndOddsLeon.class)
-                .set(field(MarketLeonDTOAndOddsLeon::getMarketLeonDTO), generatedMarketLeonDTO())
+                .set(field(MarketLeonDTOAndOddsLeon::marketLeonDTO), generatedMarketLeonDTO())
                 .create();
     }
 
@@ -81,13 +81,13 @@ class MarketLeonDTOAndOddsLeonToRunnerLeonListConverterTest extends UnitTest {
 
     private void assertNewRunners(List<RunnerLeon> runnerLeonList, MarketLeonDTOAndOddsLeon marketLeonDTOAndOddsLeon) {
         assertRunnersByFieldNames(runnerLeonList, marketLeonDTOAndOddsLeon);
-        assertRunnersMarket(runnerLeonList, marketLeonDTOAndOddsLeon.getMarketLeonDTO());
-        assertRunnersOdd(runnerLeonList, marketLeonDTOAndOddsLeon.getOddsLeon());
+        assertRunnersMarket(runnerLeonList, marketLeonDTOAndOddsLeon.marketLeonDTO());
+        assertRunnersOdd(runnerLeonList, marketLeonDTOAndOddsLeon.oddsLeon());
         assertNewRunnersIds(runnerLeonList);
     }
 
     private void assertRunnersByFieldNames(List<RunnerLeon> runnerLeonList, MarketLeonDTOAndOddsLeon marketLeonDTOAndOddsLeon) {
-        var runnerLeonDTOList = marketLeonDTOAndOddsLeon.getMarketLeonDTO().getRunners();
+        var runnerLeonDTOList = marketLeonDTOAndOddsLeon.marketLeonDTO().getRunners();
         assertThat(runnerLeonList)
                 .isNotNull()
                 .hasSize(runnerLeonDTOList.size())

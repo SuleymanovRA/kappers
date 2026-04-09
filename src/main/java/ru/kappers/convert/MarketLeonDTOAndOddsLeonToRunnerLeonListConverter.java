@@ -46,14 +46,14 @@ public class MarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements Conver
     @Override
     public List<RunnerLeon> convert(MarketLeonDTOAndOddsLeon source) {
         checkArgument(nonNull(source), "source must not null");
-        final MarketLeonDTO marketDTO = source.getMarketLeonDTO();
+        final MarketLeonDTO marketDTO = source.marketLeonDTO();
         MarketLeon market = getMarket(marketDTO);
         final List<RunnerLeon> runners = new ArrayList<>(marketDTO.getRunners().size());
         for (RunnerLeonDTO runnerDTO : marketDTO.getRunners()) {
             runners.add(getRunner(RunnerSearchParameters.builder()
                     .runnerDTO(runnerDTO)
                     .market(market)
-                    .odd(source.getOddsLeon())
+                    .odd(source.oddsLeon())
                     .build()));
         }
         return runners;
