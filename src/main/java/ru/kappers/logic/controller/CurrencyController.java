@@ -2,8 +2,8 @@ package ru.kappers.logic.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kappers.service.CurrencyService;
 
@@ -21,7 +21,7 @@ public class CurrencyController {
         this.currencyService = currencyService;
     }
 
-    @RequestMapping(value = "/refresh", method = RequestMethod.GET)
+    @GetMapping(value = "/refresh")
     public void refreshCurrencyRatesForToday() {
         currencyService.tryRefreshCurrencyRatesForToday();
     }
