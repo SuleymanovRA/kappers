@@ -27,7 +27,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 })
 public abstract class AbstractIntegrationTest {
     @ClassRule
-    public static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer<>("postgres:10.23-alpine")
+    public static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer<>("postgres:14.22-alpine")
             .withDatabaseName("testdb")
             .withUsername("postgres")
             .withPassword("postgres")
