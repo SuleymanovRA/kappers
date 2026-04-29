@@ -36,7 +36,7 @@
 - Jadira Framework
 - log4j (Logger) и slf4j
 - JPA 2 (Hibernate), язык JPQL и HQL
-- PostgreSQL, язык SQL, управление миграциями баз данных Flyway
+- PostgreSQL 14, язык SQL, управление миграциями баз данных Flyway
 - Apache Maven
 - Сервер приложений (контейнер сервлетов) Apache Tomcat
 - Модульные тесты (unit-тесты на JUnit 4/5, Mockito Framework, Hamcrest, Instancio), интеграционные тесты (Spring Test, Spring Test DBUnit, testcontainers)

@@ -34,7 +34,7 @@ For additional information apply to founders. Contacts are below.
 - Jadira Framework
 - log4j (Logger) and slf4j
 - JPA 2 (Hibernate), JPQL and HQL
-- PostgreSQL, SQL,  Flyway
+- PostgreSQL 14, SQL, Flyway
 - Apache Maven
 - Servlet container Apache Tomcat
 - Unit-tests on JUnit 4/5, Mockito Framework, Hamcrest, Instancio, integration tests (Spring Test, Spring Test DBUnit, testcontainers)
