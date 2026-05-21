@@ -1,6 +1,5 @@
 package ru.kappers.service.impl;
 
-import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,8 @@ import java.util.List;
 @Slf4j
 @Transactional
 public class LeagueBridgeServiceImpl implements LeagueBridgeService {
-
+    private static final String BRIDGE_IS_REQUIRED_NOT_NULL = "bridge is required not null";
+    private static final String LEAGUE_IS_REQUIRED_NOT_NULL = "league is required not null";
     private final LeagueBridgeRepository repository;
     private final LeagueLeonService leonService;
     private final LeagueService rapidLeonService;
@@ -35,14 +35,20 @@ public class LeagueBridgeServiceImpl implements LeagueBridgeService {
     @Override
     public LeagueBridge save(LeagueBridge bridge) {
         log.debug("LeagueBridge save (bridge: {})...", bridge);
-        Preconditions.checkNotNull(bridge, "bridge is required not null");
+        checkNotNull(bridge, BRIDGE_IS_REQUIRED_NOT_NULL);
         return null;
+    }
+
+    private <T> void checkNotNull(T reference, String errorMessage) {
+        if (reference == null) {
+            throw new NullPointerException(errorMessage);
+        }
     }
 
     @Override
     public LeagueBridge get(LeagueBridge bridge) {
         log.debug("LeagueBridge get (bridge: {})...", bridge);
-        Preconditions.checkNotNull(bridge, "bridge is required not null");
+        checkNotNull(bridge, BRIDGE_IS_REQUIRED_NOT_NULL);
         return getById(bridge.getId());
     }
 
@@ -55,14 +61,14 @@ public class LeagueBridgeServiceImpl implements LeagueBridgeService {
     @Override
     public void delete(LeagueBridge bridge) {
         log.debug("LeagueBridge delete (bridge: {})...", bridge);
-        Preconditions.checkNotNull(bridge, "bridge is required not null");
+        checkNotNull(bridge, BRIDGE_IS_REQUIRED_NOT_NULL);
         repository.delete(bridge);
     }
 
     @Override
     public LeagueBridge update(LeagueBridge bridge) {
         log.debug("LeagueBridge update (bridge: {})...", bridge);
-        Preconditions.checkNotNull(bridge, "bridge is required not null");
+        checkNotNull(bridge, BRIDGE_IS_REQUIRED_NOT_NULL);
         LeagueBridge byId = null;
         if (bridge.getId() != null) {
             byId = getById(bridge.getId());
@@ -79,54 +85,53 @@ public class LeagueBridgeServiceImpl implements LeagueBridgeService {
     @Override
     public List<LeagueBridge> getAll() {
         log.debug("LeagueBridge getAll ()...");
-
-        return null;
+        //todo
+        return List.of();
     }
 
     @Override
     public LeagueBridge getByRapidLeague(League league) {
         log.debug("LeagueBridge getByRapidLeague (league: {})...", league);
-        Preconditions.checkNotNull(league, "league is required not null");
-
+        checkNotNull(league, LEAGUE_IS_REQUIRED_NOT_NULL);
+        //todo
         return null;
     }
 
     @Override
     public LeagueBridge getByLeaonLeague(LeagueLeon league) {
         log.debug("LeagueBridge getByLeaonLeague (league: {})...", league);
-        Preconditions.checkNotNull(league, "league is required not null");
-
+        checkNotNull(league, LEAGUE_IS_REQUIRED_NOT_NULL);
+        //todo
         return null;
     }
 
     @Override
     public LeagueLeon getLeagueLeonByRapidLeague(League league) {
         log.debug("LeagueBridge getLeagueLeonByRapidLeague (league: {})...", league);
-        Preconditions.checkNotNull(league, "league is required not null");
-
+        checkNotNull(league, LEAGUE_IS_REQUIRED_NOT_NULL);
+        //todo
         return null;
     }
 
     @Override
     public LeagueLeon getLeagueLeonByRapidLeague(int leagueId) {
         log.debug("LeagueBridge getLeagueLeonByRapidLeague (leagueId: {})...", leagueId);
-
+        //todo
         return null;
     }
 
     @Override
     public League getRapidLeagueByLeonLeague(LeagueLeon league) {
         log.debug("LeagueBridge getRapidLeagueByLeonLeague (league: {})...", league);
-        Preconditions.checkNotNull(league, "league is required not null");
-
-
+        checkNotNull(league, LEAGUE_IS_REQUIRED_NOT_NULL);
+        //todo
         return null;
     }
 
     @Override
     public League getRapidLeonByLeagueLeonId(long leagueLeonId) {
         log.debug("LeagueBridge getRapidLeonByLeagueLeonId (leagueLeonId: {})...", leagueLeonId);
-
+        //todo
         return null;
     }
 }

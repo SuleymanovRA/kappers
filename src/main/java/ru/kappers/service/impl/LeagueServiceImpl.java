@@ -1,6 +1,5 @@
 package ru.kappers.service.impl;
 
-import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +29,20 @@ public class LeagueServiceImpl implements LeagueService {
     @Override
     public League save(League league) {
         log.debug("save(league: {})...", league);
-        Preconditions.checkNotNull(league, "league is required not null");
+        checkNotNull(league, "league is required not null");
         return leagueRepository.save(league);
+    }
+
+    private <T> void checkNotNull(T reference, String errorMessage) {
+        if (reference == null) {
+            throw new NullPointerException(errorMessage);
+        }
     }
 
     @Override
     public void delete(League league) {
         log.debug("delete(league: {})...", league);
-        Preconditions.checkNotNull(league, "league is required not null");
+        checkNotNull(league, "league is required not null");
         leagueRepository.delete(league);
     }
 

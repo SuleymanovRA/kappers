@@ -166,6 +166,7 @@ public class UserServiceImplUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void transferMustThrowExceptionIfTransferNotFromUserRole() {
+        prepareMessageTranslator();
         final User user = mock(User.class);
         final User kapper = mock(User.class);
         final BigDecimal amount = BigDecimal.ONE;
@@ -179,8 +180,18 @@ public class UserServiceImplUnitTest {
         }
     }
 
+    private void prepareMessageTranslator() {
+        when(messageTranslator.byCode("user.hasNoPermissionToTransferMoney"))
+                .thenReturn("У пользователя %s нет прав на перевод денег");
+        when(messageTranslator.byCode("user.canTransferOnlyToKapper"))
+                .thenReturn("Операция запрещена. Деньги могут быть переведены только от пользователя к капперу");
+        when(messageTranslator.byCode("user.doesNotNaveEnoughMoney"))
+                .thenReturn("У пользователя %s нет достаточного количества денег. На балансе %s");
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void transferMustThrowExceptionIfTransferNotToKapper() {
+        prepareMessageTranslator();
         final User user = mock(User.class);
         final User kapper = mock(User.class);
         final BigDecimal amount = BigDecimal.ONE;
@@ -198,6 +209,7 @@ public class UserServiceImplUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void transferMustThrowExceptionIfUserAmountIsLowerThanTransferAmount() {
+        prepareMessageTranslator();
         final User user = mock(User.class);
         final User kapper = mock(User.class);
         final BigDecimal amount = BigDecimal.ONE;
@@ -217,6 +229,7 @@ public class UserServiceImplUnitTest {
 
     @Test(expected = MoneyTransferException.class)
     public void transferMustThrowExceptionIfKapperBalanceIsNull() {
+        prepareMessageTranslator();
         final User user = mock(User.class);
         final User kapper = mock(User.class);
         final BigDecimal amount = BigDecimal.ONE;
@@ -238,6 +251,7 @@ public class UserServiceImplUnitTest {
 
     @Test
     public void transferIfCurrencyUnitsIsEquals() {
+        prepareMessageTranslator();
         final User user = spy(User.builder()
                 .balance(Money.of(CurrencyUnit.USD, BigDecimal.TEN))
                 .role(Role.builder()
@@ -269,6 +283,7 @@ public class UserServiceImplUnitTest {
 
     @Test
     public void transferIfCurrencyUnitsIsNotEquals() {
+        prepareMessageTranslator();
         final User user = spy(User.builder()
                 .balance(Money.of(CurrencyUnit.EUR, BigDecimal.TEN))
                 .role(Role.builder()

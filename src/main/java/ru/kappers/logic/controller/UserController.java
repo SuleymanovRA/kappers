@@ -1,6 +1,5 @@
 package ru.kappers.logic.controller;
 
-import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -50,7 +49,7 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean login(@RequestBody User user) {
-        Preconditions.checkNotNull(user, "user is required");
+        checkNotNull(user, "user is required");
         getCurrentAuthentication();
         String password = user.getPassword();
 
@@ -59,10 +58,16 @@ public class UserController {
         return user != null && passwordEncoder.matches(password, user.getPassword());
     }
 
+    private <T> void checkNotNull(T reference, String errorMessage) {
+        if (reference == null) {
+            throw new NullPointerException(errorMessage);
+        }
+    }
+
     @ResponseBody
     @RequestMapping("/user")
     public Principal user(HttpServletRequest request) {
-        Preconditions.checkNotNull(request, "request is required");
+        checkNotNull(request, "request is required");
         String authToken = request.getHeader("Authorization")
                 .substring("Basic".length()).trim();
         return () ->  new String(Base64.getDecoder()
@@ -90,7 +95,7 @@ public class UserController {
     @RequestMapping(value = "/sign-up", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public User create(@RequestBody User user) {
-        Preconditions.checkNotNull(user, "user is required");
+        checkNotNull(user, "user is required");
         user.setDateOfRegistration(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userService.addUser(user);

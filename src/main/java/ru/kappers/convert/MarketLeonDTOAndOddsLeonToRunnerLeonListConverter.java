@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -57,6 +56,12 @@ public class MarketLeonDTOAndOddsLeonToRunnerLeonListConverter implements Conver
                     .build()));
         }
         return runners;
+    }
+
+    private void checkArgument(boolean expression, String errorMessage) {
+        if (!expression) {
+            throw new IllegalArgumentException(errorMessage);
+        }
     }
 
     private MarketLeon getMarket(MarketLeonDTO marketDTO) {

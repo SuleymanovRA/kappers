@@ -1,7 +1,6 @@
 package ru.kappers.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.ImmutableList;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,7 +48,9 @@ public class Role implements Serializable {
         /** Анонимный */
         public static final String ANONYMOUS = "ROLE_ANONYMOUS";
 
+        private Names() {}
+
         /** Список всех имен ролей */
-        public static final List<String> LIST = ImmutableList.of(ADMIN, USER, KAPPER, ANONYMOUS);
+        public static final List<String> LIST = List.of(ADMIN, USER, KAPPER, ANONYMOUS);
     }
 }
