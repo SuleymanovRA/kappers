@@ -1,7 +1,6 @@
 package ru.kappers.service;
 
 import com.github.springtestdbunit.annotation.DatabaseSetup;
-import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.RecursiveComparisonAssert;
 import org.joda.money.CurrencyUnit;
@@ -80,11 +79,11 @@ public class UserServiceImplTest extends AbstractDatabaseTest {
             .balance(Money.of(CurrencyUnit.of("RUB"), new BigDecimal("100.00")))
             .build();
 
-    private final Map<User, String> userRoleNameMap = ImmutableMap.<User, String>builder()
-            .put(admin, Role.Names.ADMIN)
-            .put(user, Role.Names.USER)
-            .put(kapper, Role.Names.KAPPER)
-            .build();
+    private final Map<User, String> userRoleNameMap = Map.ofEntries(
+                Map.entry(admin, Role.Names.ADMIN),
+                Map.entry(user, Role.Names.USER),
+                Map.entry(kapper, Role.Names.KAPPER)
+            );
 
     @Before
     public void setUp() {

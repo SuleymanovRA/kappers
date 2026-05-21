@@ -1,6 +1,5 @@
 package ru.kappers.service.impl;
 
-import com.google.common.base.Preconditions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -205,10 +204,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void transfer(User user, User kapper, BigDecimal amount){
         log.debug("transfer(user: {}, kapper: {}, amount: {})...", user, kapper, amount);
-        Preconditions.checkArgument(user.hasRole(Role.Names.USER), messageTranslator.byCode("user.hasNoPermissionToTransferMoney"), user.getUserName());
-        Preconditions.checkArgument(kapper.hasRole(Role.Names.KAPPER), messageTranslator.byCode("user.canTransferOnlyToKapper"));
-        Preconditions.checkArgument(user.getBalance().getAmount().compareTo(amount) >= 0, messageTranslator.byCode("user.doesNotNaveEnoughMoney"),
-                user.getUserName(), user.getBalance());
+        checkArgument(user.hasRole(Role.Names.USER),
+                String.format(messageTranslator.byCode("user.hasNoPermissionToTransferMoney"), user.getUserName()));
+        checkArgument(kapper.hasRole(Role.Names.KAPPER), messageTranslator.byCode("user.canTransferOnlyToKapper"));
+        checkArgument(user.getBalance().getAmount().compareTo(amount) >= 0,
+                String.format(messageTranslator.byCode("user.doesNotNaveEnoughMoney"), user.getUserName(),
+                        user.getBalance()));
         try {
             user.setBalance(user.getBalance().minus(amount));
             if (user.getBalance().getCurrencyUnit().equals(kapper.getBalance().getCurrencyUnit())) {
@@ -228,4 +229,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    private void checkArgument(boolean expression, String errorMessage) {
+        if (!expression) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
 }
