@@ -1,6 +1,5 @@
 package ru.kappers.service.impl;
 
-import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +29,20 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public Team save(Team team) {
         log.debug("save(team: {})...", team);
-        Preconditions.checkNotNull(team, "team is required not null");
+        checkNotNull(team, "team is required not null");
         return teamRepository.save(team);
+    }
+
+    private <T> void checkNotNull(T reference, String errorMessage) {
+        if (reference == null) {
+            throw new NullPointerException(errorMessage);
+        }
     }
 
     @Override
     public void delete(Team team) {
         log.debug("delete(team: {})...", team);
-        Preconditions.checkNotNull(team, "team is required not null");
+        checkNotNull(team, "team is required not null");
         teamRepository.delete(team);
     }
 
