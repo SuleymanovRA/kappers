@@ -64,7 +64,7 @@
             <dependency>
                 <groupId>org.dbunit</groupId>
                 <artifactId>dbunit</artifactId>
-                <version>2.7.3</version>
+                <version>3.1.0</version>
                 <type>jar</type>
                 <scope>test</scope>
             </dependency>
@@ -133,7 +133,7 @@
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-ui</artifactId>
-                <version>1.6.6</version>
+                <version>1.8.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
