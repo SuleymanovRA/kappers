@@ -22,6 +22,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+          mvn-repositories: |
+            jitpack.io:https://jitpack.io:false
           mvn-repositories-include-central: true
           mvn-repositories-prioritize-central: true
 
