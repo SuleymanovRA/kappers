@@ -24,6 +24,8 @@ jobs:
           cache: maven
           mvn-repositories: |
             jitpack.io:https://jitpack.io:false
+          mvn-plugin-repositories: |
+            jitpack.io:https://jitpack.io:false
 
       - name: Build with Maven
         run: "mvn clean package -B -e --file pom.xml
