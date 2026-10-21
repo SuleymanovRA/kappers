@@ -24,7 +24,7 @@ jobs:
           cache: maven
           mvn-repositories: |
             jitpack.io:https://jitpack.io:false
-          mvn-repositories-include-central: false
+          mvn-repositories-include-central: true
           mvn-repositories-prioritize-central: false
 
       - name: Build with Maven
