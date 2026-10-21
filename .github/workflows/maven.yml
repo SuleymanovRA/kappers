@@ -17,11 +17,15 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+          mvn-repositories: |
+            jitpack.io:https://jitpack.io:false
+          mvn-plugin-repositories: |
+            jitpack.io:https://jitpack.io:false
 
       - name: Build with Maven
         run: "mvn clean package -B -e --file pom.xml
