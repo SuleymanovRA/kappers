@@ -21,7 +21,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-#          cache: maven
+          cache: maven
           mvn-repositories: |
             jitpack.io:https://jitpack.io:false
           mvn-plugin-repositories: |
