@@ -22,11 +22,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
-        <kotlin.version>1.8.21</kotlin.version>
+        <kotlin.version>1.9.25</kotlin.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <maven.compiler.version>3.15.0</maven.compiler.version>
-        <lombok.version>1.18.46</lombok.version>
-        <instancio.version>5.5.1</instancio.version>
+        <maven.compiler.version>3.16.0</maven.compiler.version>
+        <lombok.version>1.18.48</lombok.version>
+        <instancio.version>5.6.0</instancio.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
     </properties>
 
@@ -64,7 +64,7 @@
             <dependency>
                 <groupId>org.dbunit</groupId>
                 <artifactId>dbunit</artifactId>
-                <version>3.1.0</version>
+                <version>3.5.2</version>
                 <type>jar</type>
                 <scope>test</scope>
             </dependency>
@@ -361,7 +361,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.14</version>
+                <version>0.8.15</version>
                 <configuration>
                     <!-- outputDirectory сформировал на основе destFile из https://github.com/codecov/example-gradle -->
 <!--                    <outputDirectory>${project.build.directory}/reports/jacoco</outputDirectory>-->
