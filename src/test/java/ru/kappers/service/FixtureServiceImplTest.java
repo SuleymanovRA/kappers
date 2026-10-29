@@ -16,13 +16,13 @@ import ru.kappers.assertion.Assertions;
 import ru.kappers.model.Fixture;
 import ru.kappers.model.Fixture.ShortStatus;
 import ru.kappers.model.Fixture.Status;
+import ru.kappers.model.comparing.FixtureComparators;
 import ru.kappers.repository.FixtureRepository;
 import ru.kappers.service.impl.FixtureServiceImpl;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -38,7 +38,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
     private JdbcTemplate jdbcTemplate;
 
     private final LocalDateTime now = LocalDateTime.now();
-    private Fixture yesterday = Fixture.builder()
+    private final Fixture yesterday = Fixture.builder()
             .id(110)
             .eventDate(now.minusDays(1))
             .eventTimestamp(Timestamp.valueOf(now.minusDays(1)).getTime())
@@ -70,7 +70,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
             .eventDate(LocalDateTime.of(now.toLocalDate(), LocalTime.MAX))
             .eventTimestamp(Timestamp.valueOf(LocalDateTime.of(now.toLocalDate(), LocalTime.MAX)).getTime())
             .build();
-    private Fixture tomorrow = Fixture.builder()
+    private final Fixture tomorrow = Fixture.builder()
             .id(112)
             .eventDate(now.plusDays(1))
             .eventTimestamp(Timestamp.valueOf(now.plusDays(1)).getTime())
@@ -80,7 +80,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
             .status(Status.NOT_STARTED)
             .statusShort(ShortStatus.NOT_STARTED)
             .build();
-    private Fixture nextWeek = Fixture.builder()
+    private final Fixture nextWeek = Fixture.builder()
             .id(113)
             .eventDate(now.plusDays(7))
             .eventTimestamp(Timestamp.valueOf(now.plusDays(7)).getTime())
@@ -90,7 +90,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
             .status(Status.NOT_STARTED)
             .statusShort(ShortStatus.NOT_STARTED)
             .build();
-    private Fixture lastWeek = Fixture.builder()
+    private final Fixture lastWeek = Fixture.builder()
             .id(114)
             .eventDate(now.minusDays(7))
             .eventTimestamp(Timestamp.valueOf(now.minusDays(7)).getTime())
@@ -135,7 +135,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
         Assertions.assertThat(todayFixture).isNotNull();
         Fixture fixture = service.getById(todayFixture.getId());
         Assertions.assertThat(fixture)
-                .usingComparator(FixtureByIdComparator())
+                .usingComparator(FixtureComparators.byId())
                 .isEqualTo(todayFixture);
         service.deleteRecord(fixture);
         Assertions.assertThat(service.getById(todayFixture.getId()))
@@ -152,7 +152,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
         Assertions.assertThat(todayFixture).isNotNull();
         Fixture fixture = service.getById(todayFixture.getId());
         Assertions.assertThat(fixture)
-                .usingComparator(FixtureByIdComparator())
+                .usingComparator(FixtureComparators.byId())
                 .isEqualTo(todayFixture);
         service.deleteRecordById(fixture.getId());
         Assertions.assertThat(service.getById(todayFixture.getId()))
@@ -179,7 +179,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
         List<Fixture> all = service.getAll();
         assertThat(all).isNotNull()
                 .hasSize(fixtureList.size())
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .containsAll(fixtureList);
     }
 
@@ -193,7 +193,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
         assertThat(all).isNotNull();
         assertThat(all.getContent())
                 .hasSize(pageable.getPageSize())
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(yesterday, today)
                 .doesNotContain(tomorrow);
     }
@@ -205,7 +205,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
                 .forEach(service::addRecord);
         final List<Fixture> fixtures = service.getFixturesByPeriod(now.minusHours(8), now.plusHours(8));
         assertThat(fixtures)
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(today)
                 .doesNotContain(tomorrow, yesterday);
     }
@@ -216,15 +216,11 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
         List.of(todayBegin, today, todayEnd, tomorrow, yesterday)
                 .forEach(service::addRecord);
         final PageRequest pageable = PageRequest.of(0, 4, Sort.by(Sort.Direction.ASC, "eventDate"));
-        final Page<Fixture> todaysFixtures = service.getFixturesByPeriod(todayBegin.getEventDate(), todayEnd.getEventDate(), pageable);
-        assertThat(todaysFixtures.getContent())
-                .usingElementComparator(FixtureByIdComparator())
+        final Page<Fixture> todayFixtures = service.getFixturesByPeriod(todayBegin.getEventDate(), todayEnd.getEventDate(), pageable);
+        assertThat(todayFixtures.getContent())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(todayBegin, today, todayEnd)
                 .doesNotContain(tomorrow, yesterday);
-    }
-
-    private Comparator<Fixture> FixtureByIdComparator() {
-        return Comparator.comparingInt(Fixture::getId);
     }
 
     @Test
@@ -234,7 +230,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
                 .forEach(service::addRecord);
         List<Fixture> fixturesToday = service.getFixturesToday();
         assertThat(fixturesToday)
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(today, todayBegin, todayEnd)
                 .doesNotContain(tomorrow, yesterday);
     }
@@ -248,7 +244,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
         final Page<Fixture> fixturesToday = service.getFixturesToday(pageable);
         assertThat(fixturesToday.getContent())
                 .hasSize(pageable.getPageSize())
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(today, todayEnd)
                 .doesNotContain(todayBegin, yesterday, tomorrow);
     }
@@ -261,13 +257,13 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
 
         final List<Fixture> fixturesToday = service.getFixturesToday(Status.NOT_STARTED);
         assertThat(fixturesToday)
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(today, todayEnd)
                 .doesNotContain(todayBegin, tomorrow, yesterday);
 
         final List<Fixture> fixturesToday2 = service.getFixturesToday(Status.MATCH_FINISHED);
         assertThat(fixturesToday2)
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(todayBegin)
                 .doesNotContain(today, todayEnd, tomorrow, yesterday);
     }
@@ -281,13 +277,13 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
 
         final Page<Fixture> fixturesToday = service.getFixturesToday(Status.NOT_STARTED, pageable);
         assertThat(fixturesToday.getContent())
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(today, todayEnd)
                 .doesNotContain(todayBegin, tomorrow, yesterday);
 
         final Page<Fixture> fixturesToday2 = service.getFixturesToday(Status.MATCH_FINISHED, pageable);
         assertThat(fixturesToday2.getContent())
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(todayBegin)
                 .doesNotContain(today, todayEnd, tomorrow, yesterday);
     }
@@ -299,7 +295,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
                 .forEach(service::addRecord);
         List<Fixture> fixturesLastWeek = service.getFixturesLastWeek();
         assertThat(fixturesLastWeek)
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(lastWeek, yesterday, todayBegin, today, todayEnd)
                 .doesNotContain(tomorrow, nextWeek);
     }
@@ -312,7 +308,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
         final PageRequest pageable = PageRequest.of(0, 4, Sort.by(Sort.Direction.ASC, "eventDate"));
         Page<Fixture> fixturesLastWeek = service.getFixturesLastWeek(pageable);
         assertThat(fixturesLastWeek.getContent())
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(lastWeek, yesterday, todayBegin, today)
                 .doesNotContain(todayEnd, tomorrow, nextWeek);
     }
@@ -324,7 +320,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
                 .forEach(service::addRecord);
         List<Fixture> fixturesLastWeek = service.getFixturesLastWeek(Status.MATCH_FINISHED);
         assertThat(fixturesLastWeek)
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(lastWeek, yesterday, todayBegin)
                 .doesNotContain(today, todayEnd, tomorrow, nextWeek);
     }
@@ -337,7 +333,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
         final PageRequest pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "eventDate"));
         Page<Fixture> fixturesLastWeek = service.getFixturesLastWeek(Status.MATCH_FINISHED, pageable);
         assertThat(fixturesLastWeek.getContent())
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(lastWeek, yesterday)
                 .doesNotContain(todayBegin, today, todayEnd, tomorrow, nextWeek);
     }
@@ -349,7 +345,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
                 .forEach(service::addRecord);
         List<Fixture> fixturesNextWeek = service.getFixturesNextWeek();
         assertThat(fixturesNextWeek)
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(todayBegin, today, todayEnd, tomorrow, nextWeek)
                 .doesNotContain(lastWeek, yesterday);
     }
@@ -362,7 +358,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
         final PageRequest pageable = PageRequest.of(1, 2, Sort.by(Sort.Direction.ASC, "eventDate"));
         Page<Fixture> fixturesNextWeek = service.getFixturesNextWeek(pageable);
         assertThat(fixturesNextWeek.getContent())
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(todayEnd, tomorrow)
                 .doesNotContain(lastWeek, yesterday, todayBegin, today, nextWeek);
     }
@@ -374,7 +370,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
                 .forEach(service::addRecord);
         List<Fixture> fixturesNextWeek = service.getFixturesNextWeek(Status.NOT_STARTED);
         assertThat(fixturesNextWeek)
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(today, todayEnd, tomorrow, nextWeek)
                 .doesNotContain(lastWeek, yesterday, todayBegin);
     }
@@ -387,7 +383,7 @@ public class FixtureServiceImplTest extends AbstractDatabaseTest {
         final PageRequest pageable = PageRequest.of(1, 2, Sort.by(Sort.Direction.ASC, "eventDate"));
         Page<Fixture> fixturesNextWeek = service.getFixturesNextWeek(Status.NOT_STARTED, pageable);
         assertThat(fixturesNextWeek.getContent())
-                .usingElementComparator(FixtureByIdComparator())
+                .usingElementComparator(FixtureComparators.byId())
                 .contains(tomorrow, nextWeek)
                 .doesNotContain(lastWeek, yesterday, todayBegin, today, todayEnd);
     }

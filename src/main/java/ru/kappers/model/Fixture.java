@@ -4,6 +4,7 @@ package ru.kappers.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import ru.kappers.model.comparing.FixtureComparators;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -71,6 +72,7 @@ public class Fixture implements Serializable, Comparable<Fixture> {
     @OneToMany(mappedBy = "fixture")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @Builder.Default
     @JsonIgnore
     private List<Event> events = new ArrayList<>();
 
@@ -84,7 +86,8 @@ public class Fixture implements Serializable, Comparable<Fixture> {
 
     @Override
     public int compareTo(Fixture o) {
-        return eventTimestamp.compareTo(o.eventTimestamp);
+        return FixtureComparators.byEventTimestamp()
+                .compare(this, o);
     }
 
     /**
