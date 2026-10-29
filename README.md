@@ -38,6 +38,7 @@ For additional information apply to founders. Contacts are below.
 - Apache Maven
 - Servlet container Apache Tomcat
 - Unit-tests on JUnit 4/5, Mockito Framework, Hamcrest, Instancio, integration tests (Spring Test, Spring Test DBUnit, testcontainers)
+- Error Prone, NullAway, JSpecify
 - Integration with API of CBRF for getting currency rates
 - Integration with API of betting company Leon
 - DevOps, GitHub Actions CI / CD, CodeCov, deployment on Amazon Web Services
