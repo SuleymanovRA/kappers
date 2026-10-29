@@ -27,11 +27,13 @@ public class Role implements Serializable {
     @Column(name = "name", nullable = false, unique=true)
     private String name;
     @Column(name = "enabled", nullable = false)
+    @Builder.Default
     private boolean enabled = true;
 
     @OneToMany(mappedBy = "role")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @Builder.Default
     @JsonIgnore
     private List<User> users = new ArrayList<>();
 
