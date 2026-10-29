@@ -72,6 +72,7 @@ public class Fixture implements Serializable, Comparable<Fixture> {
     @OneToMany(mappedBy = "fixture")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @Builder.Default
     @JsonIgnore
     private List<Event> events = new ArrayList<>();
 
