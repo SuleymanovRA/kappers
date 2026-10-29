@@ -1,8 +1,7 @@
 package ru.kappers.logic.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -14,19 +13,18 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/rest/fixture")
+@RequiredArgsConstructor
 public class FixtureController {
-    private final FixtureService service;
+    private final FixtureService fixtureService;
 
-    @Autowired
-    public FixtureController(FixtureService service) {
-        this.service = service;
-    }
-
-    @RequestMapping(value = "/nextweek", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @GetMapping(value = "/nextweek", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Fixture> getNextWeek() {
-        return service.getFixturesNextWeek(Status.NOT_STARTED);
+        log.debug("getNextWeek()...");
+        return fixtureService.getFixturesNextWeek(Status.NOT_STARTED);
     }
 
     //todo чтобы перейти к полноценному отображению данных с паджинацией надо будет web UI обучить не только отображать список содержимого, но и информацию по страницам и переходам по ним
@@ -34,53 +32,37 @@ public class FixtureController {
 /*
     @RequestMapping(value = "/nextweek", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public Page<Fixture> getNextWeek(Pageable pageable) {
-        return service.getFixturesNextWeek(Status.NOT_STARTED, pageable);
+        return fixtureService.getFixturesNextWeek(Status.NOT_STARTED, pageable);
     }
 */
 
-    @RequestMapping(value = "/lastweek", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @GetMapping(value = "/lastweek", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Fixture> getLastWeek() {
-        return service.getFixturesLastWeek(Status.MATCH_FINISHED);
+        log.debug("getLastWeek()...");
+        return fixtureService.getFixturesLastWeek(Status.MATCH_FINISHED);
     }
 
-/*
-    @RequestMapping(value = "/lastweek", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<Fixture> getLastWeek(Pageable pageable) {
-        return service.getFixturesLastWeek(Status.MATCH_FINISHED, pageable);
-    }
-*/
-
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Fixture getFixtureById(@PathVariable int id) {
-        return service.getById(id);
+        log.debug("getFixtureById(id: {})...", id);
+        return fixtureService.getById(id);
     }
 
-    @RequestMapping(value = "/today", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @GetMapping(value = "/today", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Fixture> getFixturesToday() {
-        return service.getFixturesToday();
+        log.debug("getFixturesToday()...");
+        return fixtureService.getFixturesToday();
     }
 
-/*
-    @RequestMapping(value = "/today", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<Fixture> getFixturesToday(Pageable pageable) {
-        return service.getFixturesToday(pageable);
-    }
-*/
-
-    @RequestMapping(value = "/period", method = RequestMethod.GET)
+    @ResponseBody
+    @GetMapping(value = "/period", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Fixture> getFixturesByPeriod(
             @RequestParam("from") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fromDate,
             @RequestParam("to") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate toDate) {
-        return service.getFixturesByPeriod(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX));
+        log.debug("getFixturesByPeriod(fromDate: {}, toDate: {})...", fromDate, toDate);
+        return fixtureService.getFixturesByPeriod(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX));
     }
-
-/*
-    @RequestMapping(value = "/period", method = RequestMethod.GET)
-    public Page<Fixture> getFixturesByPeriod(
-            @RequestParam("from") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
-            @RequestParam("to") @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate,
-            Pageable pageable) {
-        return service.getFixturesByPeriod(new Timestamp(fromDate.getTime()), new Timestamp(toDate.getTime()), pageable);
-    }
-*/
 }
