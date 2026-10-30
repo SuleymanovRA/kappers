@@ -40,6 +40,7 @@
 - Apache Maven
 - Сервер приложений (контейнер сервлетов) Apache Tomcat
 - Модульные тесты (unit-тесты на JUnit 4/5, Mockito Framework, Hamcrest, Instancio), интеграционные тесты (Spring Test, Spring Test DBUnit, testcontainers)
+- Error Prone, NullAway, JSpecify
 - Интеграция с API Центробанка РФ для получения курсов валют
 - Интеграция с API букмекерских контор (ООО "Леон")
 - DevOps, GitHub Actions CI / CD, CodeCov, диплой на Amazon Web Services
